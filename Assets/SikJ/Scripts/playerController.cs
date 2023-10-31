@@ -30,9 +30,9 @@ public class playerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
-    [SerializeField] private float enemyDetectDistance = 10f;
+    [SerializeField] private float enemyDetectDistance = 60f;
     [Tooltip("시야각의 절반")]
-    [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 80f;
+    [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
 
     [Header("Equiments")]
     [SerializeField] private Transform swordParent;
@@ -108,7 +108,18 @@ public class playerController : MonoBehaviour
     private void Update()
     {
         if (IsLockOn)
+		{
             Debug.DrawLine(transform.position, new Vector3(lockOnPos.x, 0, lockOnPos.z), Color.red);
+        }
+        else
+		{
+            Transform leftDetectBorder = transform;
+            leftDetectBorder.Rotate(Vector3.down * enemyDetectAngle);
+            Transform rightDetectBorder = transform;
+            rightDetectBorder.Rotate(Vector3.up * enemyDetectAngle);
+            Debug.DrawLine(transform.position, leftDetectBorder.forward * enemyDetectDistance, Color.magenta);
+            Debug.DrawLine(transform.position, rightDetectBorder.forward * enemyDetectDistance, Color.magenta);
+        }
 
         Move();
         Rotate();
@@ -143,7 +154,7 @@ public class playerController : MonoBehaviour
 
     private void Rotate()
     {
-        if (ControlState.Equals(ControlState.Uncontrollable))
+        if (ControlState.Equals(ControlState.Uncontrollable) || IsLockOn)
             return;
 
         transform.Rotate(Vector3.up * desiredRotate.x * rotateSpeed * Time.deltaTime);
@@ -314,53 +325,55 @@ public class playerController : MonoBehaviour
 
     private bool CheckEnemyInRange()
     {
+        lockOnPos = Vector3.zero;
+
         if (IsLockOn)
             return true;
 
-        Collider[] enemyColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 8);
-        float minAngle = float.MaxValue;
+        float maxDotValue = float.MinValue;
         float minDistance = float.MaxValue;
+
+        Collider[] enemyColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 8);
         foreach (var enemyCollider in enemyColliders)
         {
-            #region 카메라 시야에 있는지 확인
-            Vector3 camToEnemy = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z)
-                - new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
-            Vector3 camToPlayer = new Vector3(transform.position.x, 0, transform.position.z)
-                - new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
-            float dot = Vector3.Dot(camToEnemy.normalized, camToPlayer.normalized);
-            if (dot < 0 || dot < Mathf.Cos(Mathf.Deg2Rad * enemyDetectAngle))
-                continue;
-            #endregion
+            var playerPos = new Vector3(transform.position.x, 0, transform.position.z);
+            var cameraPos = new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
+            var enemyPos = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z);
 
-            var enemyPos = enemyCollider.transform.position;
-
-            // 플레이어 정면 기준 최소각도인지 확인
-            float angle = Vector3.Dot(transform.forward, (enemyCollider.transform.position - transform.position).normalized);
-            if (minAngle > angle)
-            {
-                minAngle = angle;
-                lockOnPos = enemyPos;
+            // 카메라 시야에 있는지 확인
+            Vector3 cameraToPlayer = playerPos - cameraPos;
+            Vector3 cameraToEnemy = enemyPos - cameraPos;
+            if (Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized) < 0    // 후방
+                || Vector3.Angle(cameraToPlayer, cameraToEnemy) > enemyDetectAngle)     // 감지 범위 초과
                 continue;
-            }
-            // 플레이어 기준 최단거리인지 확인
-            float distance = Vector3.Distance(transform.position, enemyCollider.transform.position);
+
+            // 플레이어 위치 기준 가장 가까운 적인지 확인
+            float distance = Vector3.Distance(playerPos, enemyPos);
             if (minDistance > distance)
             {
                 minDistance = distance;
                 lockOnPos = enemyPos;
             }
+
+            // 카메라 시점 기준 가장 중앙의 적인지 확인
+            float dot = Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized);
+            if (maxDotValue < dot)
+            {
+                maxDotValue = dot;
+                lockOnPos = enemyPos;
+                continue;
+            }
         }
         
         // 적 유무 확인
-        if (minDistance < enemyDetectDistance)
+        if (minDistance < float.MaxValue || maxDotValue > float.MinValue)
         {
-            transform.LookAt(new Vector3(lockOnPos.x, 0, lockOnPos.z));
             // TargetGroupCamera 켜기
+            transform.LookAt(new Vector3(lockOnPos.x, 0, lockOnPos.z));
             return true;
         }
         else
         {
-            lockOnPos = transform.localPosition;
             return false;
         }
     }
