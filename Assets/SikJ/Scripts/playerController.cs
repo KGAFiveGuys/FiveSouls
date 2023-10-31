@@ -336,23 +336,23 @@ public class playerController : MonoBehaviour
         Collider[] enemyColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 8);
         foreach (var enemyCollider in enemyColliders)
         {
-            var playerPos = new Vector3(transform.position.x, 0, transform.position.z);
-            var cameraPos = new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
-            var enemyPos = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z);
+            var playerGroundPos = new Vector3(transform.position.x, 0, transform.position.z);
+            var cameraGroundPos = new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
+            var enemyGroundPos = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z);
 
             // 카메라 시야에 있는지 확인
-            Vector3 cameraToPlayer = playerPos - cameraPos;
-            Vector3 cameraToEnemy = enemyPos - cameraPos;
+            Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
+            Vector3 cameraToEnemy = enemyGroundPos - cameraGroundPos;
             if (Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized) < 0    // 후방
                 || Vector3.Angle(cameraToPlayer, cameraToEnemy) > enemyDetectAngle)     // 감지 범위 초과
                 continue;
 
             // 플레이어 위치 기준 가장 가까운 적인지 확인
-            float distance = Vector3.Distance(playerPos, enemyPos);
+            float distance = Vector3.Distance(playerGroundPos, enemyGroundPos);
             if (minDistance > distance)
             {
                 minDistance = distance;
-                lockOnPos = enemyPos;
+                lockOnPos = enemyCollider.transform.position;
             }
 
             // 카메라 시점 기준 가장 중앙의 적인지 확인
@@ -360,7 +360,7 @@ public class playerController : MonoBehaviour
             if (maxDotValue < dot)
             {
                 maxDotValue = dot;
-                lockOnPos = enemyPos;
+                lockOnPos = enemyCollider.transform.position;
                 continue;
             }
         }
