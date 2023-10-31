@@ -1386,7 +1386,7 @@ MonoBehaviour:
   sword: {fileID: 6047298520493054216}
   shieldParent: {fileID: 5363618943441175575}
   shield: {fileID: 332729303005323528}
-  dropDelay: 0.5
+  dropDelay: 0.1
   swordOriginPos: {x: 0, y: 0, z: 0}
   swordOriginRot: {x: 0, y: 0, z: 0, w: 0}
   shieldOriginPos: {x: 0, y: 0, z: 0}
@@ -1401,6 +1401,8 @@ MonoBehaviour:
   - {fileID: 1906512161139224480}
   - {fileID: 3361661230223032151}
   - {fileID: 6291294942901716252}
+  - {fileID: 496994996695906541}
+  - {fileID: 8027390811807963045}
   ragdollRigidbodies:
   - {fileID: 2575258494648247522}
   - {fileID: 521608965783302336}
@@ -1411,6 +1413,8 @@ MonoBehaviour:
   - {fileID: 1906512161139224483}
   - {fileID: 3361661230223030441}
   - {fileID: 6291294942901716255}
+  - {fileID: 496994996695906540}
+  - {fileID: 8027390811807963044}
   weaponColliders:
   - {fileID: 1509908103532855536}
   weaponRigidbodies:

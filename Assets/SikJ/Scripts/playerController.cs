@@ -14,6 +14,7 @@ public class playerController : MonoBehaviour
 {
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
+    [field: SerializeField] public bool IsLockOn { get; set; } = false;
 
     [Header("Input Actions")]
     public InputAction move;
@@ -22,12 +23,16 @@ public class playerController : MonoBehaviour
     public InputAction strongAttack;
     public InputAction block;
     public InputAction jump;
+    public InputAction lockOn;
     public InputAction ragdollTest;
 
     [Header("Movements")]
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float rotateSpeed;
-    [SerializeField] private float jumpForce;
+    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float rotateSpeed = 60f;
+    [SerializeField] private float jumpForce = 20f;
+    [SerializeField] private float enemyDetectDistance = 10f;
+    [Tooltip("시야각의 절반")]
+    [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 80f;
 
     [Header("Equiments")]
     [SerializeField] private Transform swordParent;
@@ -45,6 +50,7 @@ public class playerController : MonoBehaviour
     [SerializeField] private Quaternion shieldOriginRot;
 
     private Rigidbody playerRigidbody;
+    private CapsuleCollider playerCollider;
     private Animator playerAnimator;
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
@@ -66,11 +72,11 @@ public class playerController : MonoBehaviour
     private void Awake()
     {
         TryGetComponent(out playerRigidbody);
+        TryGetComponent(out playerCollider);
         TryGetComponent(out playerAnimator);
 
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
-
         shieldOriginPos = shield.localPosition;
         shieldOriginRot = shield.localRotation;
     }
@@ -101,6 +107,9 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
+        if (IsLockOn)
+            Debug.DrawLine(transform.position, new Vector3(lockOnPos.x, 0, lockOnPos.z), Color.red);
+
         Move();
         Rotate();
     }
@@ -109,12 +118,25 @@ public class playerController : MonoBehaviour
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
+
+        if (IsLockOn)
+        {
+            // Cross Product해 이동
+            
+        }
+        else
+        {
+            //var moveDirection = Vector3.zero;
+            //moveDirection += transform.right * desiredMove.x * moveSpeed;
+            //moveDirection += transform.forward * desiredMove.y * moveSpeed;
+            //playerRigidbody.AddForce(moveDirection);
+            transform.Translate(
+                desiredMove.x * moveSpeed * Time.deltaTime,
+                0,
+                desiredMove.y * moveSpeed * Time.deltaTime
+            );
+        }
         
-        transform.Translate(
-            desiredMove.x * moveSpeed * Time.deltaTime,
-            0,
-            desiredMove.y * moveSpeed * Time.deltaTime
-        );
         playerAnimator.SetFloat(moveX_hash, desiredMove.x);
         playerAnimator.SetFloat(moveY_hash, desiredMove.y);
     }
@@ -154,6 +176,9 @@ public class playerController : MonoBehaviour
         jump.canceled += OnJumpCanceled;
         jump.Enable();
 
+        lockOn.performed += OnLockOnPerformed;
+        lockOn.Enable();
+
         ragdollTest.performed += OnRagdollPerformed;
         ragdollTest.canceled += OnRagdollCanceled;
         ragdollTest.Enable();
@@ -186,6 +211,9 @@ public class playerController : MonoBehaviour
         jump.performed -= OnJumpPerformed;
         jump.canceled -= OnJumpCanceled;
         jump.Disable();
+
+        lockOn.performed -= OnLockOnPerformed;
+        lockOn.Disable();
 
         ragdollTest.performed -= OnRagdollPerformed;
         ragdollTest.canceled -= OnRagdollCanceled;
@@ -275,6 +303,74 @@ public class playerController : MonoBehaviour
         playerAnimator.SetBool(isStrongAttack_hash, false);
     }
     #endregion
+    [SerializeField] private Vector3 lockOnPos;
+    #region lockOn_Action
+    private void OnLockOnPerformed(InputAction.CallbackContext context)
+    {
+        var isLockOn = context.ReadValueAsButton();
+        if (isLockOn && CheckEnemyInRange())
+            IsLockOn = !IsLockOn;
+    }
+
+    private bool CheckEnemyInRange()
+    {
+        if (IsLockOn)
+            return true;
+
+        Collider[] enemyColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 8);
+        float minAngle = float.MaxValue;
+        float minDistance = float.MaxValue;
+        foreach (var enemyCollider in enemyColliders)
+        {
+            #region 카메라 시야에 있는지 확인
+            Vector3 camToEnemy = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z)
+                - new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
+            Vector3 camToPlayer = new Vector3(transform.position.x, 0, transform.position.z)
+                - new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
+            float dot = Vector3.Dot(camToEnemy.normalized, camToPlayer.normalized);
+            if (dot < 0 || dot < Mathf.Cos(Mathf.Deg2Rad * enemyDetectAngle))
+                continue;
+            #endregion
+
+            var enemyPos = enemyCollider.transform.position;
+
+            // 플레이어 정면 기준 최소각도인지 확인
+            float angle = Vector3.Dot(transform.forward, (enemyCollider.transform.position - transform.position).normalized);
+            if (minAngle > angle)
+            {
+                minAngle = angle;
+                lockOnPos = enemyPos;
+                continue;
+            }
+            // 플레이어 기준 최단거리인지 확인
+            float distance = Vector3.Distance(transform.position, enemyCollider.transform.position);
+            if (minDistance > distance)
+            {
+                minDistance = distance;
+                lockOnPos = enemyPos;
+            }
+        }
+        
+        // 적 유무 확인
+        if (minDistance < enemyDetectDistance)
+        {
+            transform.LookAt(new Vector3(lockOnPos.x, 0, lockOnPos.z));
+            // TargetGroupCamera 켜기
+            return true;
+        }
+        else
+        {
+            lockOnPos = transform.localPosition;
+            return false;
+        }
+    }
+    #endregion
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
+    }
+
     #region ragdoll_Action
     private void OnRagdollPerformed(InputAction.CallbackContext context)
     {
@@ -294,7 +390,7 @@ public class playerController : MonoBehaviour
 
     public void ToggleRagdoll(bool isRagdoll)
     {
-        #region Toggle colliders & rigidbodies
+        #region Toggle ragdoll colliders & rigidbodies
         foreach (var c in ragdollColliders)
         {
             c.enabled = isRagdoll;
@@ -308,6 +404,7 @@ public class playerController : MonoBehaviour
 
         // Toggle animation & control
         playerAnimator.enabled = !isRagdoll;
+        playerRigidbody.velocity = Vector3.zero;
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
 
