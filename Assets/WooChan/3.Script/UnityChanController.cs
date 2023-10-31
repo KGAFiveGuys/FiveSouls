@@ -17,6 +17,7 @@ public class UnityChanController : MonoBehaviour
     public InputAction block;
     public InputAction jump;
     public InputAction ragdollTest;
+    public InputAction Slide;
 
     [Header("Movements")]
     [SerializeField] private float moveSpeed;
@@ -47,6 +48,7 @@ public class UnityChanController : MonoBehaviour
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
+
     #endregion
     #region Cached colliders & rigidbodies
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -151,6 +153,10 @@ public class UnityChanController : MonoBehaviour
         ragdollTest.performed += OnRagdollPerformed;
         ragdollTest.canceled += OnRagdollCanceled;
         ragdollTest.Enable();
+
+        Slide.performed += OnSlidePerformed;
+        Slide.canceled += OnSlideCanceled;
+        Slide.Enable();
         #endregion
     }
 
@@ -184,6 +190,10 @@ public class UnityChanController : MonoBehaviour
         ragdollTest.performed -= OnRagdollPerformed;
         ragdollTest.canceled -= OnRagdollCanceled;
         ragdollTest.Disable();
+
+        Slide.performed -= OnSlidePerformed;
+        Slide.canceled -= OnSlideCanceled;
+        Slide.Disable();
         #endregion
     }
 
@@ -275,16 +285,34 @@ public class UnityChanController : MonoBehaviour
         var isRagdoll = context.ReadValueAsButton();
         if (isRagdoll)
         {
-            ToggleRagdoll(true);
+            ////ToggleRagdoll(true);
             //StartCoroutine(HandleEquipment(true));
         }
+        playerAnimator.SetTrigger("isDie");
+
     }
     private void OnRagdollCanceled(InputAction.CallbackContext context)
     {
-        ToggleRagdoll(false);
+        ////ToggleRagdoll(false);
         //StartCoroutine(HandleEquipment(false));
+
     }
     #endregion
+
+    private void OnSlidePerformed(InputAction.CallbackContext context)
+    {
+        var isStrongAttack = context.ReadValueAsButton();
+        if (isStrongAttack)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("isSlide");
+        }
+    }
+    private void OnSlideCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+
+    }
 
     public void ToggleRagdoll(bool isRagdoll)
     {
