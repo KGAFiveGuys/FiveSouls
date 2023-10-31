@@ -71,8 +71,8 @@ public class playerController : MonoBehaviour
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
 
-        shieldOriginPos = sword.localPosition;
-        shieldOriginRot = sword.localRotation;
+        shieldOriginPos = shield.localPosition;
+        shieldOriginRot = shield.localRotation;
     }
 
     private void Start()
