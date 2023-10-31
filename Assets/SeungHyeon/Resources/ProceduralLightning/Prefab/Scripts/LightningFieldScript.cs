@@ -28,7 +28,6 @@ namespace DigitalRuby.ThunderAndLightning
         /// <summary>Optional light for the lightning field to emit</summary>
         [Tooltip("Optional light for the lightning field to emit")]
         public Light Light;
-
         private Vector3 RandomPointInBounds()
         {
             float x = UnityEngine.Random.Range(FieldBounds.min.x, FieldBounds.max.x);
@@ -44,7 +43,6 @@ namespace DigitalRuby.ThunderAndLightning
         protected override void Start()
         {
             base.Start();
-
             if (Light != null)
             {
                 Light.enabled = false;
@@ -80,8 +78,8 @@ namespace DigitalRuby.ThunderAndLightning
             for (int i = 0; i < 16; i++)
             {
                 // get two random points in the bounds
-                parameters.Start = RandomPointInBounds();
-                parameters.End = RandomPointInBounds();
+                parameters.Start = transform.position + RandomPointInBounds();
+                parameters.End = transform.position + RandomPointInBounds();
                 if ((parameters.End - parameters.Start).sqrMagnitude >= minimumLengthSquared)
                 {
                     break;
