@@ -18,7 +18,7 @@ public enum Status
 public class Wizardinfo
 {
     public Status status;
-    public float Health = 100;
+    public float Health = 100f;
     public GameObject ChaseTarget;
 }
 [System.Serializable]
@@ -57,6 +57,7 @@ public class WizardControl : MonoBehaviour
         {
             Wizard_anim.SetBool("idle_combat", true);
             wizardinfo.status = Status.Ready;
+            Attack_effect[0].Effect_Obj.SetActive(true);
         }
     }
     public IEnumerator AttackReady()

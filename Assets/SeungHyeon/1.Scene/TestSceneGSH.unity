@@ -3115,6 +3115,8 @@ MonoBehaviour:
   Attack_effect:
   - effect: 0
     Effect_Obj: {fileID: 7632670570512710171}
+  - effect: 0
+    Effect_Obj: {fileID: 7632670570512710171}
   wizardinfo:
     status: 0
     Health: 100
