@@ -18,26 +18,18 @@ public class UnityChanController : MonoBehaviour
     public InputAction jump;
     public InputAction ragdollTest;
     public InputAction Slide;
+    public InputAction Jumping;
+    public InputAction Corkscrew;
+    public InputAction DropKick;
+    public InputAction Kick;
+    public InputAction Sweep;
+    public InputAction Win;
 
     [Header("Movements")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotateSpeed;
     [SerializeField] private float jumpForce;
 
-    //[Header("Equiments")]
-    //[SerializeField] private Transform swordParent;
-    //[SerializeField] private Transform sword;
-    
-    //[SerializeField] private Transform shieldParent;
-    //[SerializeField] private Transform shield;
-    
-    //[SerializeField] private float dropDelay = .5f;
-
-    //[SerializeField] private Vector3 swordOriginPos;
-    //[SerializeField] private Quaternion swordOriginRot;
-
-    //[SerializeField] private Vector3 shieldOriginPos;
-    //[SerializeField] private Quaternion shieldOriginRot;
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
@@ -53,46 +45,17 @@ public class UnityChanController : MonoBehaviour
     #region Cached colliders & rigidbodies
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
-    //[SerializeField] private List<Collider> weaponColliders = new List<Collider>();
-    //[SerializeField] private List<Rigidbody> weaponRigidbodies = new List<Rigidbody>();
-    //[SerializeField] private List<Collider> shieldColliders = new List<Collider>();
-    //[SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
     #endregion
 
     private void Awake()
     {
         TryGetComponent(out playerRigidbody);
         TryGetComponent(out playerAnimator);
-
-        //swordOriginPos = sword.localPosition;
-        //swordOriginRot = sword.localRotation;
-
-        //shieldOriginPos = sword.localPosition;
-        //shieldOriginRot = sword.localRotation;
     }
 
     private void Start()
     {
-        //#region Set weapon colliders & rigidbodies
-        //foreach (Collider c in weaponColliders)
-        //{
-        //    c.enabled = false;
-        //}
-        //foreach (Rigidbody rb in weaponRigidbodies)
-        //{
-        //    rb.isKinematic = true;
-        //}
-        //#endregion
-        //#region Set shield colliders & rigidbodies
-        //foreach (Collider c in shieldColliders)
-        //{
-        //    c.enabled = false;
-        //}
-        //foreach (Rigidbody rb in shieldRigidbodies)
-        //{
-        //    rb.isKinematic = true;
-        //}
-        //#endregion
+
     }
 
     private void Update()
@@ -157,6 +120,32 @@ public class UnityChanController : MonoBehaviour
         Slide.performed += OnSlidePerformed;
         Slide.canceled += OnSlideCanceled;
         Slide.Enable();
+
+        Jumping.performed += OnJumping;
+        Jumping.canceled += OnJumpingCanceled;
+        Jumping.Enable();
+
+        Corkscrew.performed += OnCorkscrew;
+        Corkscrew.canceled += OnCorkscrewCanceled;
+        Corkscrew.Enable();
+
+        DropKick.performed += OnDropKick;
+        DropKick.canceled += OnDropKickCanceled;
+        DropKick.Enable();
+
+        Kick.performed += OnKick;
+        Kick.canceled += OnKickCanceled;
+        Kick.Enable();
+
+        Sweep.performed += OnSweep;
+        Sweep.canceled += OnSweepCanceled;
+        Sweep.Enable();
+        
+        Win.performed += OnWin;
+        Win.canceled += OnWinCanceled;
+        Win.Enable();
+
+
         #endregion
     }
 
@@ -194,6 +183,31 @@ public class UnityChanController : MonoBehaviour
         Slide.performed -= OnSlidePerformed;
         Slide.canceled -= OnSlideCanceled;
         Slide.Disable();
+
+        Jumping.performed -= OnJumping;
+        Jumping.canceled -= OnJumpingCanceled;
+        Jumping.Disable();
+
+        Corkscrew.performed -= OnCorkscrew;
+        Corkscrew.canceled -= OnCorkscrewCanceled;
+        Corkscrew.Disable();
+
+        DropKick.performed -= OnDropKick;
+        DropKick.canceled -= OnDropKickCanceled;
+        DropKick.Disable();
+
+        Kick.performed -= OnKick;
+        Kick.canceled -= OnKickCanceled;
+        Kick.Disable();
+
+        Sweep.performed -= OnSweep;
+        Sweep.canceled -= OnSweepCanceled;
+        Sweep.Disable();
+        
+        Win.performed -= OnWin;
+        Win.canceled -= OnWinCanceled;
+        Win.Disable();
+
         #endregion
     }
 
@@ -301,8 +315,8 @@ public class UnityChanController : MonoBehaviour
 
     private void OnSlidePerformed(InputAction.CallbackContext context)
     {
-        var isStrongAttack = context.ReadValueAsButton();
-        if (isStrongAttack)
+        var isSlide = context.ReadValueAsButton();
+        if (isSlide)
         {
             ControlState = ControlState.Uncontrollable;
             playerAnimator.SetTrigger("isSlide");
@@ -311,8 +325,98 @@ public class UnityChanController : MonoBehaviour
     private void OnSlideCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
+    }
+
+    private void OnJumping(InputAction.CallbackContext context)
+    {
+        var isJumping = context.ReadValueAsButton();
+        if (isJumping)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("Jumping");
+        }
+    }
+    private void OnJumpingCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+    private void OnCorkscrew(InputAction.CallbackContext context)
+    {
+        var isCorkscrew = context.ReadValueAsButton();
+        if (isCorkscrew)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("Corkscrew");
+        }
 
     }
+
+    private void OnCorkscrewCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+    private void OnDropKick(InputAction.CallbackContext context)
+    {
+        var isDropKick = context.ReadValueAsButton();
+        if (isDropKick)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("DropKick");
+        }
+    }
+    private void OnDropKickCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+    private void OnKick(InputAction.CallbackContext context)
+    {
+        var isKick = context.ReadValueAsButton();
+        if (isKick)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("Kick");
+        }
+
+    }
+    private void OnKickCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+    private void OnSweep(InputAction.CallbackContext context)
+    {
+        var isSweep = context.ReadValueAsButton();
+        if (isSweep)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("Sweep");
+        }
+
+    }
+    private void OnSweepCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+    private void OnWin(InputAction.CallbackContext context)
+    {
+        var isWin = context.ReadValueAsButton();
+        if (isWin)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetTrigger("Win");
+        }
+
+    }
+    private void OnWinCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+    }
+
+
 
     public void ToggleRagdoll(bool isRagdoll)
     {
@@ -333,59 +437,4 @@ public class UnityChanController : MonoBehaviour
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
 
-    ///// <summary>
-    ///// Drop or pick-up equipments (sword and shield)
-    ///// </summary>
-    ///// <param name="isDrop">
-    ///// <para>true if drop</para>
-    ///// <para>false if pick-up</para>
-    ///// </param>
-    //private IEnumerator HandleEquipment(bool isDrop)
-    //{
-    //    if (isDrop)
-    //        yield return new WaitForSeconds(dropDelay);
-        
-    //    #region Toggle weapon colliders & rigidbodies
-    //    foreach (var c in weaponColliders)
-    //    {
-    //        c.enabled = isDrop;
-    //    }
-    //    foreach (var rb in weaponRigidbodies)
-    //    {
-    //        rb.useGravity = isDrop;
-    //        rb.isKinematic = !isDrop;
-    //        if (isDrop)
-    //        {
-    //            rb.transform.SetParent(null);
-    //        }
-    //        else
-    //        {
-    //            rb.transform.SetParent(swordParent);
-    //            sword.localPosition = swordOriginPos;
-    //            sword.localRotation = swordOriginRot;
-    //        }
-    //    }
-    //    #endregion
-    //    #region Toggle shield colliders & rigidbodies
-    //    foreach (var c in shieldColliders)
-    //    {
-    //        c.enabled = isDrop;
-    //    }
-    //    foreach (var rb in shieldRigidbodies)
-    //    {
-    //        rb.useGravity = isDrop;
-    //        rb.isKinematic = !isDrop;
-    //        if (isDrop)
-    //        {
-    //            rb.transform.SetParent(null);
-    //        }
-    //        else
-    //        {
-    //            rb.transform.SetParent(shieldParent);
-    //            shield.localPosition = shieldOriginPos;
-    //            shield.localRotation = shieldOriginRot;
-    //        }
-    //    }
-    //    #endregion
-    //}
 }
