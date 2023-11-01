@@ -31,7 +31,7 @@ public class playerController : MonoBehaviour
     public InputAction lockOn;
     public InputAction ragdollTest;
 
-    [Header("Controls")]
+    [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
     [SerializeField] private float runSpeed = 20f;
     [SerializeField] private float rotateSpeed = 60f;
@@ -39,6 +39,9 @@ public class playerController : MonoBehaviour
     [SerializeField] private float enemyDetectDistance = 60f;
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
+
+    [Header("CameraRotate")]
+    [SerializeField] private Transform cameraFollow;
 
     [Header("LockOnEnemy")]
     [SerializeField] GameObject UI_lockOnPoint;
@@ -120,8 +123,9 @@ public class playerController : MonoBehaviour
     {
         LookLockOnEnemy();
         ShowLockOnPoint();
-        Move();
-        Rotate();
+        MovePlayer();
+        RotateCamera();
+        Animate();
     }
     private void LookLockOnEnemy()
     {
@@ -142,7 +146,7 @@ public class playerController : MonoBehaviour
         var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
         UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
     }
-    private void Move()
+    private void MovePlayer()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
@@ -153,20 +157,27 @@ public class playerController : MonoBehaviour
             0,
             desiredMove.y * speed * Time.deltaTime
         );
+
+        // 회전 필요
+        //if (!IsLockOn)
+        //{
+        //    var moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y).normalized;
+        //    Debug.Log(moveDirection);
+        //    transform.LookAt(transform.position + moveDirection);
+        //}
     }
-    private void Rotate()
+    private void RotateCamera()
     {
         if (ControlState.Equals(ControlState.Uncontrollable) || IsLockOn)
             return;
 
-        transform.Rotate(Vector3.up * desiredRotate.x * rotateSpeed * Time.deltaTime);
+        var origin = new Vector3(
+            transform.position.x,
+            cameraFollow.position.y,
+            transform.position.z
+        );
+        cameraFollow.RotateAround(origin, Vector3.up, desiredRotate.x * rotateSpeed * Time.deltaTime);
     }
-
-    private void LateUpdate()
-    {
-        Animate();
-    }
-
     private void Animate()
     {
         // Move
@@ -430,6 +441,11 @@ public class playerController : MonoBehaviour
         var isRagdoll = context.ReadValueAsButton();
         if (isRagdoll)
         {
+            // 사망 테스트
+            IsLockOn = false;
+            UI_lockOnPoint.SetActive(false);
+            ToggleTargetGroupCamera(false);
+
             ToggleRagdoll(true);
             StartCoroutine(HandleEquipment(true));
         }
