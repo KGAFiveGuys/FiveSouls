@@ -14,29 +14,22 @@ public class MutantController : MonoBehaviour
     public InputAction rotate;
     public InputAction weakAttack;
     public InputAction strongAttack;
-    public InputAction block;
+    public InputAction run;
     public InputAction jump;
     public InputAction ragdollTest;
+    public InputAction knockdown;
+    public InputAction standing;
+
+
 
     [Header("Movements")]
     [SerializeField] private float moveSpeed;
+    [SerializeField] private float RunSpeed;
     [SerializeField] private float rotateSpeed;
     [SerializeField] private float jumpForce;
 
-    //[Header("Equiments")]
-    //[SerializeField] private Transform swordParent;
-    //[SerializeField] private Transform sword;
 
-    //[SerializeField] private Transform shieldParent;
-    //[SerializeField] private Transform shield;
-
-    //[SerializeField] private float dropDelay = .5f;
-
-    //[SerializeField] private Vector3 swordOriginPos;
-    //[SerializeField] private Quaternion swordOriginRot;
-
-    //[SerializeField] private Vector3 shieldOriginPos;
-    //[SerializeField] private Quaternion shieldOriginRot;
+    private bool isCursor = false;
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
@@ -46,70 +39,72 @@ public class MutantController : MonoBehaviour
     private readonly int isWeakAttack_hash = Animator.StringToHash("isWeakAttack");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
-    private readonly int isBlock_hash = Animator.StringToHash("isBlock");
+    private readonly int isRun_hash = Animator.StringToHash("isRun");
+    private readonly int isKnockDown_hash = Animator.StringToHash("isKnockDown");
+    private readonly int isStanding_hash = Animator.StringToHash("isStanding");
+
+
+    bool _isRun = false;
     #endregion
     #region Cached colliders & rigidbodies
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
-    //[SerializeField] private List<Collider> weaponColliders = new List<Collider>();
-    //[SerializeField] private List<Rigidbody> weaponRigidbodies = new List<Rigidbody>();
-    //[SerializeField] private List<Collider> shieldColliders = new List<Collider>();
-    //[SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
     #endregion
 
     private void Awake()
     {
         TryGetComponent(out playerRigidbody);
         TryGetComponent(out playerAnimator);
-
-        //swordOriginPos = sword.localPosition;
-        //swordOriginRot = sword.localRotation;
-
-        //shieldOriginPos = sword.localPosition;
-        //shieldOriginRot = sword.localRotation;
     }
 
     private void Start()
     {
-        //#region Set weapon colliders & rigidbodies
-        //foreach (Collider c in weaponColliders)
-        //{
-        //    c.enabled = false;
-        //}
-        //foreach (Rigidbody rb in weaponRigidbodies)
-        //{
-        //    rb.isKinematic = true;
-        //}
-        //#endregion
-        //#region Set shield colliders & rigidbodies
-        //foreach (Collider c in shieldColliders)
-        //{
-        //    c.enabled = false;
-        //}
-        //foreach (Rigidbody rb in shieldRigidbodies)
-        //{
-        //    rb.isKinematic = true;
-        //}
-        //#endregion
+        
     }
+
+
 
     private void Update()
     {
         Move();
         Rotate();
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            Togle_Cursor();
+        }
+        print(moveSpeed);
+        print(_isRun);
     }
-
-
+    
+    public void Togle_Cursor()
+    {
+        isCursor = !isCursor;
+        Cursor.visible = isCursor;
+    }
     private void Move()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
 
-        transform.Translate(
-            desiredMove.x * moveSpeed * Time.deltaTime,
+        if (!_isRun)
+        {
+            transform.Translate(
+            desiredMove.x * moveSpeed * Time.deltaTime ,
             0,
             desiredMove.y * moveSpeed * Time.deltaTime
         );
+        }
+        else
+        {
+
+            transform.Translate(
+            desiredMove.x * RunSpeed *Time.deltaTime,
+            0,
+            desiredMove.y * RunSpeed * Time.deltaTime
+        );
+        }
+        
+        
         playerAnimator.SetFloat(moveX_hash, desiredMove.x);
         playerAnimator.SetFloat(moveY_hash, desiredMove.y);
     }
@@ -141,13 +136,25 @@ public class MutantController : MonoBehaviour
         strongAttack.canceled += OnStrongAttackCanceled;
         strongAttack.Enable();
 
-        block.performed += OnBlockPerformed;
-        block.canceled += OnBlockCanceled;
-        block.Enable();
+        run.performed += OnRunPerformed;
+        run.canceled += OnRunCanceled;
+        run.Enable();
 
         jump.performed += OnJumpPerformed;
         jump.canceled += OnJumpCanceled;
         jump.Enable();
+
+        standing.performed += onStandingPerformed;
+        standing.canceled += onStandingCanceled;
+        standing.Enable();
+
+        knockdown.performed += onisKnockDownPerformed;
+        knockdown.canceled += onisKnockDownCancled;
+        knockdown.Enable();
+
+
+
+        //standing.performed +=
 
         ragdollTest.performed += OnRagdollPerformed;
         ragdollTest.canceled += OnRagdollCanceled;
@@ -174,13 +181,23 @@ public class MutantController : MonoBehaviour
         strongAttack.performed -= OnStrongAttackPerformed;
         strongAttack.canceled -= OnStrongAttackCanceled;
 
-        block.performed -= OnBlockPerformed;
-        block.canceled -= OnBlockCanceled;
-        block.Disable();
+        run.Disable();
+        run.performed -= OnRunPerformed;
+        run.canceled -= OnRunCanceled;
+        
 
         jump.performed -= OnJumpPerformed;
         jump.canceled -= OnJumpCanceled;
         jump.Disable();
+
+        standing.performed -= onStandingPerformed;
+        standing.canceled -= onStandingCanceled;
+        standing.Disable();
+
+        knockdown.Disable();
+        knockdown.performed -= onisKnockDownPerformed;
+        knockdown.canceled -= onisKnockDownCancled;
+
 
         ragdollTest.performed -= OnRagdollPerformed;
         ragdollTest.canceled -= OnRagdollCanceled;
@@ -243,7 +260,7 @@ public class MutantController : MonoBehaviour
 
         while (distanceMoved < distanceToMove)
         {
-            // 이동 로깆ㄱ
+            // 이동 로wlr
             float moveDistance = moveSpeed * Time.deltaTime;
             transform.Translate(Vector3.forward * moveDistance);
             distanceMoved += moveDistance;
@@ -251,8 +268,8 @@ public class MutantController : MonoBehaviour
             yield return null;
         }
         stopwatch.Stop();
-        long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
-        UnityEngine.Debug.Log("MoveForward coroutine executed in " + elapsedMilliseconds + " milliseconds");
+        long time = stopwatch.ElapsedMilliseconds;
+        print("대쉬 동작시간 : "+ time);
         isJumping = false;
         playerAnimator.SetBool(isJump_hash, false);
     }
@@ -262,20 +279,57 @@ public class MutantController : MonoBehaviour
         playerAnimator.SetBool(isJump_hash, false);
     }
     #endregion
-    #region block_Action
-    private void OnBlockPerformed(InputAction.CallbackContext context)
+    #region Standingg_Action
+    private void onStandingPerformed(InputAction.CallbackContext context)
     {
-        var isBlock = context.ReadValueAsButton();
-        if (isBlock)
+        var isStanding = context.ReadValueAsButton();
+        if (isStanding)
         {
-            ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isBlock_hash, true);
+            playerAnimator.SetBool(isStanding_hash, true);
         }
     }
-    private void OnBlockCanceled(InputAction.CallbackContext context)
+
+    private void onStandingCanceled(InputAction.CallbackContext context)
     {
+        playerAnimator.SetBool(isStanding_hash, false);
+    }
+    #endregion
+
+    #region KnockDown_Action
+    private void onisKnockDownPerformed(InputAction.CallbackContext context)
+    {
+        var isKnockDown = context.ReadValueAsButton();
+        if (isKnockDown)
+        {
+            playerAnimator.SetBool(isKnockDown_hash, true);
+        }
+    }
+
+    private void onisKnockDownCancled(InputAction.CallbackContext context)
+    {
+        playerAnimator.SetBool(isKnockDown_hash, false);
+    }
+    #endregion
+
+    #region Run_Action
+    private void OnRunPerformed(InputAction.CallbackContext context)
+    {
+        
+        var isRun = context.ReadValueAsButton();
+        if (isRun)
+        {
+            _isRun = true;
+
+            //ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetBool(isRun_hash, true);
+        }
+    }
+
+    private void OnRunCanceled(InputAction.CallbackContext context)
+    {
+        _isRun = false;
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isBlock_hash, false);
+        playerAnimator.SetBool(isRun_hash, false);
     }
     #endregion
     #region weakAttack_Action
@@ -346,59 +400,5 @@ public class MutantController : MonoBehaviour
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
 
-    /// <summary>
-    /// Drop or pick-up equipments (sword and shield)
-    /// </summary>
-    /// <param name="isDrop">
-    /// <para>true if drop</para>
-    /// <para>false if pick-up</para>
-    /// </param>
-    //private IEnumerator HandleEquipment(bool isDrop)
-    //{
-    //    if (isDrop)
-    //        yield return new WaitForSeconds(dropDelay);
 
-    //    #region Toggle weapon colliders & rigidbodies
-    //    foreach (var c in weaponColliders)
-    //    {
-    //        c.enabled = isDrop;
-    //    }
-    //    foreach (var rb in weaponRigidbodies)
-    //    {
-    //        rb.useGravity = isDrop;
-    //        rb.isKinematic = !isDrop;
-    //        if (isDrop)
-    //        {
-    //            rb.transform.SetParent(null);
-    //        }
-    //        else
-    //        {
-    //            rb.transform.SetParent(swordParent);
-    //            sword.localPosition = swordOriginPos;
-    //            sword.localRotation = swordOriginRot;
-    //        }
-    //    }
-    //    #endregion
-    //    #region Toggle shield colliders & rigidbodies
-    //    foreach (var c in shieldColliders)
-    //    {
-    //        c.enabled = isDrop;
-    //    }
-    //    foreach (var rb in shieldRigidbodies)
-    //    {
-    //        rb.useGravity = isDrop;
-    //        rb.isKinematic = !isDrop;
-    //        if (isDrop)
-    //        {
-    //            rb.transform.SetParent(null);
-    //        }
-    //        else
-    //        {
-    //            rb.transform.SetParent(shieldParent);
-    //            shield.localPosition = shieldOriginPos;
-    //            shield.localRotation = shieldOriginRot;
-    //        }
-    //    }
-    //    #endregion
-    //}
 }
