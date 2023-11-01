@@ -34,6 +34,9 @@ public class WizardControl : MonoBehaviour
     private float Dist;//플레이어와 보스와의 거리
     private Animator Wizard_anim;
     private float AttackTime = 0;
+    [SerializeField] private float ThunderDelay = 0.5f;
+    [SerializeField]private ThunderBoltCircle thunderBoltCircle;
+
 
     [Header("이펙트")]
     [SerializeField] private AttackEffect[] Attack_effect;
@@ -48,6 +51,7 @@ public class WizardControl : MonoBehaviour
         wizardinfo.ChaseTarget = FindObjectOfType<playerController>().gameObject;
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
+        thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
     }
     private void Update()
     {
@@ -91,6 +95,26 @@ public class WizardControl : MonoBehaviour
         AttackTime = 0;
         yield return new WaitForSeconds(3f);
         Wizard_anim.SetTrigger("Attack");
+        StartCoroutine(UseThunderbolt());
         CurrnetEffect.Stop();
+    }
+    private IEnumerator UseThunderbolt()
+    {
+        int count = 0;
+        float time = 0;
+        float Lasttime = 0;
+        while(count < 3)
+        {
+            time += Time.deltaTime;
+            if(time >= Lasttime + ThunderDelay)
+            {
+                //Instantiate(Thunderbolt, wizardinfo.ChaseTarget.transform);
+                thunderBoltCircle.objectpool[count].transform.position = new Vector3(wizardinfo.ChaseTarget.transform.position.x, wizardinfo.ChaseTarget.transform.position.y+0.2f, wizardinfo.ChaseTarget.transform.position.z);
+                thunderBoltCircle.objectpool[count].SetActive(true);
+                Lasttime = time;
+                count++;
+            }
+            yield return null;
+        }
     }
 }
