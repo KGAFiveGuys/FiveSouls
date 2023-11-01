@@ -707,6 +707,61 @@ Transform:
   m_Father: {fileID: 7629806459479801011}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1756626407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1756626408}
+  - component: {fileID: 1756626409}
+  m_Layer: 0
+  m_Name: FireBallSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1756626408
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756626407}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 13.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7629806459479801011}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1756626409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756626407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc83ba47d1c4594e8a12a2e92ed0336, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FireBall_prefabs:
+  - {fileID: 7765316549803152613, guid: 37f371ae8b623bc4a8a0e71b847c13e3, type: 3}
+  - {fileID: 4766332039014408370, guid: 14836b246cc7c9a4db4f30ff140ea7f0, type: 3}
+  - {fileID: 3953900615370794390, guid: 544724aff3b1618469ae6af4a6cad368, type: 3}
+  - {fileID: 5011220009141744953, guid: 0dcc97f2ff69b004285e8c3f253df8f3, type: 3}
+  target_obj: {fileID: 0}
+  FireBall_Speed: 2
+  FireBall_distanceStart: 10
+  FireBall_distanceEnd: 3
+  FireBall_count: 7
+  FireBall_interval: 0.15
+  m_shotCountEveryInterval: 1
 --- !u!1 &1917315209
 GameObject:
   m_ObjectHideFlags: 0
@@ -10422,6 +10477,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2339988041062483900, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: lockOn.m_Id
+      value: 4470be70-119a-414c-a90a-d1f00615ea6e
+      objectReference: {fileID: 0}
+    - target: {fileID: 2339988041062483900, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: lockOn.m_Name
+      value: Lock On
+      objectReference: {fileID: 0}
     - target: {fileID: 2339988041062483903, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_Name
       value: Player
@@ -74182,7 +74245,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7633386896548766083}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.42, z: 14.1}
+  m_LocalPosition: {x: -0.32609716, y: 0.41999996, z: 13.969084}
   m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_Children:
   - {fileID: 7629806460980664257}
@@ -74194,6 +74257,7 @@ Transform:
   - {fileID: 1062074324972678575}
   - {fileID: 1615383466}
   - {fileID: 1458415545}
+  - {fileID: 1756626408}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -74293,7 +74357,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7633386897250515997}
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.00000014305115, y: 5.9579453, z: 0.10438511}
+  m_LocalPosition: {x: -2.3, y: 5.9579453, z: 0.10438511}
   m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 1}
   m_Children: []
   m_Father: {fileID: 7629806459479801011}
@@ -74892,7 +74956,7 @@ GameObject:
   - component: {fileID: 7633386896548766084}
   m_Layer: 0
   m_Name: WizardBoss
-  m_TagString: Untagged
+  m_TagString: Wizard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -74911,6 +74975,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ThunderDelay: 1
   thunderBoltCircle: {fileID: 0}
+  Fireball_Spawner: {fileID: 1756626407}
+  fireBallSpawner: {fileID: 0}
   Attack_effect:
   - effect: 0
     Effect_Particle: {fileID: 6904939427238095536}
@@ -74918,6 +74984,11 @@ MonoBehaviour:
     Effect_Particle: {fileID: 2281288284487515136}
   - effect: 2
     Effect_Particle: {fileID: 4628221284254115814}
+  FireBall:
+  - {fileID: 191840, guid: 6124dcfd1f9a5994f94c2cb2a9b5d81c, type: 3}
+  - {fileID: 100010, guid: b32f835e658efa1419ad0ae6b033b81f, type: 3}
+  - {fileID: 100008, guid: d452c87524dea094eb2d3e18552f06a8, type: 3}
+  - {fileID: 141582, guid: 11306af72e9741044bdf0bbbcc5c69de, type: 3}
   CurrnetEffect: {fileID: 0}
   ReadyEffect: {fileID: 1062074324972370281}
   wizardinfo:

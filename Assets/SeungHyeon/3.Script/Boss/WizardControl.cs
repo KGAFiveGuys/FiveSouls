@@ -35,20 +35,24 @@ public class WizardControl : MonoBehaviour
     private Animator Wizard_anim;
     private float AttackTime = 0;
     [SerializeField] private float ThunderDelay = 0.5f;
-    [SerializeField]private ThunderBoltCircle thunderBoltCircle;
-
+    [SerializeField] private ThunderBoltCircle thunderBoltCircle;
+    [SerializeField] private GameObject Fireball_Spawner;
+    [SerializeField] private FireBallSpawner fireBallSpawner;
 
     [Header("이펙트")]
     [SerializeField] private AttackEffect[] Attack_effect;
+    [SerializeField] private GameObject[] FireBall;
     [SerializeField] private ParticleSystem CurrnetEffect;
     [SerializeField] private GameObject ReadyEffect;
 
+
     [Header("위자드 상태창")]
-    [SerializeField] private Wizardinfo wizardinfo;
+    [SerializeField] public Wizardinfo wizardinfo;
 
     private void Awake()
     {
         wizardinfo.ChaseTarget = FindObjectOfType<playerController>().gameObject;
+        fireBallSpawner = FindObjectOfType<FireBallSpawner>();
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
@@ -59,10 +63,11 @@ public class WizardControl : MonoBehaviour
         if(wizardinfo.status.Equals(Status.Ready))
         {
             AttackTime += Time.deltaTime;
+            float LastTime = 0;
             Debug.Log(AttackTime);
             if (AttackTime >= 5f)
             {
-                Debug.Log("실행");
+               Debug.Log("실행");
                StartCoroutine(AttackReady(SelectPattern()));
             }
         }
@@ -95,7 +100,7 @@ public class WizardControl : MonoBehaviour
         AttackTime = 0;
         yield return new WaitForSeconds(3f);
         Wizard_anim.SetTrigger("Attack");
-        StartCoroutine(UseThunderbolt());
+        SelectPattern(AttackPlayer);
         CurrnetEffect.Stop();
     }
     private IEnumerator UseThunderbolt()
@@ -116,5 +121,20 @@ public class WizardControl : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    private void SelectPattern(int pattern)
+    {
+        switch(pattern)
+        {
+            case 0:
+                return;
+            case 1:
+                StartCoroutine(fireBallSpawner.CreateFireBall());
+                return;
+            case 2:
+                StartCoroutine(UseThunderbolt());
+                return;
+        }    
     }
 }
