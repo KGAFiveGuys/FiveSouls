@@ -4130,7 +4130,7 @@ MonoBehaviour:
     m_Flags: 0
   walkSpeed: 5
   runSpeed: 10
-  rotateSpeed: 60
+  rotateSpeed: 100
   jumpForce: 20
   enemyDetectDistance: 60
   enemyDetectAngle: 15

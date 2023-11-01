@@ -36,17 +36,14 @@ public class playerController : MonoBehaviour
     [SerializeField] private float runSpeed = 20f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
-    [SerializeField] private float enemyDetectDistance = 60f;
-    [Tooltip("시야각의 절반")]
-    [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
-
-    [Header("CameraRotate")]
-    [SerializeField] private Transform cameraFollow;
-
+    
     [Header("LockOnEnemy")]
     [SerializeField] GameObject UI_lockOnPoint;
     [SerializeField] GameObject VC_TargetGroup;
     [SerializeField] CinemachineTargetGroup TargetGroup;
+    [SerializeField] private float enemyDetectDistance = 60f;
+    [Tooltip("시야각의 절반")]
+    [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -124,7 +121,6 @@ public class playerController : MonoBehaviour
         LookLockOnEnemy();
         ShowLockOnPoint();
         MovePlayer();
-        RotateCamera();
         Animate();
     }
     private void LookLockOnEnemy()
@@ -146,43 +142,58 @@ public class playerController : MonoBehaviour
         var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
         UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
     }
+    Vector3 moveDirection;
     private void MovePlayer()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
+        
+        float speed = IsRun ? runSpeed : walkSpeed;
+        if (IsLockOn)
+        {
+            moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
+            transform.Translate(moveDirection * speed * Time.deltaTime);
+        }
+        // FreeLook이면 desiredMove로 moveDirection을 조정
+        else
+        {
+            var playerGroundPos = new Vector3(
+                transform.position.x,
+                0,
+                transform.position.z
+            );
+            var cameraGroundPos = new Vector3(
+                Camera.main.transform.position.x,
+                0,
+                Camera.main.transform.position.z
+            );
+            Vector3 cameraToPlayer = (playerGroundPos - cameraGroundPos);
+            var forward = cameraToPlayer.normalized;
+            var right = Vector3.Cross(Vector3.up, forward);
+            moveDirection = forward * desiredMove.y;
+            moveDirection += right * desiredMove.x;
 
-        var speed = IsRun ? runSpeed : walkSpeed;
-        transform.Translate(
-            desiredMove.x * speed * Time.deltaTime,
-            0,
-            desiredMove.y * speed * Time.deltaTime
-        );
-
-        // 회전 필요
-        //if (!IsLockOn)
-        //{
-        //    var moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y).normalized;
-        //    Debug.Log(moveDirection);
-        //    transform.LookAt(transform.position + moveDirection);
-        //}
-    }
-    private void RotateCamera()
-    {
-        if (ControlState.Equals(ControlState.Uncontrollable) || IsLockOn)
-            return;
-
-        var origin = new Vector3(
-            transform.position.x,
-            cameraFollow.position.y,
-            transform.position.z
-        );
-        cameraFollow.RotateAround(origin, Vector3.up, desiredRotate.x * rotateSpeed * Time.deltaTime);
+            transform.LookAt(transform.position + moveDirection * speed);
+            transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
+        }
+        Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
     }
     private void Animate()
     {
         // Move
-        playerAnimator.SetFloat(moveX_hash, desiredMove.x);
-        playerAnimator.SetFloat(moveY_hash, desiredMove.y);
+        if (IsLockOn)
+        {
+            playerAnimator.SetFloat(moveX_hash, moveDirection.x);
+            playerAnimator.SetFloat(moveY_hash, moveDirection.z);    
+        }
+        else
+        {
+            var value = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
+            playerAnimator.SetFloat(moveX_hash, 0);
+            playerAnimator.SetFloat(moveY_hash, value);
+        }
+
+        // Run
         playerAnimator.SetBool(isRun_hash, IsRun);
 
         // Rotate
@@ -539,13 +550,13 @@ public class playerController : MonoBehaviour
         if (IsLockOn)
         {
             // Debug detect enemy line of sight
-            //Debug.DrawLine(
-            //    transform.position,
-            //    new Vector3(lockOnEnemy.transform.position.x,
-            //                0,
-            //                lockOnEnemy.transform.position.z),
-            //    Color.red
-            //);
+            Debug.DrawLine(
+                transform.position,
+                new Vector3(lockOnEnemy.transform.position.x,
+                            0,
+                            lockOnEnemy.transform.position.z),
+                Color.magenta
+            );
         }
         else
         {
