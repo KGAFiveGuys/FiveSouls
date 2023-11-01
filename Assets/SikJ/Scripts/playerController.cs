@@ -18,10 +18,12 @@ public class playerController : MonoBehaviour
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
     [field: SerializeField] public bool IsLockOn { get; set; } = false;
+    [field: SerializeField] public bool IsRun { get; set; } = false;
 
     [Header("Input Actions")]
     public InputAction move;
     public InputAction rotate;
+    public InputAction run;
     public InputAction weakAttack;
     public InputAction strongAttack;
     public InputAction block;
@@ -30,7 +32,8 @@ public class playerController : MonoBehaviour
     public InputAction ragdollTest;
 
     [Header("Controls")]
-    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float walkSpeed = 10f;
+    [SerializeField] private float runSpeed = 20f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
     [SerializeField] private float enemyDetectDistance = 60f;
@@ -70,6 +73,7 @@ public class playerController : MonoBehaviour
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
+    private readonly int isRun_hash = Animator.StringToHash("isRun");
     private readonly int isWeakAttack_hash = Animator.StringToHash("isWeakAttack");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
@@ -114,40 +118,11 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
-        if (IsLockOn)
-		{
-            // Debug detect enemy line of sight
-            //Debug.DrawLine(
-            //    transform.position,
-            //    new Vector3(lockOnEnemy.transform.position.x,
-            //                0,
-            //                lockOnEnemy.transform.position.z),
-            //    Color.red
-            //);
-        }
-        else
-		{
-            // Debug detect enemy line of sight
-            var playerGroundPos = new Vector3(
-                transform.position.x,
-                0,
-                transform.position.z
-            );
-            var cameraGroundPos = new Vector3(
-                Camera.main.transform.position.x,
-                0,
-                Camera.main.transform.position.z
-            );
-            Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
-            Debug.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance, Color.magenta);
-        }
-
         LookLockOnEnemy();
         ShowLockOnPoint();
         Move();
         Rotate();
     }
-
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
@@ -156,43 +131,50 @@ public class playerController : MonoBehaviour
         var lookAtPos = new Vector3(lockOnEnemy.transform.position.x, 0, lockOnEnemy.transform.position.z);
         transform.LookAt(lookAtPos);
     }
-
     private void ShowLockOnPoint()
     {
         if (!IsLockOn)
             return;
-        
+
         // Highlight locked on target
         var pos = Camera.main.WorldToScreenPoint(lockOnEnemy.transform.position);
         var width = UI_lockOnPoint.GetComponent<RectTransform>().rect.width;
         var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
         UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
     }
-
     private void Move()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
 
+        var speed = IsRun ? runSpeed : walkSpeed;
         transform.Translate(
-            desiredMove.x * moveSpeed * Time.deltaTime,
+            desiredMove.x * speed * Time.deltaTime,
             0,
-            desiredMove.y * moveSpeed * Time.deltaTime
+            desiredMove.y * speed * Time.deltaTime
         );
-        
-        // Animate Move
-        playerAnimator.SetFloat(moveX_hash, desiredMove.x);
-        playerAnimator.SetFloat(moveY_hash, desiredMove.y);
     }
-
     private void Rotate()
     {
         if (ControlState.Equals(ControlState.Uncontrollable) || IsLockOn)
             return;
 
         transform.Rotate(Vector3.up * desiredRotate.x * rotateSpeed * Time.deltaTime);
+    }
 
-        // Animate Rotate
+    private void LateUpdate()
+    {
+        Animate();
+    }
+
+    private void Animate()
+    {
+        // Move
+        playerAnimator.SetFloat(moveX_hash, desiredMove.x);
+        playerAnimator.SetFloat(moveY_hash, desiredMove.y);
+        playerAnimator.SetBool(isRun_hash, IsRun);
+
+        // Rotate
     }
 
     private void OnEnable()
@@ -205,6 +187,9 @@ public class playerController : MonoBehaviour
         rotate.performed += OnRotatePerformed;
         rotate.canceled += OnRotateCanceled;
         rotate.Enable();
+
+        run.performed += OnRunPerformed;
+        run.Enable();
 
         weakAttack.performed += OnWeakAttackPerformed;
         weakAttack.canceled += OnWeakAttackCanceled;
@@ -241,6 +226,9 @@ public class playerController : MonoBehaviour
         rotate.Disable();
         rotate.performed -= OnRotatePerformed;
         rotate.performed -= OnRotateCanceled;
+
+        run.performed -= OnRunPerformed;
+        run.Disable();
 
         weakAttack.Disable();
         weakAttack.performed -= OnWeakAttackPerformed;
@@ -287,6 +275,14 @@ public class playerController : MonoBehaviour
     private void OnRotateCanceled(InputAction.CallbackContext context)
     {
         desiredRotate = Vector2.zero;
+    }
+    #endregion
+    #region run_Action
+    private void OnRunPerformed(InputAction.CallbackContext context)
+    {
+        var isRun = context.ReadValueAsButton();
+        if (isRun)
+            IsRun = !IsRun;
     }
     #endregion
     #region jump_Action
@@ -349,7 +345,7 @@ public class playerController : MonoBehaviour
         playerAnimator.SetBool(isStrongAttack_hash, false);
     }
     #endregion
-    [SerializeField] private GameObject lockOnEnemy;
+    private GameObject lockOnEnemy;
     #region lockOn_Action
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
@@ -443,8 +439,6 @@ public class playerController : MonoBehaviour
         ToggleRagdoll(false);
         StartCoroutine(HandleEquipment(false));
     }
-    #endregion
-
     public void ToggleRagdoll(bool isRagdoll)
     {
         #region Toggle ragdoll colliders & rigidbodies
@@ -464,7 +458,6 @@ public class playerController : MonoBehaviour
         playerRigidbody.velocity = Vector3.zero;
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
-
     /// <summary>
     /// Drop or pick-up equipments (sword and shield)
     /// </summary>
@@ -476,7 +469,7 @@ public class playerController : MonoBehaviour
     {
         if (isDrop)
             yield return new WaitForSeconds(dropDelay);
-        
+
         #region Toggle weapon colliders & rigidbodies
         foreach (var c in weaponColliders)
         {
@@ -520,10 +513,40 @@ public class playerController : MonoBehaviour
         }
         #endregion
     }
+    #endregion
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
+
+        if (IsLockOn)
+        {
+            // Debug detect enemy line of sight
+            //Debug.DrawLine(
+            //    transform.position,
+            //    new Vector3(lockOnEnemy.transform.position.x,
+            //                0,
+            //                lockOnEnemy.transform.position.z),
+            //    Color.red
+            //);
+        }
+        else
+        {
+            // Debug detect enemy line of sight
+            var playerGroundPos = new Vector3(
+                transform.position.x,
+                0,
+                transform.position.z
+            );
+            var cameraGroundPos = new Vector3(
+                Camera.main.transform.position.x,
+                0,
+                Camera.main.transform.position.z
+            );
+            Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
+        }
     }
 }
