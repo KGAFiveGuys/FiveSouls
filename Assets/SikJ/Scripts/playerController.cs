@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,8 @@ public enum ControlState
     Uncontrollable,
 }
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(Animator))]
 public class playerController : MonoBehaviour
 {
@@ -26,7 +29,7 @@ public class playerController : MonoBehaviour
     public InputAction lockOn;
     public InputAction ragdollTest;
 
-    [Header("Movements")]
+    [Header("Controls")]
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
@@ -34,20 +37,32 @@ public class playerController : MonoBehaviour
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
 
-    [Header("Equiments")]
-    [SerializeField] private Transform swordParent;
-    [SerializeField] private Transform sword;
-    
-    [SerializeField] private Transform shieldParent;
-    [SerializeField] private Transform shield;
-    
+    [Header("LockOnEnemy")]
+    [SerializeField] GameObject UI_lockOnPoint;
+    [SerializeField] GameObject VC_TargetGroup;
+    [SerializeField] CinemachineTargetGroup TargetGroup;
+
+    [Header("Ragdoll")]
+    [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
+    [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
+
+    [Header("Drop Equiment")]
     [SerializeField] private float dropDelay = .5f;
 
-    [SerializeField] private Vector3 swordOriginPos;
-    [SerializeField] private Quaternion swordOriginRot;
+    [SerializeField] private Transform swordParent;
+    [SerializeField] private Transform sword;
+    private Vector3 swordOriginPos;
+    private Quaternion swordOriginRot;
 
-    [SerializeField] private Vector3 shieldOriginPos;
-    [SerializeField] private Quaternion shieldOriginRot;
+    [SerializeField] private Transform shieldParent;
+    [SerializeField] private Transform shield;
+    private Vector3 shieldOriginPos;
+    private Quaternion shieldOriginRot;
+
+    [SerializeField] private List<Collider> weaponColliders = new List<Collider>();
+    [SerializeField] private List<Rigidbody> weaponRigidbodies = new List<Rigidbody>();
+    [SerializeField] private List<Collider> shieldColliders = new List<Collider>();
+    [SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
 
     private Rigidbody playerRigidbody;
     private CapsuleCollider playerCollider;
@@ -59,14 +74,6 @@ public class playerController : MonoBehaviour
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
-    #endregion
-    #region Cached colliders & rigidbodies
-    [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
-    [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
-    [SerializeField] private List<Collider> weaponColliders = new List<Collider>();
-    [SerializeField] private List<Rigidbody> weaponRigidbodies = new List<Rigidbody>();
-    [SerializeField] private List<Collider> shieldColliders = new List<Collider>();
-    [SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
     #endregion
 
     private void Awake()
@@ -109,20 +116,57 @@ public class playerController : MonoBehaviour
     {
         if (IsLockOn)
 		{
-            Debug.DrawLine(transform.position, new Vector3(lockOnPos.x, 0, lockOnPos.z), Color.red);
+            // Debug detect enemy line of sight
+            //Debug.DrawLine(
+            //    transform.position,
+            //    new Vector3(lockOnEnemy.transform.position.x,
+            //                0,
+            //                lockOnEnemy.transform.position.z),
+            //    Color.red
+            //);
         }
         else
 		{
-            Transform leftDetectBorder = transform;
-            leftDetectBorder.Rotate(Vector3.down * enemyDetectAngle);
-            Transform rightDetectBorder = transform;
-            rightDetectBorder.Rotate(Vector3.up * enemyDetectAngle);
-            Debug.DrawLine(transform.position, leftDetectBorder.forward * enemyDetectDistance, Color.magenta);
-            Debug.DrawLine(transform.position, rightDetectBorder.forward * enemyDetectDistance, Color.magenta);
+            // Debug detect enemy line of sight
+            var playerGroundPos = new Vector3(
+                transform.position.x,
+                0,
+                transform.position.z
+            );
+            var cameraGroundPos = new Vector3(
+                Camera.main.transform.position.x,
+                0,
+                Camera.main.transform.position.z
+            );
+            Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
+            Debug.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance, Color.magenta);
         }
 
+        LookLockOnEnemy();
+        ShowLockOnPoint();
         Move();
         Rotate();
+    }
+
+    private void LookLockOnEnemy()
+    {
+        if (!IsLockOn)
+            return;
+
+        var lookAtPos = new Vector3(lockOnEnemy.transform.position.x, 0, lockOnEnemy.transform.position.z);
+        transform.LookAt(lookAtPos);
+    }
+
+    private void ShowLockOnPoint()
+    {
+        if (!IsLockOn)
+            return;
+        
+        // Highlight locked on target
+        var pos = Camera.main.WorldToScreenPoint(lockOnEnemy.transform.position);
+        var width = UI_lockOnPoint.GetComponent<RectTransform>().rect.width;
+        var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
+        UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
     }
 
     private void Move()
@@ -130,24 +174,13 @@ public class playerController : MonoBehaviour
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
 
-        if (IsLockOn)
-        {
-            // Cross Product해 이동
-            
-        }
-        else
-        {
-            //var moveDirection = Vector3.zero;
-            //moveDirection += transform.right * desiredMove.x * moveSpeed;
-            //moveDirection += transform.forward * desiredMove.y * moveSpeed;
-            //playerRigidbody.AddForce(moveDirection);
-            transform.Translate(
-                desiredMove.x * moveSpeed * Time.deltaTime,
-                0,
-                desiredMove.y * moveSpeed * Time.deltaTime
-            );
-        }
+        transform.Translate(
+            desiredMove.x * moveSpeed * Time.deltaTime,
+            0,
+            desiredMove.y * moveSpeed * Time.deltaTime
+        );
         
+        // Animate Move
         playerAnimator.SetFloat(moveX_hash, desiredMove.x);
         playerAnimator.SetFloat(moveY_hash, desiredMove.y);
     }
@@ -158,6 +191,8 @@ public class playerController : MonoBehaviour
             return;
 
         transform.Rotate(Vector3.up * desiredRotate.x * rotateSpeed * Time.deltaTime);
+
+        // Animate Rotate
     }
 
     private void OnEnable()
@@ -314,7 +349,7 @@ public class playerController : MonoBehaviour
         playerAnimator.SetBool(isStrongAttack_hash, false);
     }
     #endregion
-    [SerializeField] private Vector3 lockOnPos;
+    [SerializeField] private GameObject lockOnEnemy;
     #region lockOn_Action
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
@@ -325,10 +360,14 @@ public class playerController : MonoBehaviour
 
     private bool CheckEnemyInRange()
     {
-        lockOnPos = Vector3.zero;
-
         if (IsLockOn)
+        {
+            UI_lockOnPoint.SetActive(false);
+            ToggleTargetGroupCamera(false);
             return true;
+        }
+
+        lockOnEnemy = null;
 
         float maxDotValue = float.MinValue;
         float minDistance = float.MaxValue;
@@ -352,38 +391,43 @@ public class playerController : MonoBehaviour
             if (minDistance > distance)
             {
                 minDistance = distance;
-                lockOnPos = enemyCollider.transform.position;
+                lockOnEnemy = enemyCollider.gameObject;
             }
-
+            
             // 카메라 시점 기준 가장 중앙의 적인지 확인
             float dot = Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized);
             if (maxDotValue < dot)
             {
                 maxDotValue = dot;
-                lockOnPos = enemyCollider.transform.position;
+                lockOnEnemy = enemyCollider.gameObject;
                 continue;
             }
         }
-        
-        // 적 유무 확인
-        if (minDistance < float.MaxValue || maxDotValue > float.MinValue)
+
+        UI_lockOnPoint.SetActive(lockOnEnemy != null);
+        ToggleTargetGroupCamera(lockOnEnemy != null, lockOnEnemy);
+        return lockOnEnemy != null;
+    }
+
+    private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
+    {
+        if (isTurnOn)
         {
-            // TargetGroupCamera 켜기
-            transform.LookAt(new Vector3(lockOnPos.x, 0, lockOnPos.z));
-            return true;
+            if (target != null)
+                TargetGroup.AddMember(target.transform, 1, 50f);
+
+            VC_TargetGroup.SetActive(true);
         }
         else
         {
-            return false;
+            if (lockOnEnemy != null)
+                TargetGroup.RemoveMember(lockOnEnemy.transform);
+
+            VC_TargetGroup.SetActive(false);
         }
     }
-    #endregion
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
-    }
 
+    #endregion
     #region ragdoll_Action
     private void OnRagdollPerformed(InputAction.CallbackContext context)
     {
@@ -475,5 +519,11 @@ public class playerController : MonoBehaviour
             }
         }
         #endregion
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
     }
 }
