@@ -429,7 +429,8 @@ public class playerController : MonoBehaviour
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
         var isLockOn = context.ReadValueAsButton();
-        if (isLockOn && CheckEnemyInRange())
+        var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
+        if (isLockOn && !isBlending && CheckEnemyInRange())
             IsLockOn = !IsLockOn;
     }
 
