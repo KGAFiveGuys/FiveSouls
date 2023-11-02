@@ -1901,6 +1901,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba30bbfc2ed0a24183a7270d707034e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player_:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &1560023659
 GameObject:
   m_ObjectHideFlags: 0
@@ -2641,6 +2644,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2339988041062483903, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3112724106110393605, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -2655,7 +2662,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3112724106110393605, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -20.4
       objectReference: {fileID: 0}
     - target: {fileID: 3112724106110393605, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_LocalRotation.w

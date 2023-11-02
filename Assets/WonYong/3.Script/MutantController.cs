@@ -72,8 +72,8 @@ public class MutantController : MonoBehaviour
         {
             Togle_Cursor();
         }
-        print(moveSpeed);
-        print(_isRun);
+        /*print(moveSpeed);
+        print(_isRun);*/
     }
     
     public void Togle_Cursor()
@@ -237,7 +237,7 @@ public class MutantController : MonoBehaviour
 
     private bool isJumping = false;
 
-    private void OnJumpPerformed(InputAction.CallbackContext context)
+    public void OnJumpPerformed(InputAction.CallbackContext context)
     {
         var isJump = context.ReadValueAsButton();
         if (isJump && !isJumping)
