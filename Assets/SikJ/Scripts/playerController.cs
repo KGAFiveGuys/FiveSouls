@@ -36,13 +36,16 @@ public class playerController : MonoBehaviour
     [SerializeField] private float runSpeed = 20f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
-    
+    [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
+    [SerializeField] [Range(0f, 90f)] private float runBehindAngle = 50f;
+
     [Header("LockOnEnemy")]
     [SerializeField] private GameObject UI_lockOnPoint;
     [SerializeField] private GameObject VC_Default;
     [SerializeField] private GameObject VC_LockOn;
     [SerializeField] private CinemachineTargetGroup TargetGroup;
     [SerializeField] private float enemyDetectDistance = 60f;
+    [SerializeField] private float lockOnLimitDistance = 80f;
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
@@ -120,15 +123,23 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
+        CheckLockOnEnemyDistance();
         LookLockOnEnemy();
         ShowLockOnPoint();
         SetDefaultCameraPosition();
         MovePlayer();
         Animate();
     }
-
-    
-
+    private void CheckLockOnEnemyDistance()
+    {
+        // LockOn 상태에서 제한범위를 벗어나면 UnLock
+        if (IsLockOn && Vector3.Distance(transform.position, lockOnEnemy.transform.position) > lockOnLimitDistance)
+        {
+            UI_lockOnPoint.SetActive(false);
+            ToggleTargetGroupCamera(false);
+            IsLockOn = false;
+        }
+    }
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
@@ -158,12 +169,17 @@ public class playerController : MonoBehaviour
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
-        
+
+        // LockOn일 때 후방으로 이동하면 달릴 수 없음
+        if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad))
+            IsRun = false;
+
         float speed = IsRun ? runSpeed : walkSpeed;
         if (IsLockOn)
         {
             moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
-            transform.Translate(moveDirection * speed * Time.deltaTime);
+            transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
+            Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
         }
         // FreeLook이면 desiredMove로 moveDirection을 조정
         else
@@ -344,6 +360,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isBlock_hash, false);
+        IsRun = false;
     }
     #endregion
     #region weakAttack_Action
@@ -360,6 +377,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isWeakAttack_hash, false);
+        IsRun = false;
     }
     #endregion
     #region strongAttack_Action
@@ -376,6 +394,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isStrongAttack_hash, false);
+        IsRun = false;
     }
     #endregion
     private GameObject lockOnEnemy;
@@ -523,6 +542,7 @@ public class playerController : MonoBehaviour
     {
         ToggleRagdoll(false);
         StartCoroutine(HandleEquipment(false));
+        IsRun = false;
     }
     public void ToggleRagdoll(bool isRagdoll)
     {
@@ -605,16 +625,18 @@ public class playerController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
 
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(transform.position, lockOnLimitDistance);
+
+        Gizmos.color = Color.magenta;
         if (IsLockOn)
         {
             // Debug detect enemy line of sight
-            Debug.DrawLine(
-                transform.position,
-                new Vector3(lockOnEnemy.transform.position.x,
-                            0,
-                            lockOnEnemy.transform.position.z),
-                Color.magenta
-            );
+            Gizmos.DrawLine(transform.position, new Vector3(
+                lockOnEnemy.transform.position.x,
+                0,
+                lockOnEnemy.transform.position.z
+            ));
         }
         else
         {
@@ -630,7 +652,6 @@ public class playerController : MonoBehaviour
                 Camera.main.transform.position.z
             );
             Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
-            Gizmos.color = Color.magenta;
             Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
         }
     }

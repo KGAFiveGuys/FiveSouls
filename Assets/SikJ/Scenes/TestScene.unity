@@ -14665,7 +14665,7 @@ MonoBehaviour:
   m_Targets:
   - target: {fileID: 4595601808194379104}
     weight: 30
-    radius: 30
+    radius: 50
 --- !u!1 &2039046113
 GameObject:
   m_ObjectHideFlags: 0
@@ -17631,7 +17631,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: 63a2d87c-9c0f-4d26-b21a-62a2d61b74c6
-      m_Path: <Gamepad>/buttonEast
+      m_Path: <Gamepad>/select
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -17639,22 +17639,24 @@ MonoBehaviour:
       m_Flags: 0
     - m_Name: 
       m_Id: 94f1c702-0f74-405e-96c2-5afb48847dd9
-      m_Path: <Keyboard>/backquote
+      m_Path: <Keyboard>/escape
       m_Interactions: 
       m_Processors: 
       m_Groups: 
       m_Action: Ragdoll Test
       m_Flags: 0
     m_Flags: 0
-  walkSpeed: 5
-  runSpeed: 10
+  walkSpeed: 10
+  runSpeed: 18
   rotateSpeed: 60
   jumpForce: 20
+  runBehindAngle: 40
   UI_lockOnPoint: {fileID: 1288531634}
   VC_Default: {fileID: 1550945356}
   VC_LockOn: {fileID: 1503980713}
   TargetGroup: {fileID: 2003300044}
-  enemyDetectDistance: 60
+  enemyDetectDistance: 40
+  lockOnLimitDistance: 50
   enemyDetectAngle: 15
   blendTime: 0.8
   ragdollColliders:
