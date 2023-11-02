@@ -87,8 +87,8 @@ public class MutantController : MonoBehaviour
         print(_isRun);*/
         //print(isDash);
         //print(cool_Dash);
-        print(distance);
-        //print("대쉬쿨 : " + cool_Dash);
+        print("거리 : "+distance);
+        print("대쉬쿨 : " + cool_Dash);
     }
     
     public void Togle_Cursor()
@@ -464,7 +464,10 @@ public class MutantController : MonoBehaviour
 
 
         //todo : 거리의 조건에 따라 공격의 패턴이 나오도록 switch 문을 이용해 랜덤으로 발생하게 할것// 
-        //todo : 대쉬 공격은 쿨타임을 생성해서 2~30초에 한번만 하게 조정.
+        //todo : 대쉬 공격은 쿨타임을 생성해서 2~30초에 한번만 하게 조정. => done
+        //todo : 공격 판정 만드세요 ~~~~~~~~~~~~~~~~~~~
+        //todo : 일반공격중 돌던지기 패턴 하나 만들것 => 일단 유도기능x 플레이어의 방향으로 던지는 방식. 
+        //       addForce 방식 , velocity 채용 내일 둘다적용해보고 좀더 괜찮은거로  ㄱ (줍는 애니메이션 -> 던지는 애니매이션 필요..)!
 
         if (distance <= 30f && distance > 20f)
         {
