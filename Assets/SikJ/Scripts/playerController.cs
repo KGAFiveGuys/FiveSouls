@@ -27,6 +27,7 @@ public class playerController : MonoBehaviour
     public InputAction weakAttack;
     public InputAction strongAttack;
     public InputAction block;
+    public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
     public InputAction ragdollTest;
@@ -83,6 +84,7 @@ public class playerController : MonoBehaviour
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
+    private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
 
     private void Awake()
@@ -128,7 +130,7 @@ public class playerController : MonoBehaviour
         ShowLockOnPoint();
         SetDefaultCameraPosition();
         MovePlayer();
-        Animate();
+        AnimatePlayerMove();
     }
     private void CheckLockOnEnemyDistance()
     {
@@ -205,7 +207,7 @@ public class playerController : MonoBehaviour
         }
         Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
     }
-    private void Animate()
+    private void AnimatePlayerMove()
     {
         // Move
         if (IsLockOn)
@@ -252,6 +254,10 @@ public class playerController : MonoBehaviour
         block.canceled += OnBlockCanceled;
         block.Enable();
 
+        roll.performed += OnRollPerformed;
+        roll.canceled += OnRollCanceled;
+        roll.Enable();
+
         jump.performed += OnJumpPerformed;
         jump.canceled += OnJumpCanceled;
         jump.Enable();
@@ -290,6 +296,10 @@ public class playerController : MonoBehaviour
         block.performed -= OnBlockPerformed;
         block.canceled -= OnBlockCanceled;
         block.Disable();
+
+        roll.performed -= OnRollPerformed;
+        roll.canceled -= OnRollCanceled;
+        roll.Disable();
 
         jump.performed -= OnJumpPerformed;
         jump.canceled -= OnJumpCanceled;
@@ -360,6 +370,23 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isBlock_hash, false);
+        IsRun = false;
+    }
+    #endregion
+    #region roll_Action
+    private void OnRollPerformed(InputAction.CallbackContext context)
+    {
+        var isBlock = context.ReadValueAsButton();
+        if (isBlock)
+        {
+            ControlState = ControlState.Uncontrollable;
+            playerAnimator.SetBool(isRoll_hash, true);
+        }
+    }
+    private void OnRollCanceled(InputAction.CallbackContext context)
+    {
+        ControlState = ControlState.Controllable;
+        playerAnimator.SetBool(isRoll_hash, false);
         IsRun = false;
     }
     #endregion

@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: sprint_roll_enoughStamina
+  m_Name: sprint_roll
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -40827,7 +40827,7 @@ AnimationClip:
     m_LoopBlendPositionXZ: 0
     m_KeepOriginalOrientation: 0
     m_KeepOriginalPositionY: 0
-    m_KeepOriginalPositionXZ: 1
+    m_KeepOriginalPositionXZ: 0
     m_HeightFromFeet: 1
     m_Mirror: 0
   m_EditorCurves: []
