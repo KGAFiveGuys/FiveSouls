@@ -10,13 +10,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - Ragdoll
   - Equipment
+  - Enemy
   - Player
-  - 
   - 
   - 
   - 
