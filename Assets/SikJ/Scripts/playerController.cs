@@ -36,7 +36,9 @@ public class playerController : MonoBehaviour
     [SerializeField] private float runSpeed = 20f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
-    
+    [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
+    [SerializeField] [Range(0f, 90f)] private float runBehindAngle = 50f;
+
     [Header("LockOnEnemy")]
     [SerializeField] private GameObject UI_lockOnPoint;
     [SerializeField] private GameObject VC_Default;
@@ -127,8 +129,6 @@ public class playerController : MonoBehaviour
         Animate();
     }
 
-    
-
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
@@ -158,12 +158,17 @@ public class playerController : MonoBehaviour
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
-        
+
+        // LockOn일 때 후방으로 이동하면 달릴 수 없음
+        if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad))
+            IsRun = false;
+
         float speed = IsRun ? runSpeed : walkSpeed;
         if (IsLockOn)
         {
             moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
-            transform.Translate(moveDirection * speed * Time.deltaTime);
+            transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
+            Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
         }
         // FreeLook이면 desiredMove로 moveDirection을 조정
         else
