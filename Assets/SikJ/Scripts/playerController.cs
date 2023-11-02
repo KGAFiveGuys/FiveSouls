@@ -360,6 +360,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isBlock_hash, false);
+        IsRun = false;
     }
     #endregion
     #region weakAttack_Action
@@ -376,6 +377,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isWeakAttack_hash, false);
+        IsRun = false;
     }
     #endregion
     #region strongAttack_Action
@@ -392,6 +394,7 @@ public class playerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         playerAnimator.SetBool(isStrongAttack_hash, false);
+        IsRun = false;
     }
     #endregion
     private GameObject lockOnEnemy;
@@ -539,6 +542,7 @@ public class playerController : MonoBehaviour
     {
         ToggleRagdoll(false);
         StartCoroutine(HandleEquipment(false));
+        IsRun = false;
     }
     public void ToggleRagdoll(bool isRagdoll)
     {
