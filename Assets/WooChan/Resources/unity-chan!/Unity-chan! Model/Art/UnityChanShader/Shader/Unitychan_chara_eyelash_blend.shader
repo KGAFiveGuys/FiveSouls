@@ -9,7 +9,33 @@ Shader "UnityChan/Eyelash - Transparent"
 		_FalloffSampler ("Falloff Control", 2D) = "white" {}
 		_RimLightSampler ("RimLight Control", 2D) = "white" {}
 	}
+	SubShader
+	{//universal render subshader
+		Blend SrcAlpha OneMinusSrcAlpha, One One 
+		Tags
+		{
+			"Queue"="Geometry+2"
+			// "IgnoreProjector"="True"
+			"RenderType"="Overlay"
+			"LightMode"="UniversalForward"
+			"RenderPipeline"="UniversalPipeline"
+		}
 
+		Pass
+		{
+			Cull Back
+			ZTest LEqual
+CGPROGRAM
+#pragma multi_compile_fwdbase
+#pragma target 3.0
+#pragma vertex vert
+#pragma fragment frag
+#include "UnityCG.cginc"
+#include "AutoLight.cginc"
+#include "CharaSkin.cg"
+ENDCG
+		}
+	}
 	SubShader
 	{
 		Blend SrcAlpha OneMinusSrcAlpha, One One 

@@ -16,12 +16,13 @@ Shader "UnityChan/Hair"
 	}
 
 	SubShader
-	{
+	{//universal render subshader
 		Tags
 		{
 			"RenderType"="Opaque"
 			"Queue"="Geometry"
-			"LightMode"="ForwardBase"
+			"LightMode"="UniversalForward"
+			"RenderPipeline"="UniversalPipeline"
 		}
 
 		Pass
