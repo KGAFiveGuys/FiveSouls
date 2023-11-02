@@ -27,7 +27,9 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float RunSpeed;
     [SerializeField] private float rotateSpeed;
     [SerializeField] private float jumpForce;
+    [SerializeField] private float distanceToMove = 20f;
 
+    private float distance;
 
     private bool isCursor = false;
 
@@ -43,8 +45,16 @@ public class MutantController : MonoBehaviour
     private readonly int isKnockDown_hash = Animator.StringToHash("isKnockDown");
     private readonly int isStanding_hash = Animator.StringToHash("isStanding");
 
+    //플레이어와 몬스터의 거리계산용
+    private GameObject player;
 
+
+    //쿨타임용 bool값 
+    bool isDash = false;
     bool _isRun = false;
+
+    //스킬쿨타임 관리용
+    float cool_Dash;
     #endregion
     #region Cached colliders & rigidbodies
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -55,25 +65,30 @@ public class MutantController : MonoBehaviour
     {
         TryGetComponent(out playerRigidbody);
         TryGetComponent(out playerAnimator);
+        player = GameObject.FindGameObjectWithTag("Player");
     }
-
-    private void Start()
-    {
-        
-    }
-
+    
 
 
     private void Update()
     {
+    //    print(Skilljudgment.distance);
         Move();
         Rotate();
         if (Input.GetKeyDown(KeyCode.F1))
         {
             Togle_Cursor();
         }
+
+        Jugement_MonAction();
+        transform.LookAt(player.transform);
+        print("누구보고있니 : " + player.name);
         /*print(moveSpeed);
         print(_isRun);*/
+        //print(isDash);
+        //print(cool_Dash);
+        print(distance);
+        //print("대쉬쿨 : " + cool_Dash);
     }
     
     public void Togle_Cursor()
@@ -251,8 +266,9 @@ public class MutantController : MonoBehaviour
     {
         isJumping = true;
 
-        // 원하는 이동거리 조절 하세용
-        float distanceToMove = 5f;
+        //이부분 x값으로 변환시키는게 아니라 distance를 가져와서 써야함.
+        //float distanceToMove = Skilljudgment.distance - 2f;
+        float distanceToMove = distance - 2f;
         float distanceMoved = 0f;
 
         Stopwatch stopwatch = new Stopwatch();
@@ -260,8 +276,7 @@ public class MutantController : MonoBehaviour
 
         while (distanceMoved < distanceToMove)
         {
-            // 이동 로wlr
-            float moveDistance = moveSpeed * Time.deltaTime;
+            float moveDistance = moveSpeed * 3 * Time.deltaTime;
             transform.Translate(Vector3.forward * moveDistance);
             distanceMoved += moveDistance;
             // 프레임 단위로 실행
@@ -400,5 +415,94 @@ public class MutantController : MonoBehaviour
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
 
+    public float GetDistance()
+    {
+        float distance = Vector3.Distance(gameObject.transform.position, player.transform.position);
+        return distance;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 10f);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, 20f);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, 30f);
+    }
+
+    private IEnumerator Dash_Cool_co()
+    {
+        while (cool_Dash < 10f)
+        {
+            cool_Dash += Time.deltaTime;
+            yield return null;
+        }
+        isDash = false;
+        cool_Dash = 0;
+    }
+    private void Dash_Cool()
+    {
+
+    }
+
+    private void Jugement_MonAction()
+    {
+        //플레이어 Layer를 만들어서 검출하는 방식으로 바꿉시다. => done.
+
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
+
+
+        //for (int i = 0; i < hitColliders.Length; i++)
+        //{
+        //    print("hitColliders 검출작업 : " + hitColliders[i].name);
+        //}
+        distance = Vector3.Distance(player.transform.position, transform.position);
+        //      print(distance);
+
+
+        //todo : 거리의 조건에 따라 공격의 패턴이 나오도록 switch 문을 이용해 랜덤으로 발생하게 할것// 
+        //todo : 대쉬 공격은 쿨타임을 생성해서 2~30초에 한번만 하게 조정.
+
+        if (distance <= 30f && distance > 20f)
+        {
+            if(isDash)
+            {
+                return;
+            }
+            else if (!isDash)
+            {
+                playerAnimator.SetBool(isJump_hash, true);
+                isDash = true;
+                print(isDash);
+                StartCoroutine(MoveForward());
+                StartCoroutine(Dash_Cool_co());
+            }
+            
+            print("far");
+        }
+        else if (distance <= 20f && distance > 10f)
+        {
+            // 대쉬공격 ,  돌던지기 (일반)으로 발동.
+            print("middle");
+        }
+        else if (distance <= 10f)
+        {
+            // 캐릭터에게 걸어와서 근접공격 (일반 1 강공 1)
+            if(distance <= 2f)
+            {
+                playerAnimator.SetBool(isWeakAttack_hash, true);
+            }
+            else
+            {
+                playerAnimator.SetBool(isWeakAttack_hash, false);
+            }
+
+            print("close");
+        }
+
+    }
 
 }
