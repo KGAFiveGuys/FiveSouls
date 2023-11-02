@@ -79,7 +79,7 @@ public class playerController : MonoBehaviour
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
-    private readonly int isRun_hash = Animator.StringToHash("isRun");
+    private readonly int isSprint_hash = Animator.StringToHash("isSprint");
     private readonly int isWeakAttack_hash = Animator.StringToHash("isWeakAttack");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
@@ -223,7 +223,7 @@ public class playerController : MonoBehaviour
         }
 
         // Run
-        playerAnimator.SetBool(isRun_hash, IsRun);
+        playerAnimator.SetBool(isSprint_hash, IsRun);
 
         // Rotate
     }

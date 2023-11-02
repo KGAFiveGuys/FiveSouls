@@ -13237,7 +13237,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784617115}
-  m_LocalRotation: {x: 0.19424808, y: 0.0000000084393195, z: -0.0000000016711529, w: 0.98095244}
+  m_LocalRotation: {x: 0.19424808, y: -0.000000008439323, z: 0.0000000016711535, w: 0.98095244}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -15843,7 +15843,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738985, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738989, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_RootOrder
@@ -17684,8 +17684,8 @@ MonoBehaviour:
   VC_Default: {fileID: 1550945356}
   VC_LockOn: {fileID: 1503980713}
   TargetGroup: {fileID: 2003300044}
-  enemyDetectDistance: 40
-  lockOnLimitDistance: 50
+  enemyDetectDistance: 50
+  lockOnLimitDistance: 55
   enemyDetectAngle: 15
   blendTime: 0.8
   ragdollColliders:
