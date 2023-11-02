@@ -49,7 +49,7 @@ public class playerController : MonoBehaviour
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
-    private readonly int isWeakAttack_hash = Animator.StringToHash("isWeakAttack");
+    private readonly int isNormalAttack_hash = Animator.StringToHash("isNormalAttack");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
@@ -227,7 +227,7 @@ public class playerController : MonoBehaviour
         playerAnimator.SetBool(isJump_hash, false);
     }
     #endregion
-    #region block_Action
+    #region slide_Action
     private void OnBlockPerformed(InputAction.CallbackContext context)
     {
         var isBlock = context.ReadValueAsButton();
@@ -246,17 +246,17 @@ public class playerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        var isWeakAttack = context.ReadValueAsButton();
-        if (isWeakAttack)
+        var isNormalAttack = context.ReadValueAsButton();
+        if (isNormalAttack)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isWeakAttack_hash, true);
+            playerAnimator.SetBool(isNormalAttack_hash, true);
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isWeakAttack_hash, false);
+        playerAnimator.SetBool(isNormalAttack_hash, false);
     }
     #endregion
     #region strongAttack_Action
