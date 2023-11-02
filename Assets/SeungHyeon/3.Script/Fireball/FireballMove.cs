@@ -57,12 +57,13 @@ public class FireballMove : MonoBehaviour
         {
             status = FireBallStatus.Find;
             DistVector = Targetplayer.transform.position - transform.position;
+            DistVector.y += 2;
             DirVector = DistVector.normalized;
         }
         if (status.Equals(FireBallStatus.Chase))
         {   
             FireBall_Points[3] = Targetplayer.transform.position;
-            FireBall_Points[3].y += 1; 
+            FireBall_Points[3].y += 2; 
             //베지어 곡선으로 X,Y,Z 좌표 얻기
             transform.position = new Vector3(
             CubicBezierCurve(FireBall_Points[0].x, FireBall_Points[1].x, FireBall_Points[2].x, FireBall_Points[3].x),
