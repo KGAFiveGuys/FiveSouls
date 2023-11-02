@@ -38,12 +38,14 @@ public class playerController : MonoBehaviour
     [SerializeField] private float jumpForce = 20f;
     
     [Header("LockOnEnemy")]
-    [SerializeField] GameObject UI_lockOnPoint;
-    [SerializeField] GameObject VC_TargetGroup;
-    [SerializeField] CinemachineTargetGroup TargetGroup;
+    [SerializeField] private GameObject UI_lockOnPoint;
+    [SerializeField] private GameObject VC_Default;
+    [SerializeField] private GameObject VC_LockOn;
+    [SerializeField] private CinemachineTargetGroup TargetGroup;
     [SerializeField] private float enemyDetectDistance = 60f;
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
+    [SerializeField] private float blendTime = 1f;
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -120,9 +122,13 @@ public class playerController : MonoBehaviour
     {
         LookLockOnEnemy();
         ShowLockOnPoint();
+        SetDefaultCameraPosition();
         MovePlayer();
         Animate();
     }
+
+    
+
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
@@ -141,6 +147,11 @@ public class playerController : MonoBehaviour
         var width = UI_lockOnPoint.GetComponent<RectTransform>().rect.width;
         var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
         UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
+    }
+    private void SetDefaultCameraPosition()
+    {
+        if (IsLockOn && !Camera.main.GetComponent<CinemachineBrain>().IsBlending)
+            VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
     Vector3 moveDirection;
     private void MovePlayer()
@@ -434,15 +445,62 @@ public class playerController : MonoBehaviour
             if (target != null)
                 TargetGroup.AddMember(target.transform, 1, 50f);
 
-            VC_TargetGroup.SetActive(true);
+            VC_LockOn.SetActive(true);
         }
         else
         {
             if (lockOnEnemy != null)
+            {
                 TargetGroup.RemoveMember(lockOnEnemy.transform);
+                StartCoroutine(LerpDefaultCameraFollowPosition());
+                StartCoroutine(LerpDefaultCameraLookAtPosition());
+            }
 
-            VC_TargetGroup.SetActive(false);
+            VC_LockOn.SetActive(false);
         }
+    }
+
+    private IEnumerator LerpDefaultCameraFollowPosition()
+    {
+        var lastCameraPos = Camera.main.transform.position;
+        
+        float elapsedTime = 0f;
+        while (elapsedTime < blendTime)
+        {
+            elapsedTime += Time.deltaTime;
+
+            VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Vector3.Lerp(
+                lastCameraPos,
+                transform.position,
+                elapsedTime / blendTime
+            );
+
+            yield return null;
+        }
+
+        VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = transform.position;
+    }
+
+    private IEnumerator LerpDefaultCameraLookAtPosition()
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < blendTime)
+        {
+            elapsedTime += Time.deltaTime;
+
+            var lastEnemyPos = lockOnEnemy.transform.position;
+            var playerPos = transform.position;
+
+            VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = Vector3.Lerp(
+                lastEnemyPos,
+                playerPos,
+                elapsedTime / blendTime
+            );
+            
+            yield return null;
+        }
+
+        VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = transform.position;
     }
 
     #endregion
