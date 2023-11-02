@@ -17650,11 +17650,13 @@ MonoBehaviour:
   runSpeed: 18
   rotateSpeed: 60
   jumpForce: 20
+  runBehindAngle: 40
   UI_lockOnPoint: {fileID: 1288531634}
   VC_Default: {fileID: 1550945356}
   VC_LockOn: {fileID: 1503980713}
   TargetGroup: {fileID: 2003300044}
-  enemyDetectDistance: 60
+  enemyDetectDistance: 40
+  lockOnLimitDistance: 50
   enemyDetectAngle: 15
   blendTime: 0.8
   ragdollColliders:

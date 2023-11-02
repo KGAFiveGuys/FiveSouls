@@ -45,6 +45,7 @@ public class playerController : MonoBehaviour
     [SerializeField] private GameObject VC_LockOn;
     [SerializeField] private CinemachineTargetGroup TargetGroup;
     [SerializeField] private float enemyDetectDistance = 60f;
+    [SerializeField] private float lockOnLimitDistance = 80f;
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
@@ -122,13 +123,23 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
+        CheckLockOnEnemyDistance();
         LookLockOnEnemy();
         ShowLockOnPoint();
         SetDefaultCameraPosition();
         MovePlayer();
         Animate();
     }
-
+    private void CheckLockOnEnemyDistance()
+    {
+        // LockOn 상태에서 제한범위를 벗어나면 UnLock
+        if (IsLockOn && Vector3.Distance(transform.position, lockOnEnemy.transform.position) > lockOnLimitDistance)
+        {
+            UI_lockOnPoint.SetActive(false);
+            ToggleTargetGroupCamera(false);
+            IsLockOn = false;
+        }
+    }
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
@@ -610,16 +621,18 @@ public class playerController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
 
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(transform.position, lockOnLimitDistance);
+
+        Gizmos.color = Color.magenta;
         if (IsLockOn)
         {
             // Debug detect enemy line of sight
-            Debug.DrawLine(
-                transform.position,
-                new Vector3(lockOnEnemy.transform.position.x,
-                            0,
-                            lockOnEnemy.transform.position.z),
-                Color.magenta
-            );
+            Gizmos.DrawLine(transform.position, new Vector3(
+                lockOnEnemy.transform.position.x,
+                0,
+                lockOnEnemy.transform.position.z
+            ));
         }
         else
         {
@@ -635,7 +648,6 @@ public class playerController : MonoBehaviour
                 Camera.main.transform.position.z
             );
             Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
-            Gizmos.color = Color.magenta;
             Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
         }
     }
