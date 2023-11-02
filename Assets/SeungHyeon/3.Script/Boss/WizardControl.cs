@@ -38,6 +38,8 @@ public class WizardControl : MonoBehaviour
     [SerializeField] private ThunderBoltCircle thunderBoltCircle;
     [SerializeField] private GameObject Fireball_Spawner;
     [SerializeField] private FireBallSpawner fireBallSpawner;
+    [SerializeField] private float BackwardForce = 100f;
+    [SerializeField] private Rigidbody Wizard_rb;
 
     [Header("이펙트")]
     [SerializeField] private AttackEffect[] Attack_effect;
@@ -55,16 +57,16 @@ public class WizardControl : MonoBehaviour
         fireBallSpawner = FindObjectOfType<FireBallSpawner>();
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
+        TryGetComponent(out Wizard_rb);
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
     }
     private void Update()
     {
         CheckPlayerPosition();
-        if(wizardinfo.status.Equals(Status.Ready))
+
+        if (wizardinfo.status.Equals(Status.Ready))
         {
             AttackTime += Time.deltaTime;
-            float LastTime = 0;
-            Debug.Log(AttackTime);
             if (AttackTime >= 5f)
             {
                Debug.Log("실행");
@@ -122,12 +124,25 @@ public class WizardControl : MonoBehaviour
             yield return null;
         }
     }
+    private void ClosePattern()
+    {
+        Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
+        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        {
+            Debug.Log("벽있음");
+        }
+        else
+        {
+            StartCoroutine(BackStep());
+        }
+    }
 
     private void SelectPattern(int pattern)
     {
         switch(pattern)
         {
             case 0:
+                ClosePattern();
                 return;
             case 1:
                 StartCoroutine(fireBallSpawner.CreateFireBall());
@@ -136,5 +151,11 @@ public class WizardControl : MonoBehaviour
                 StartCoroutine(UseThunderbolt());
                 return;
         }    
+    }
+    private IEnumerator BackStep()
+    {
+        Vector3 Backward_Movement = -transform.forward * BackwardForce;
+        Wizard_rb.AddForce(Backward_Movement);
+        yield return null;
     }
 }

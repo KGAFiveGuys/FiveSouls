@@ -71,7 +71,7 @@ public class FireballMove : MonoBehaviour
         }
         else
         {
-            transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed);
+            transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed*1.5f);
         }
     }
     private float CubicBezierCurve(float a, float b, float c, float d)
