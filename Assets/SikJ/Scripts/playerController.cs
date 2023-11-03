@@ -137,8 +137,6 @@ public class PlayerController : MonoBehaviour
     {
         SetDefaultCameraPosition();
 
-        CheckDead();
-
         CheckLockOnEnemyDistance();
         LookLockOnEnemy();
         ShowLockOnPoint();
@@ -146,17 +144,7 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         AnimatePlayerMove();
     }
-    private void CheckDead()
-    {
-        if (IsDead)
-            return;
-
-        if (_health.CurrentHP == 0)
-        {
-            IsDead = true;
-            Die();
-        }
-    }
+    
     private void CheckLockOnEnemyDistance()
     {
         // LockOn 상태에서 제한범위를 벗어나면 UnLock
@@ -206,6 +194,12 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
             transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
+
+            // To-Do : Collision Check
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
+
             Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
         }
         // FreeLook이면 desiredMove로 moveDirection을 조정
@@ -229,6 +223,11 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * speed);
             transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
+
+            // To-Do : Collision Check
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
         }
         Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
     }
@@ -250,7 +249,7 @@ public class PlayerController : MonoBehaviour
         // Run
         _animator.SetBool(isSprint_hash, IsRun);
 
-        // Rotate
+        // To-Do : Rotate
     }
 
     private void OnEnable()
@@ -294,6 +293,7 @@ public class PlayerController : MonoBehaviour
         ragdollTest.canceled += OnRagdollCanceled;
         ragdollTest.Enable();
         #endregion
+        _health.OnDead += Die;
     }
 
     private void OnDisable()
@@ -337,6 +337,7 @@ public class PlayerController : MonoBehaviour
         ragdollTest.canceled -= OnRagdollCanceled;
         ragdollTest.Disable();
         #endregion
+        _health.OnDead -= Die;
     }
 
     private Vector2 desiredMove;
@@ -374,7 +375,10 @@ public class PlayerController : MonoBehaviour
     {
         var isJump = context.ReadValueAsButton();
         if (isJump)
+		{
+            _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
+        }
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {
@@ -388,6 +392,7 @@ public class PlayerController : MonoBehaviour
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
+            _stamina.Consume(_stamina.BlockCost);
             _animator.SetBool(isBlock_hash, true);
         }
     }
@@ -405,6 +410,7 @@ public class PlayerController : MonoBehaviour
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
+            _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
         }
     }
@@ -421,8 +427,9 @@ public class PlayerController : MonoBehaviour
         var isWeakAttack = context.ReadValueAsButton();
         if (isWeakAttack)
         {
-            _attackController.ChangeAttackType(AttackType.Weak);
             ControlState = ControlState.Uncontrollable;
+            _attackController.ChangeAttackType(AttackType.Weak);
+            _stamina.Consume(_stamina.WeakAttackCost);
             _animator.SetBool(isWeakAttack_hash, true);
         }
     }
@@ -439,8 +446,9 @@ public class PlayerController : MonoBehaviour
         var isStrongAttack = context.ReadValueAsButton();
         if (isStrongAttack)
         {
-            _attackController.ChangeAttackType(AttackType.Strong);
             ControlState = ControlState.Uncontrollable;
+            _attackController.ChangeAttackType(AttackType.Strong);
+            _stamina.Consume(_stamina.StrongAttackCost);
             _animator.SetTrigger(isStrongAttack_hash);
         }
     }

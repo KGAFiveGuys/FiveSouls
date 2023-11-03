@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5035,8 +5035,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: -100}
-  m_SizeDelta: {x: 1170, y: 150}
+  m_AnchoredPosition: {x: -25, y: -100}
+  m_SizeDelta: {x: 1180, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &644248452
 MonoBehaviour:
@@ -6296,8 +6296,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 100}
-  m_SizeDelta: {x: 1170, y: 150}
+  m_AnchoredPosition: {x: -25, y: 100}
+  m_SizeDelta: {x: 1180, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &771917367
 MonoBehaviour:
@@ -7568,126 +7568,14 @@ PrefabInstance:
       propertyPath: staminaForeground
       value: 
       objectReference: {fileID: 1508518744}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundDelay
-      value: 1
+    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: <RegenDelay>k__BackingField
+      value: 0.1
       objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpDuration
-      value: 0.5
+    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: <RegenRatePerSeconds>k__BackingField
+      value: 40
       objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].time
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].time
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].time
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[4].time
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].value
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].value
-      value: 0.12
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].value
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[4].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].inSlope
-      value: 0.09916982
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].inSlope
-      value: 0.53727704
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].inSlope
-      value: 1.5715874
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[4].inSlope
-      value: 7.500007
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].inWeight
-      value: 0.40035185
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].outSlope
-      value: 0.09916982
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].inWeight
-      value: 0.44329756
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].outSlope
-      value: 0.53727704
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].inWeight
-      value: 0.35416666
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].outSlope
-      value: 1.5715874
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[4].inWeight
-      value: 0.11669105
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[4].outSlope
-      value: 7.500007
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[1].outWeight
-      value: 0.51546514
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[2].outWeight
-      value: 0.77083325
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackgroundLerpIntensity.m_Curve.Array.data[3].outWeight
-      value: 0.20833315
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462795, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: Background
-      value: 
-      objectReference: {fileID: 793457432}
-    - target: {fileID: 2309525717887462795, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: Foreground
-      value: 
-      objectReference: {fileID: 683960568}
-    - target: {fileID: 2309525717887462795, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: background
-      value: 
-      objectReference: {fileID: 793457432}
-    - target: {fileID: 2309525717887462795, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: foreground
-      value: 
-      objectReference: {fileID: 683960568}
     - target: {fileID: 2309525717887462796, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_Name
       value: Player
@@ -14849,7 +14737,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784617115}
-  m_LocalRotation: {x: 0.19424808, y: 0.0000000084393195, z: -0.0000000016711529, w: 0.98095244}
+  m_LocalRotation: {x: 0.19424808, y: -0.000000008439323, z: 0.0000000016711535, w: 0.98095244}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
