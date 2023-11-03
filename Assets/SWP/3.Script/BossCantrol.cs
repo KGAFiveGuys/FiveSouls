@@ -14,6 +14,8 @@ public class BossCantrol : MonoBehaviour
     [SerializeField] private LayerMask TargetMask;
     [SerializeField] private float detectRange = 30f;
     [SerializeField] private float stopdistance = 1.25f;//근접공격거리 & 보스멈출거리
+    [SerializeField] private AnimationClip[] AniClips;
+    private AnimationClip currentAniClip;
     private Animator HulkAnimator;
     //private Rigidbody rb;
     private Transform Target;
@@ -28,6 +30,7 @@ public class BossCantrol : MonoBehaviour
     private bool isStrong = false;
     private bool isGroggy = false;
     private bool isGroggyHit = false;
+    private bool OnlyOne = true;
     private bool isAngry = false;
     private bool isSlide = false;
     private bool isTarget
@@ -48,12 +51,31 @@ public class BossCantrol : MonoBehaviour
     private float MaxHP = 1000f;
     private float currentHP;
 
+    private void OnDrawGizmos()
+    {
+        //탐지범위
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectRange);
+        if (Target != null)
+        {
+            Gizmos.DrawLine(transform.position, new Vector3(Target.position.x, 0, Target.position.z));
+        }
+
+        //대쉬공격 범위
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, AdDistance * transform.localScale.x);
+
+        //근접공격 범위
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, stopdistance * transform.localScale.x);
+    }
 
     private void Start()
     {
         currentHP = MaxHP;
         TryGetComponent(out agent);
         TryGetComponent(out HulkAnimator);
+        AniClips = transform.GetComponents<AnimationClip>();
     }
 
     private void Update()
@@ -67,32 +89,17 @@ public class BossCantrol : MonoBehaviour
 
     }
 
-    private void OnDrawGizmos()
-    {
-        //탐지범위
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectRange);
-        //Gizmos.DrawRay(transform.position, (Target.position - transform.position)*5f);
-
-        //대쉬공격 범위
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, AdDistance * transform.localScale.x);
-
-        //근접공격 범위
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, stopdistance * transform.localScale.x);
-    }
-
-
     private void CalcDistance()
     {
         Collider[] colls = Physics.OverlapSphere(transform.position, detectRange, TargetMask);
         if (colls.Length > 0 /*&& !플레이어 안죽었다면~*/)
         {
             Target = colls[0].transform;
-            distance = Vector3.Distance(Target.position, transform.position);
+            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            Vector3 currentTF = new Vector3(transform.position.x, 0, transform.position.z);
+            distance = Vector3.Distance(targetTF, currentTF);
             //Debug.Log($"타겟거리 : {distance}");
-            transform.LookAt(new Vector3(Target.position.x,0, Target.position.z));
+            //transform.LookAt(new Vector3(Target.position.x,0, Target.position.z));
         }
         else
         {
@@ -102,68 +109,93 @@ public class BossCantrol : MonoBehaviour
 
     private void NaviTarget(float distance)
     {
-        if (distance <= detectRange && distance >= stopdistance * transform.localScale.x)
+        if (isTarget)
         {
             //플레이어 찾아가줭
             agent.stoppingDistance = stopdistance * transform.localScale.x;
-            agent.SetDestination(Target.position);
+            agent.SetDestination(new Vector3(Target.position.x,0, Target.position.z));
             agent.isStopped = false;
-            Debug.Log("진입");
         }
-        else if (isSlide)
-        {
-            agent.isStopped = true;
-            Debug.Log("슬라이드 공격끝");
-        }
+        //else if (isSlide || isAngry || isNormal || isStrong)
+        //{
+        //    agent.isStopped = true;
+        //    Debug.Log("공격 중 AI멈춰!");
+        //}
         else
         {
             agent.isStopped = true;
-            Debug.Log("다왔엉");
         }
     }
 
     private IEnumerator SelectPatternCo(float distance)
     {
         // 체력이 반 이하면 점프공격해줭
-        if (currentHP <= (MaxHP * 0.5f))
+        if (currentHP <= (MaxHP * 0.5f) && OnlyOne)
         {
-            isAngry = true;
-            HulkAnimator.SetBool("isAngry", isAngry);  
+            OnlyOne = false;
+            agent.ResetPath();
+            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            Vector3 currentTF = new Vector3(transform.position.x, 0, transform.position.z);
+            transform.position = Vector3.MoveTowards(currentTF, targetTF, 1.5f * Time.deltaTime);
+            AngryAttack();
         }
 
         if (distance > stopdistance * transform.localScale.x * 2 && distance <= AdDistance * transform.localScale.x)
         {
             //슬라이딩해줭
             SlideAttack();
-            Debug.Log("slide");
         }
         else if (distance <= stopdistance * transform.localScale.x)
         {
             //근접공격해줭
-            Attack();
+            int SelectType = Random.Range(0, 4);
+            int AttackNum = Random.Range(0, 2);
+            switch (SelectType)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    isNormal = true;
+                    HulkAnimator.SetBool("isNormal", isNormal);
+                    HulkAnimator.SetInteger("NormalNum", AttackNum);
+                    isNormal = false;
+                    break;
+                case 3:
+                    isStrong = true;
+                    HulkAnimator.SetBool("isStrong", isStrong);
+                    HulkAnimator.SetInteger("StrongNum", AttackNum);
+                    isStrong = false;
+                    break;
+            }
             Debug.Log("attack");
         }
-        yield return new WaitForSeconds(delayTime);
-        isNormal = false;
-        isStrong = false;
+
+        yield return null;/*new WaitForSeconds(delayTime);*/
+        isSlide = false;
         isGroggy = false;
         isGroggyHit = false;
-        isAngry = false;
-        isSlide = false;
     }
 
     private void SlideAttack()
     {
-        isSlide = true;
-        HulkAnimator.SetBool("isSlide", isSlide);
-        agent.destination = (new Vector3(Target.position.x, 0, Target.position.z)- new Vector3(transform.position.x, 0, transform.position.z)).normalized*AdDistance*transform.localScale.x;
-        //transform.position = Vector3.MoveTowards(transform.position, Vector3.forward, AdDistance*transform.localScale.x);
-        //데미지 주세용
-        if (distance < stopdistance * transform.localScale.x*2)
+        for (int i = 0; i < AniClips.Length; i++)
         {
-            isSlide = false;
-            HulkAnimator.SetBool("isSlide", isSlide);
+            if (AniClips[i].name == "Sliding")
+            {
+                currentAniClip = AniClips[i];
+                break;
+            }            
         }
+        Debug.Log("slide");
+        isSlide = true;
+        agent.ResetPath();
+        Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        Vector3 currentTF = new Vector3(transform.position.x, 0, transform.position.z);
+        HulkAnimator.SetBool("isSlide", isSlide);
+        transform.position = Vector3.MoveTowards(currentTF, targetTF.normalized*AdDistance*transform.localScale.x, currentAniClip.length * Time.deltaTime);
+        //agent.destination = new Vector3(Target.position.x, 0, Target.position.z).normalized * AdDistance * transform.localScale.x;
+        //데미지 주세용
+        TurnOff(currentAniClip.length, isSlide);        
     }
 
     private void Attack()
@@ -178,18 +210,39 @@ public class BossCantrol : MonoBehaviour
                 isNormal = true;
                 HulkAnimator.SetBool("isNormal", isNormal);
                 HulkAnimator.SetInteger("NormalNum", AttackNum);
-                isNormal = false;
+                transform.position = 
+                //isNormal = false;
+                //HulkAnimator.SetBool("isNormal", isNormal);
                 break;
             case 3:
                 isStrong = true;
                 HulkAnimator.SetBool("isStrong", isStrong);
                 HulkAnimator.SetInteger("StrongNum", AttackNum);
-                isStrong = false;
+                //isStrong = false;
+                //HulkAnimator.SetBool("isStrong", isStrong);
                 break;
         }
     }
 
+    private void AngryAttack()
+    {
+        isAngry = true;
+        HulkAnimator.SetBool("isAngry", isAngry);
 
+        //isAngry = false;
+        //HulkAnimator.SetBool("isAngry", isAngry);
+    }
+
+    private bool TurnOff(float time, bool what)
+    {
+        float needTime = 0;
+        needTime += Time.deltaTime;
+        if (needTime >= time)
+        {
+            what = false;
+        }
+        return what;
+    }
 
 
 
