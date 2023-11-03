@@ -6,8 +6,8 @@ using System.Diagnostics;
 using UnityEngine.AI;
 public class MutantController : MonoBehaviour
 {
-    
 
+    private Health health;
 
     [field: Header("State")]
     [field: SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
@@ -38,7 +38,7 @@ public class MutantController : MonoBehaviour
 
     private bool isCursor = false;
 
-
+    private AttackController attackController;
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
     #region AnimatorParameters
@@ -59,8 +59,8 @@ public class MutantController : MonoBehaviour
     //쿨타임용 bool값 
     bool isDash = false;
     bool _isRun = false;
-    bool isHowling= false;
-
+    bool isHammering = false;
+    bool isDance = false;
     private bool isTarget
     {
         get
@@ -92,14 +92,29 @@ public class MutantController : MonoBehaviour
         TryGetComponent(out playerAnimator);
         player = GameObject.FindGameObjectWithTag("Player");
         TryGetComponent(out agent);
-
-        agent.speed = moveSpeed;
+        TryGetComponent(out attackController);
+        TryGetComponent(out health);
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if(player != null)
+        {
+            health = player.GetComponent<Health>();
+            if (player != null)
+            {
+                // playerHealth 컴포넌트가 찾아진 경우,
+                // 이곳에서 playerHealth를 사용하여 값을 가져올 수 있습니다.
+                float currentHP = health.CurrentHP;
+                print("Player의 현재 HP: " + currentHP);
+            }
+        }
     }
 
     private void Update()
     {
-        print(isTarget);
-        playerAnimator.SetBool("isTarget", isTarget);
+        print(distance);
+        if(distance >= 3f)
+        {
+            playerAnimator.SetBool("isTarget", isTarget);
+        }
         Move_ToPlayer();
         Move();
         Rotate();
@@ -112,8 +127,9 @@ public class MutantController : MonoBehaviour
         Jugement_MonAction();
         //transform.LookAt(player.transform);
         print("누구보고있니 : " + player.name);
-       // print("거리 : "+distance);
-        print("대쉬쿨 : " + cool_Dash);
+
+
+//        Dance();
     }
     
     public void Togle_Cursor()
@@ -301,7 +317,7 @@ public class MutantController : MonoBehaviour
 
         while (distanceMoved < distanceToMove)
         {
-            float moveDistance = moveSpeed * 3 * Time.deltaTime;
+            float moveDistance = moveSpeed * 1.5f * Time.deltaTime;
             transform.Translate(Vector3.forward * moveDistance);
             distanceMoved += moveDistance;
             // 프레임 단위로 실행
@@ -312,6 +328,9 @@ public class MutantController : MonoBehaviour
         print("대쉬 동작시간 : "+ time);
         isJumping = false;
         playerAnimator.SetBool(isJump_hash, false);
+
+        // 대쉬 끝
+        attackController.TurnOffAttackCollider();
     }
 
     private void OnJumpCanceled(InputAction.CallbackContext context)
@@ -498,7 +517,7 @@ public class MutantController : MonoBehaviour
         else if (distance <= 10f)
         {
             // 캐릭터에게 걸어와서 근접공격 (일반 1 강공 1)
-            if(distance <= 2f)
+            if(distance <= 3f)
             {
                 playerAnimator.SetBool(isWeakAttack_hash, true);
             }
@@ -533,26 +552,68 @@ public class MutantController : MonoBehaviour
             StartCoroutine(Dash_Cool_co());
         }
     }
-    //네비게이션을 이용하여 플레이어에게 이동
-    private void Move_ToPlayer()
-    {
-        agent.SetDestination(player.transform.position);
-    }
 
-
-/*    private void Howling_Att()
+    //강한공격 > 주먹질
+    private void Hammering_Att()
     {
-        if (isHowling)
+        if (isHammering)
         {
             return;
         }
-        else if (!isHowling)
+        else if (!isHammering)
         {
-            playerAnimator.SetBool(isHowling_hash, true);
-            isHowling = true;
-            StartCoroutine(cool_Howling_Cool_co());
+            playerAnimator.SetBool(isStrongAttack_hash, true);
+            isHammering = true;
         }
-    }*/
+    }
+    float count;
+    //네비게이션을 이용하여 플레이어에게 이동
+    private void Move_ToPlayer()
+    {
+        
+        if (isDash)
+        {
+
+            while (count < 2f)
+            {
+                count += Time.deltaTime;
+            }
+            count = 0;
+            return;
+        }
+        else
+        {
+            agent.SetDestination(player.transform.position);
+        }
+
+    }
+
+
+
+    //춤추는건 나중에 하자;.
+    //private void Dance()
+    //{
+    //    if (isDance)
+    //    {
+    //        return;
+    //    }
+    //    else if (!isDance && health.CurrentHP <= 0)
+    //    {
+    //        isDance = true;
+    //        playerAnimator.SetBool("isDance", true);
+    //    }
+    //}
+    //private void Howling_Att()
+    //{
+    //    if (isHowling)
+    //    {
+    //        return;
+    //    }
+    //    else if (!isHowling)
+    //    {
+    //        playerAnimator.SetBool(isHowling_hash, true);
+    //    }
+    //}
 
 
 }
