@@ -12,13 +12,17 @@ public enum ControlState
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof(AttackController))]
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
-public class playerController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
     [field: SerializeField] public bool IsLockOn { get; set; } = false;
     [field: SerializeField] public bool IsRun { get; set; } = false;
+    [field: SerializeField] public bool IsDead { get; set; } = false;
 
     [Header("Input Actions")]
     public InputAction move;
@@ -73,9 +77,12 @@ public class playerController : MonoBehaviour
     [SerializeField] private List<Collider> shieldColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
 
-    private Rigidbody playerRigidbody;
-    private CapsuleCollider playerCollider;
-    private Animator playerAnimator;
+    private Rigidbody _rigidbody;
+    private CapsuleCollider _collider;
+    private AttackController _attackController;
+    private Health _health;
+    private Stamina _stamina;
+    private Animator _animator;
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
@@ -89,9 +96,12 @@ public class playerController : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out playerRigidbody);
-        TryGetComponent(out playerCollider);
-        TryGetComponent(out playerAnimator);
+        TryGetComponent(out _rigidbody);
+        TryGetComponent(out _collider);
+        TryGetComponent(out _attackController);
+        TryGetComponent(out _health);
+        TryGetComponent(out _stamina);
+        TryGetComponent(out _animator);
 
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
@@ -125,12 +135,27 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
+        SetDefaultCameraPosition();
+
+        CheckDead();
+
         CheckLockOnEnemyDistance();
         LookLockOnEnemy();
         ShowLockOnPoint();
-        SetDefaultCameraPosition();
+        
         MovePlayer();
         AnimatePlayerMove();
+    }
+    private void CheckDead()
+    {
+        if (IsDead)
+            return;
+
+        if (_health.CurrentHP == 0)
+        {
+            IsDead = true;
+            Die();
+        }
     }
     private void CheckLockOnEnemyDistance()
     {
@@ -212,18 +237,18 @@ public class playerController : MonoBehaviour
         // Move
         if (IsLockOn)
         {
-            playerAnimator.SetFloat(moveX_hash, moveDirection.x);
-            playerAnimator.SetFloat(moveY_hash, moveDirection.z);    
+            _animator.SetFloat(moveX_hash, moveDirection.x);
+            _animator.SetFloat(moveY_hash, moveDirection.z);    
         }
         else
         {
             var value = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
-            playerAnimator.SetFloat(moveX_hash, 0);
-            playerAnimator.SetFloat(moveY_hash, value);
+            _animator.SetFloat(moveX_hash, 0);
+            _animator.SetFloat(moveY_hash, value);
         }
 
         // Run
-        playerAnimator.SetBool(isSprint_hash, IsRun);
+        _animator.SetBool(isSprint_hash, IsRun);
 
         // Rotate
     }
@@ -349,11 +374,11 @@ public class playerController : MonoBehaviour
     {
         var isJump = context.ReadValueAsButton();
         if (isJump)
-            playerAnimator.SetBool(isJump_hash, true);
+            _animator.SetBool(isJump_hash, true);
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {
-        playerAnimator.SetBool(isJump_hash, false);
+        _animator.SetBool(isJump_hash, false);
     }
     #endregion
     #region block_Action
@@ -363,13 +388,13 @@ public class playerController : MonoBehaviour
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isBlock_hash, true);
+            _animator.SetBool(isBlock_hash, true);
         }
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isBlock_hash, false);
+        _animator.SetBool(isBlock_hash, false);
         IsRun = false;
     }
     #endregion
@@ -380,13 +405,13 @@ public class playerController : MonoBehaviour
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isRoll_hash, true);
+            _animator.SetBool(isRoll_hash, true);
         }
     }
     private void OnRollCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isRoll_hash, false);
+        _animator.SetBool(isRoll_hash, false);
         IsRun = false;
     }
     #endregion
@@ -396,14 +421,15 @@ public class playerController : MonoBehaviour
         var isWeakAttack = context.ReadValueAsButton();
         if (isWeakAttack)
         {
+            _attackController.ChangeAttackType(AttackType.Weak);
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isWeakAttack_hash, true);
+            _animator.SetBool(isWeakAttack_hash, true);
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isWeakAttack_hash, false);
+        _animator.SetBool(isWeakAttack_hash, false);
         IsRun = false;
     }
     #endregion
@@ -413,14 +439,15 @@ public class playerController : MonoBehaviour
         var isStrongAttack = context.ReadValueAsButton();
         if (isStrongAttack)
         {
+            _attackController.ChangeAttackType(AttackType.Strong);
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetTrigger(isStrongAttack_hash);
+            _animator.SetTrigger(isStrongAttack_hash);
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isStrongAttack_hash, false);
+        _animator.SetBool(isStrongAttack_hash, false);
         IsRun = false;
     }
     #endregion
@@ -556,21 +583,32 @@ public class playerController : MonoBehaviour
         var isRagdoll = context.ReadValueAsButton();
         if (isRagdoll)
         {
-            // »ç¸Á Å×½ºÆ®
-            IsLockOn = false;
-            UI_lockOnPoint.SetActive(false);
-            ToggleTargetGroupCamera(false);
-
-            ToggleRagdoll(true);
-            StartCoroutine(HandleEquipment(true));
+            Die();
         }
     }
+
+    public void Die()
+    {
+        IsLockOn = false;
+        UI_lockOnPoint.SetActive(false);
+        ToggleTargetGroupCamera(false);
+
+        ToggleRagdoll(true);
+        StartCoroutine(HandleEquipment(true));
+    }
+
     private void OnRagdollCanceled(InputAction.CallbackContext context)
+    {
+        Revive();
+    }
+
+    public void Revive()
     {
         ToggleRagdoll(false);
         StartCoroutine(HandleEquipment(false));
         IsRun = false;
     }
+
     public void ToggleRagdoll(bool isRagdoll)
     {
         #region Toggle ragdoll colliders & rigidbodies
@@ -586,8 +624,8 @@ public class playerController : MonoBehaviour
         #endregion
 
         // Toggle animation & control
-        playerAnimator.enabled = !isRagdoll;
-        playerRigidbody.velocity = Vector3.zero;
+        _animator.enabled = !isRagdoll;
+        _rigidbody.velocity = Vector3.zero;
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
     /// <summary>
