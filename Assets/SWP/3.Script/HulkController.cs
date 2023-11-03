@@ -29,7 +29,7 @@ public class HulkController : MonoBehaviour
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
-    private readonly int isNormalAttack_hash = Animator.StringToHash("isNormalAttack");
+    private readonly int isWeakAttack = Animator.StringToHash("isNormalAttack");
     private readonly int NormalNum_hash = Animator.StringToHash("NormalNum");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int StrongNum_hash = Animator.StringToHash("StrongNum");
@@ -198,14 +198,14 @@ public class HulkController : MonoBehaviour
         if (isNormalAttack)
         {
             ControlState = ControlState.Uncontrollable;
-            HulkAnimator.SetBool(isNormalAttack_hash, true);
+            HulkAnimator.SetBool(isWeakAttack, true);
             HulkAnimator.SetInteger(NormalNum_hash, Random.Range(0,2));
         }
     }
     private void OnNormalAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        HulkAnimator.SetBool(isNormalAttack_hash, false);
+        HulkAnimator.SetBool(isWeakAttack, false);
     }
     #endregion
     #region strongAttack_Action

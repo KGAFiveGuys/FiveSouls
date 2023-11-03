@@ -353,13 +353,13 @@ public class playerController : MonoBehaviour
         if (isNormalAttack)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isNormalAttack_hash, true);
+            playerAnimator.SetBool(isWeakAttack_hash, true);
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isNormalAttack_hash, false);
+        playerAnimator.SetBool(isWeakAttack_hash, false);
     }
     #endregion
     #region strongAttack_Action
