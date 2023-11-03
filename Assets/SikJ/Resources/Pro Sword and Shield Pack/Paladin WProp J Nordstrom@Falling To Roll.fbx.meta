@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: f6c2be61fbe1d894fae3f05add2bb259
+guid: ef493f3026c6d1445be0fe705cb8b4a8
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: Run To Rolling
+    second: Falling To Roll
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -35,11 +35,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Run To Rolling
+      name: Falling To Roll
       takeName: mixamo.com
       internalID: 0
-      firstFrame: 0
-      lastFrame: 70
+      firstFrame: 5
+      lastFrame: 54
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -52,73 +52,12 @@ ModelImporter:
       loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
-      keepOriginalPositionY: 0
+      keepOriginalPositionY: 1
       keepOriginalPositionXZ: 1
-      heightFromFeet: 1
+      heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves:
-      - name: Curve
-        curve:
-          serializedVersion: 2
-          curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.31682876
-            value: 0.24236518
-            inSlope: 1.9593215
-            outSlope: 1.9593215
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.33333334
-            outWeight: 0.41376603
-          - serializedVersion: 3
-            time: 0.3674078
-            value: 0.469289
-            inSlope: 9.160936
-            outSlope: 9.160936
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.33333334
-            outWeight: 0.33333334
-          - serializedVersion: 3
-            time: 0.49964076
-            value: 3
-            inSlope: 0.5593607
-            outSlope: 0.5593607
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 1
-            outWeight: 0.5765215
-          - serializedVersion: 3
-            time: 0.76819664
-            value: 1.2119418
-            inSlope: -0.2121045
-            outSlope: -0.2121045
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 1
-            outWeight: 0.8625119
-          - serializedVersion: 3
-            time: 1.0041809
-            value: 0.74056625
-            inSlope: -0.51673794
-            outSlope: -0.51673794
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.37065485
-            outWeight: 0
-          preInfinity: 2
-          postInfinity: 2
-          rotationOrder: 4
+      curves: []
       events: []
       transformMask: []
       maskType: 3

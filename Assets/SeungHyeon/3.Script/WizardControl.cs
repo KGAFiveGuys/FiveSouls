@@ -48,7 +48,7 @@ public class WizardControl : MonoBehaviour
 
     private void Awake()
     {
-        wizardinfo.ChaseTarget = FindObjectOfType<playerController>().gameObject;
+        wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
