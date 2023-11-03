@@ -22,9 +22,12 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private bool middlePattern = false;
     [SerializeField] private bool farPattern = false;
 
-    private bool isAttack = false;
+    private bool farP_Next = false;
 
-    private bool isMotion = false;
+    [SerializeField] private bool isMotion = false; //애니메이션이 Idle인지 체크
+
+    private bool isDelay = false;
+    private int P_layer;
 
     private void Awake()
     {
@@ -34,6 +37,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void Start()
     {
+        P_layer = LayerMask.GetMask("Player");
 
         IdleState = new IdleState(animator);
         WalkState = new WalkState(transform, WalkSpeed);
@@ -43,6 +47,8 @@ public class UnityChanAI : MonoBehaviour
 
         currentState = State.Idle;
 
+
+        StartCoroutine(DecidePattern());
     }
 
 
@@ -60,84 +66,50 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
-        if (Target) // 플레이어만 바라봄
+        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        if (Target && !isMotion) // 플레이어만 바라봄
         {
             transform.LookAt(Target.transform);
         }
 
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
         {
-            isAttack = false;
-            if (nearPattern)
-            {
-                int nearRan = Random.Range(0, 5);
-                switch (nearRan)
-                {
-                    case 0:
-                        animator.SetTrigger("Pattern1");
-                        break;
-                    case 1:
-                        animator.SetTrigger("Pattern2");
-                        break;
-                    case 2:
-                        animator.SetTrigger("Pattern3");
-                        break;
-                    case 3:
-                        animator.SetTrigger("Pattern4");
-                        break;
-                }
-                isAttack = true;
-            }
-
-            else if (farPattern)
-            {
-                rigidbody.AddForce(Vector3.forward * 200f * Time.deltaTime);
-                animator.SetTrigger("FarPattern");
-            }
-
-            else if (middlePattern || farPattern)
-            {
-
-                if (!isMotion) //모션 중이 아닐 때만 새로운 모션 시작
-                {
-                    StartCoroutine(MotionDelay());
-                    //RanState();
-                }
-                else
-                {
-                    switch (currentState)
-                    {
-                        case State.Idle:
-                            IdleState.Update();
-                            break;
-                        case State.Walk:
-                            WalkState.Update();
-                            break;
-                        case State.Run:
-                            RunState.Update();
-                            break;
-                        case State.Side_R:
-                            SideRState.Update();
-                            break;
-                        case State.Side_L:
-                            SideLState.Update();
-                            break;
-                    }
-                }
-            }
-        
+            isMotion = false;
+        } //Idle 인지 체크 후 IsMotion에 반환
+        else
+        {
+            isMotion = true;
         }
 
-        
+        switch (currentState)
+        {
+            case State.Idle:
+                IdleState.Update();
+                break;
+            case State.Walk:
+                WalkState.Update();
+                break;
+            case State.Run:
+                RunState.Update();
+                break;
+            case State.Side_R:
+                SideRState.Update();
+                break;
+            case State.Side_L:
+                SideLState.Update();
+                break;
+        }
+        FarPattern();
 
-        
+
+
     }
 
     private void SearchPlayer()
     {
-        int layerMask = LayerMask.GetMask("Player");
+        
 
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f, layerMask);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f, P_layer);
         foreach (Collider collider in hitColliders)
         {
             Target = collider.gameObject;
@@ -146,13 +118,12 @@ public class UnityChanAI : MonoBehaviour
 
     private void CheckDistance()
     {
-        int layerMask = LayerMask.GetMask("Player");
 
-        Collider[] near = Physics.OverlapSphere(transform.position, 5f, layerMask);
+        Collider[] near = Physics.OverlapSphere(transform.position, 5f, P_layer);
 
-        Collider[] middle = Physics.OverlapSphere(transform.position, 20f, layerMask);
+        Collider[] middle = Physics.OverlapSphere(transform.position, 20f, P_layer);
         
-        Collider[] far = Physics.OverlapSphere(transform.position, 35f, layerMask);
+        Collider[] far = Physics.OverlapSphere(transform.position, 35f, P_layer);
         
         if (near.Length > 0)
         {
@@ -179,56 +150,159 @@ public class UnityChanAI : MonoBehaviour
             middlePattern = false;
             farPattern = false;
         }
+
+        Collider[] Check = Physics.OverlapSphere(transform.position, 15f, P_layer);
+
+        if (Check.Length > 0 && animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
+        {
+            farP_Next = true;
+        }
+        else
+        {
+            farP_Next = false;
+        }
     }
 
-    //private void RanState()
-    //{
-    //    int Ran = Random.Range(0, 2);
-    //    switch (Ran)
-    //    {
-    //        case 0:
-    //            currentState = State.Idle;
-    //            break;
-    //        case 1:
-    //            currentState = State.Walk;
-    //            animator.SetBool("isWalk", true);
-    //            break;
-    //        case 2:
-    //            currentState = State.Run;
-    //            animator.SetBool("isRun", true);
-    //            break;
-    //        case 3:
-    //            currentState = State.Side_R;
-    //            animator.SetBool("isSide_R", true);
-    //            break;
-    //        case 4:
-    //            currentState = State.Side_L;
-    //            animator.SetBool("isSide_L", true);
-    //            break;
-    //        default:
-    //            return;
-    //    }
+    private void RanState()
+    {
+        int Ran = Random.Range(0, 4);
+        switch (Ran)
+        {
+            case 0:
+                currentState = State.Walk;
+                animator.SetBool("isWalk", true);
+                break;
+            case 1:
+                currentState = State.Walk;
+                animator.SetBool("isWalk", true);
+                break;
+            case 2:
+                currentState = State.Side_R;
+                animator.SetBool("isSide_R", true);
+                break;
+            case 3:
+                currentState = State.Side_L;
+                animator.SetBool("isSide_L", true);
+                break;
+            case 4:
+                currentState = State.Idle;
+                break;
+            case 5:
+                currentState = State.Run;
+                animator.SetBool("isRun", true);
+                break;
+            default:
+                return;
+        }
 
-    //}
+    }
 
 
     private IEnumerator MotionDelay()
     {
         float Motiondelay;
         Motiondelay = Random.Range(2, 5);
-        isMotion = true;
+        isDelay = true;
         yield return new WaitForSeconds(Motiondelay);
-        isMotion = false;
-
+        isDelay = false;
+        animator.SetBool("isIdle", true);
         animator.SetBool("isWalk", false);
         animator.SetBool("isRun", false);
         animator.SetBool("isSide_R", false);
         animator.SetBool("isSide_L", false);
     }
 
+    private IEnumerator DecidePattern()
+    {
+        while (true)
+        {
+
+            if (!isDelay && !isMotion)
+            {
+
+                if (nearPattern)
+                {
+                    currentState = State.Idle;
+                    DecideNearPattern();
+                }
+                else if (middlePattern)
+                {
+                    //RanState();
+                    //yield return new WaitForSeconds(3f);
+
+                    //StartCoroutine(MotionDelay());
+                }
+                else if (farPattern)
+                {
+                    yield return new WaitForSeconds(3f);
+                    if (farPattern)
+                    {
+                        animator.SetTrigger("FarPattern");
+                    }
+
+                }
+
+                yield return new WaitForSeconds(2f);
 
 
+            }
+            yield return null;
+        }
 
+    }
+
+    private void DecideNearPattern()
+    {
+        int Ran = Random.Range(0, 5);
+        if (Ran == 0)
+        {
+            return;
+        }
+        else if (Ran == 1)
+        {
+            animator.SetTrigger("Pattern1");
+        }
+        else if (Ran == 2)
+        {
+            animator.SetTrigger("Pattern2");
+        }
+        else if (Ran == 3)
+        {
+            animator.SetTrigger("Pattern3");
+        }
+        else if (Ran == 4)
+        {
+            animator.SetTrigger("Pattern4");
+        }
+
+
+    }
+
+    private void FarPattern()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
+        {
+            isMotion = true;
+            transform.LookAt(Target.transform);
+            transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
+
+            if (!animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2") && farP_Next)
+            {
+                animator.SetTrigger("FarPattern2");
+            }
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2"))
+        {
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.4f)
+            {
+                transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
+            }
+        }
+        else
+        {
+            isMotion = false;
+        }
+    }
 
 
 

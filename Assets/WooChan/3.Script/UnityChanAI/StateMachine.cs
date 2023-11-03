@@ -91,3 +91,29 @@ public class SideLState
         transform.position += transform.TransformDirection(Vector3.left) * RunSpeed * Time.deltaTime;
     }
 }
+
+//public class FarPattern
+//{
+//    private Transform transform;
+//    private float RunSpeed;
+//    private Animator animator;
+
+//    public FarPattern(Transform transform, float RunSpeed, Animator animator)
+//    {
+//        this.transform = transform;
+//        this.RunSpeed = RunSpeed;
+//        this.animator = animator;
+//    }
+//    public void Update()
+//    {
+//        if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
+//        {
+//            transform.position += transform.TransformDirection(Vector3.left) * RunSpeed * Time.deltaTime;
+//        }
+//        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2"))
+//        {
+
+//        }
+//    }
+
+//}
