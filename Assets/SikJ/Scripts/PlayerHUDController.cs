@@ -46,12 +46,11 @@ public class PlayerHUDController : MonoBehaviour
         staminaForeground.value = playerStamina.CurrentStamina / playerStamina.MaxStamina;
     }
 
-    private float lastHealthForeground;
     private IEnumerator lastHealthBackground = null;
     public void SetHealthUI()
     {
         // 현재 대기중인 background 처리를 위해 피격 전 체력 저장
-        lastHealthForeground = healthForeground.value;
+        float lastHealthForeground = healthForeground.value;
 
         // foreground는 즉시 변경
         healthForeground.value = playerHealth.CurrentHP / playerHealth.MaxHP;
