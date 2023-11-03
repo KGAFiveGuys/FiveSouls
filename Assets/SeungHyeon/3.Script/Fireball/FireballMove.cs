@@ -47,33 +47,7 @@ public class FireballMove : MonoBehaviour
     private void Start()
     {
         Targetplayer = FindObjectOfType<FireBallSpawner>().target_obj;
-    }
-    private void Update()
-    {
-        FireBall_timerCurrent += Time.deltaTime * FireBall_speed;
-
-        DistanceOfTarget = Vector3.Distance(Targetplayer.transform.position, transform.position);
-        if(DistanceOfTarget <= 3f && status.Equals(FireBallStatus.Chase))
-        {
-            status = FireBallStatus.Find;
-            DistVector = Targetplayer.transform.position - transform.position;
-            DistVector.y += 2;
-            DirVector = DistVector.normalized;
-        }
-        if (status.Equals(FireBallStatus.Chase))
-        {   
-            FireBall_Points[3] = Targetplayer.transform.position;
-            FireBall_Points[3].y += 2; 
-            //베지어 곡선으로 X,Y,Z 좌표 얻기
-            transform.position = new Vector3(
-            CubicBezierCurve(FireBall_Points[0].x, FireBall_Points[1].x, FireBall_Points[2].x, FireBall_Points[3].x),
-            CubicBezierCurve(FireBall_Points[0].y, FireBall_Points[1].y, FireBall_Points[2].y, FireBall_Points[3].y),
-            CubicBezierCurve(FireBall_Points[0].z, FireBall_Points[1].z, FireBall_Points[2].z, FireBall_Points[3].z));
-        }
-        else
-        {
-            transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed*1.5f);
-        }
+        StartCoroutine(FireBallMove());
     }
     private float CubicBezierCurve(float a, float b, float c, float d)
     {
@@ -89,5 +63,36 @@ public class FireballMove : MonoBehaviour
         float bccd = Mathf.Lerp(bc, cd, t);
 
         return Mathf.Lerp(abbc, bccd, t);
+    }
+    private IEnumerator FireBallMove()
+    {
+        while(true)
+        {
+            FireBall_timerCurrent += Time.deltaTime * FireBall_speed;
+
+            DistanceOfTarget = Vector3.Distance(Targetplayer.transform.position, transform.position);
+            if (DistanceOfTarget <= 3f && status.Equals(FireBallStatus.Chase))
+            {
+                status = FireBallStatus.Find;
+                DistVector = Targetplayer.transform.position - transform.position;
+                DistVector.y += 2;
+                DirVector = DistVector.normalized;
+            }
+            if (status.Equals(FireBallStatus.Chase))
+            {
+                FireBall_Points[3] = Targetplayer.transform.position;
+                FireBall_Points[3].y += 2;
+                //베지어 곡선으로 X,Y,Z 좌표 얻기
+                transform.position = new Vector3(
+                CubicBezierCurve(FireBall_Points[0].x, FireBall_Points[1].x, FireBall_Points[2].x, FireBall_Points[3].x),
+                CubicBezierCurve(FireBall_Points[0].y, FireBall_Points[1].y, FireBall_Points[2].y, FireBall_Points[3].y),
+                CubicBezierCurve(FireBall_Points[0].z, FireBall_Points[1].z, FireBall_Points[2].z, FireBall_Points[3].z));
+            }
+            else
+            {
+                transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed * 1.5f);
+            }
+            yield return null;
+        }
     }
 }

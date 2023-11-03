@@ -158,4 +158,13 @@ public class WizardControl : MonoBehaviour
         Wizard_rb.AddForce(Backward_Movement);
         yield return null;
     }
+    private void OnTriggerStay(Collider collision)
+    {
+        if (collision.gameObject.layer.Equals(3))
+        {
+            Debug.Log(collision.gameObject.layer);
+            Wizard_rb.AddForce(Vector3.up * 15f, ForceMode.Acceleration);
+        }
+    }
+
 }

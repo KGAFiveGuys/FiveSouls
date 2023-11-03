@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 5011220009142537051}
   - component: {fileID: 5011220009155515007}
   - component: {fileID: 4728963041606286407}
-  - component: {fileID: 4661443183112750461}
-  m_Layer: 0
+  - component: {fileID: 7287383228098473324}
+  m_Layer: 8
   m_Name: FireMissileTiny
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4876,8 +4876,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1057dbc55932ac346adb99bacbf304e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!136 &4661443183112750461
-CapsuleCollider:
+--- !u!135 &7287383228098473324
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4886,9 +4886,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.27
-  m_Height: 0
-  m_Direction: 1
+  serializedVersion: 2
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5011220009141748629
 GameObject:
@@ -4901,7 +4900,7 @@ GameObject:
   - component: {fileID: 5011220009142022345}
   - component: {fileID: 5011220009156205321}
   - component: {fileID: 5011220009155528647}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TrailSmoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9662,7 +9661,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5011220009142006063}
   - component: {fileID: 5011220009148297761}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9757,7 +9756,7 @@ GameObject:
   - component: {fileID: 5011220009155543893}
   - component: {fileID: 5011220009156117671}
   - component: {fileID: 5011220009149019671}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TrailFire
   m_TagString: Untagged
   m_Icon: {fileID: 0}

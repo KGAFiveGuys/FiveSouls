@@ -11,6 +11,10 @@ public class ThunderboltEnd : MonoBehaviour
         TryGetComponent(out particle);
         parentObject = transform.parent.gameObject;
     }
+    private void Start()
+    {
+        
+    }
     private void Update()
     {
         if(!particle.IsAlive())

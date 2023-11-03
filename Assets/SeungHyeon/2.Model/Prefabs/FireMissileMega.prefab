@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7765316549803445343}
   - component: {fileID: 7765316549809666557}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 7765316549803431033}
   - component: {fileID: 7765316549784026537}
   - component: {fileID: 7765316549783101741}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TrailEmber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4848,7 +4848,7 @@ GameObject:
   - component: {fileID: 7765316549803504939}
   - component: {fileID: 7765316549784053993}
   - component: {fileID: 7765316549783118349}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9593,9 +9593,9 @@ GameObject:
   - component: {fileID: 7765316549784082297}
   - component: {fileID: 7765316549784048383}
   - component: {fileID: 7765316549795505195}
-  - component: {fileID: 1690994311086029285}
   - component: {fileID: 2182527670083343654}
-  m_Layer: 0
+  - component: {fileID: 8470060701598355256}
+  m_Layer: 8
   m_Name: FireMissileMega
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14464,20 +14464,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!136 &1690994311086029285
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7765316549803152613}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.34
-  m_Height: 0
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2182527670083343654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14490,6 +14476,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1057dbc55932ac346adb99bacbf304e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!135 &8470060701598355256
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7765316549803152613}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7765316549803159663
 GameObject:
   m_ObjectHideFlags: 0
@@ -14500,7 +14499,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7765316549803461457}
   - component: {fileID: 7765316549810500297}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trail2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14638,7 +14637,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7765316549803417233}
   - component: {fileID: 7765316549810579747}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trail1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14776,7 +14775,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7765316549803400913}
   - component: {fileID: 7765316549809223109}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trails
   m_TagString: Untagged
   m_Icon: {fileID: 0}
