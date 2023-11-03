@@ -6,12 +6,14 @@ public class Fly : MonoBehaviour
 {
     [SerializeField]private Rigidbody rb;
 
-    private void Start()
+    private void OnTriggerStay(Collider collision)
     {
-        rb = GetComponent<Rigidbody>(); 
+        if (collision.gameObject.layer.Equals(3))
+        {
+            Debug.Log(collision.gameObject.layer);
+            rb.AddForce(Vector3.up * 15f, ForceMode.Acceleration);
+        }
     }
-
-
 
 
 }

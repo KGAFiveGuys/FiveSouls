@@ -95,4 +95,8 @@ public class FireballMove : MonoBehaviour
             yield return null;
         }
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        
+    }
 }

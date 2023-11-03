@@ -99,9 +99,9 @@ public class WizardControl : MonoBehaviour
     {
         CurrnetEffect = Attack_effect[AttackPlayer].Effect_Particle;
         Attack_effect[AttackPlayer].Effect_Particle.Play();
+        SelectAnimation(AttackPlayer);
         AttackTime = 0;
-        yield return new WaitForSeconds(3f);
-        Wizard_anim.SetTrigger("Attack");
+        yield return new WaitForSeconds(2f);
         SelectPattern(AttackPlayer);
         CurrnetEffect.Stop();
     }
@@ -136,7 +136,21 @@ public class WizardControl : MonoBehaviour
             StartCoroutine(BackStep());
         }
     }
-
+    private void SelectAnimation(int pattern)
+    {
+      switch(pattern)
+        {
+            case 0:
+                Wizard_anim.SetTrigger("Attack");
+                return;
+            case 1:
+                Wizard_anim.SetTrigger("FireBall");
+                return;
+            case 2:
+                Wizard_anim.SetTrigger("Lightning");
+                return;
+        }
+    }
     private void SelectPattern(int pattern)
     {
         switch(pattern)
@@ -158,13 +172,6 @@ public class WizardControl : MonoBehaviour
         Wizard_rb.AddForce(Backward_Movement);
         yield return null;
     }
-    private void OnTriggerStay(Collider collision)
-    {
-        if (collision.gameObject.layer.Equals(3))
-        {
-            Debug.Log(collision.gameObject.layer);
-            Wizard_rb.AddForce(Vector3.up * 15f, ForceMode.Acceleration);
-        }
-    }
+
 
 }
