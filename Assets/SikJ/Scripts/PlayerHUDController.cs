@@ -10,6 +10,8 @@ public class PlayerHUDController : MonoBehaviour
     [Header("UI")]
     [SerializeField] private float healthBackgroundDelay = 1f;
     [SerializeField] private float healthBackgroundLerpDuration = .5f;
+    [SerializeField] private AnimationCurve healthBackgroundLerpIntensity;
+
     [SerializeField] private Slider healthForeground;
     [SerializeField] private Slider healthBackground;
     [SerializeField] private Slider staminaForeground;
@@ -78,12 +80,14 @@ public class PlayerHUDController : MonoBehaviour
 
         // 서서히 감소
         elapsedTime = 0f;
+        float progress = 0f;
         float startValue = healthBackground.value;
         float endValue = healthForeground.value;
         while (elapsedTime < healthBackgroundLerpDuration)
         {
             elapsedTime += Time.deltaTime;
-            healthBackground.value = Mathf.Lerp(startValue, endValue, elapsedTime/healthBackgroundLerpDuration);
+            progress = healthBackgroundLerpIntensity.Evaluate(elapsedTime / healthBackgroundLerpDuration);
+            healthBackground.value = Mathf.Lerp(startValue, endValue, progress);
             yield return null;
         }
         healthBackground.value = endValue;
