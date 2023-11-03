@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Diagnostics;
-
+using UnityEngine.AI;
 public class MutantController : MonoBehaviour
 {
+    
+
+
     [field: Header("State")]
     [field: SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
 
@@ -20,7 +23,9 @@ public class MutantController : MonoBehaviour
     public InputAction knockdown;
     public InputAction standing;
 
-
+    [Header("Nav")]
+    public LayerMask target_layer;
+    private NavMeshAgent agent;
 
     [Header("Movements")]
     [SerializeField] private float moveSpeed;
@@ -33,6 +38,7 @@ public class MutantController : MonoBehaviour
 
     private bool isCursor = false;
 
+
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
     #region AnimatorParameters
@@ -44,6 +50,7 @@ public class MutantController : MonoBehaviour
     private readonly int isRun_hash = Animator.StringToHash("isRun");
     private readonly int isKnockDown_hash = Animator.StringToHash("isKnockDown");
     private readonly int isStanding_hash = Animator.StringToHash("isStanding");
+    private readonly int isHowling_hash = Animator.StringToHash("isHowling");
 
     //플레이어와 몬스터의 거리계산용
     private GameObject player;
@@ -52,6 +59,24 @@ public class MutantController : MonoBehaviour
     //쿨타임용 bool값 
     bool isDash = false;
     bool _isRun = false;
+    bool isHowling= false;
+
+    private bool isTarget
+    {
+        get
+        {
+            if (distance >= 30f || distance <= 20f)
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+        }
+    }
+
+
 
     //스킬쿨타임 관리용
     float cool_Dash;
@@ -66,13 +91,16 @@ public class MutantController : MonoBehaviour
         TryGetComponent(out playerRigidbody);
         TryGetComponent(out playerAnimator);
         player = GameObject.FindGameObjectWithTag("Player");
-    }
-    
+        TryGetComponent(out agent);
 
+        agent.speed = moveSpeed;
+    }
 
     private void Update()
     {
-    //    print(Skilljudgment.distance);
+        print(isTarget);
+        playerAnimator.SetBool("isTarget", isTarget);
+        Move_ToPlayer();
         Move();
         Rotate();
         if (Input.GetKeyDown(KeyCode.F1))
@@ -80,14 +108,11 @@ public class MutantController : MonoBehaviour
             Togle_Cursor();
         }
 
+
         Jugement_MonAction();
-        transform.LookAt(player.transform);
+        //transform.LookAt(player.transform);
         print("누구보고있니 : " + player.name);
-        /*print(moveSpeed);
-        print(_isRun);*/
-        //print(isDash);
-        //print(cool_Dash);
-        print("거리 : "+distance);
+       // print("거리 : "+distance);
         print("대쉬쿨 : " + cool_Dash);
     }
     
@@ -443,24 +468,15 @@ public class MutantController : MonoBehaviour
         isDash = false;
         cool_Dash = 0;
     }
-    private void Dash_Cool()
-    {
 
-    }
+
 
     private void Jugement_MonAction()
     {
-        //플레이어 Layer를 만들어서 검출하는 방식으로 바꿉시다. => done.
-
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
 
-
-        //for (int i = 0; i < hitColliders.Length; i++)
-        //{
-        //    print("hitColliders 검출작업 : " + hitColliders[i].name);
-        //}
         distance = Vector3.Distance(player.transform.position, transform.position);
-        //      print(distance);
+
 
 
         //todo : 거리의 조건에 따라 공격의 패턴이 나오도록 switch 문을 이용해 랜덤으로 발생하게 할것// 
@@ -471,19 +487,7 @@ public class MutantController : MonoBehaviour
 
         if (distance <= 30f && distance > 20f)
         {
-            if(isDash)
-            {
-                return;
-            }
-            else if (!isDash)
-            {
-                playerAnimator.SetBool(isJump_hash, true);
-                isDash = true;
-                print(isDash);
-                StartCoroutine(MoveForward());
-                StartCoroutine(Dash_Cool_co());
-            }
-            
+            Dash_Att();
             print("far");
         }
         else if (distance <= 20f && distance > 10f)
@@ -505,7 +509,50 @@ public class MutantController : MonoBehaviour
 
             print("close");
         }
+/*        else
+        {
+            if(Time.deltaTime > 30)
+            Howling_Att();
+        }*/
 
     }
+
+    //대쉬 공격
+    private void Dash_Att()
+    {
+        if (isDash)
+        {
+            return;
+        }
+        else if (!isDash)
+        {
+            playerAnimator.SetBool(isJump_hash, true);
+            isDash = true;
+            print(isDash);
+            StartCoroutine(MoveForward());
+            StartCoroutine(Dash_Cool_co());
+        }
+    }
+    //네비게이션을 이용하여 플레이어에게 이동
+    private void Move_ToPlayer()
+    {
+        agent.SetDestination(player.transform.position);
+    }
+
+
+/*    private void Howling_Att()
+    {
+        if (isHowling)
+        {
+            return;
+        }
+        else if (!isHowling)
+        {
+            playerAnimator.SetBool(isHowling_hash, true);
+            isHowling = true;
+            StartCoroutine(cool_Howling_Cool_co());
+        }
+    }*/
+
 
 }
