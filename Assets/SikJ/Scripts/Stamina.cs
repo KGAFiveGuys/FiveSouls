@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,11 +12,14 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float RegenerateDelay { get; private set; } = 3f;
 
     [Header("UI")]
-    [SerializeField] private Slider StaminaSlider;
+    [SerializeField] private float elapsedTimeAfterConsume = 0f;
+    [SerializeField] private float backgroundDelay = 1f;
+    [SerializeField] private Slider Foreground;
+    [SerializeField] private Slider Background;
 
-    private float elapsedTimeAfterConsume = 0f;
+    public event Action OnStaminaChanged;
 
-    private void Start()
+    private void Awake()
     {
         CurrentStamina = MaxStamina;
     }

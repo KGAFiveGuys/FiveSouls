@@ -1178,6 +1178,7 @@ GameObject:
   - component: {fileID: 2309525717887462799}
   - component: {fileID: 4780715231174191526}
   - component: {fileID: 2309525717887462795}
+  - component: {fileID: 363001132425330811}
   - component: {fileID: 2309525717887462792}
   - component: {fileID: 2309525717887462794}
   - component: {fileID: 2309525717887462797}
@@ -1606,7 +1607,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 100
   <CurrentHP>k__BackingField: 0
-  HealthSlider: {fileID: 0}
+  backgroundDelay: 1
+  foreground: {fileID: 0}
+  background: {fileID: 0}
+--- !u!114 &363001132425330811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2309525717887462796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a5196060259bd4e8e0d4fcb417f9eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2309525717887462792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1622,7 +1637,10 @@ MonoBehaviour:
   <MaxStamina>k__BackingField: 100
   <CurrentStamina>k__BackingField: 0
   <RegenerateDelay>k__BackingField: 3
-  StaminaSlider: {fileID: 0}
+  elapsedTimeAfterConsume: 0
+  backgroundDelay: 1
+  Foreground: {fileID: 0}
+  Background: {fileID: 0}
 --- !u!54 &2309525717887462794
 Rigidbody:
   m_ObjectHideFlags: 0

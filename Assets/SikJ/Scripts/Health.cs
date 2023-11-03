@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Health : MonoBehaviour
 {
@@ -11,10 +11,9 @@ public class Health : MonoBehaviour
     // Total Current Health = CurrentHP * DigitScale
     [field: SerializeField] public float CurrentHP { get; private set; }
 
-    [Header("UI")]
-    [SerializeField] private Slider HealthSlider;
+    public event Action OnHealthChanged;
 
-    private void Start()
+    private void Awake()
     {
         CurrentHP = MaxHP;
     }
@@ -28,10 +27,8 @@ public class Health : MonoBehaviour
         }
 
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
-        Debug.Log($"{gameObject.name} {damage} 피격! {CurrentHP}/{MaxHP}");
-        if (CurrentHP == 0)
-        {
-            Debug.Log($"{gameObject.name} 사망!");
-        }
+        Debug.Log($"{gameObject.name}피격! {CurrentHP}/{MaxHP}");
+
+        OnHealthChanged();
     }
 }
