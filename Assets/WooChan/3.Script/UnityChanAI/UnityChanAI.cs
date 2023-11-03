@@ -16,7 +16,8 @@ public class UnityChanAI : MonoBehaviour
 
     [SerializeField] private GameObject Target = null;
     [SerializeField] private float WalkSpeed = 2f;
-    [SerializeField] private float RunSpeed = 5f;
+    [SerializeField] private float RunSpeed = 30f;
+    [SerializeField] private float MDSpeed = 50f;
 
     [SerializeField] private bool nearPattern = false;
     [SerializeField] private bool middlePattern = false;
@@ -69,7 +70,7 @@ public class UnityChanAI : MonoBehaviour
         transform.position = new Vector3(transform.position.x, 0, transform.position.z);
         if (Target && !isMotion) // 플레이어만 바라봄
         {
-            transform.LookAt(Target.transform);
+            LookAt_Rotation_Y(Target.transform);
         }
 
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
@@ -99,16 +100,15 @@ public class UnityChanAI : MonoBehaviour
                 SideLState.Update();
                 break;
         }
-        FarPattern();
 
+        FarPattern();
+        MustDiePattern();
 
 
     }
 
     private void SearchPlayer()
     {
-        
-
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f, P_layer);
         foreach (Collider collider in hitColliders)
         {
@@ -136,7 +136,6 @@ public class UnityChanAI : MonoBehaviour
             nearPattern = false;
             middlePattern = true;
             farPattern = false;
-
         }
         else if (far.Length > 0)
         {
@@ -153,7 +152,7 @@ public class UnityChanAI : MonoBehaviour
 
         Collider[] Check = Physics.OverlapSphere(transform.position, 15f, P_layer);
 
-        if (Check.Length > 0 && animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
+        if (Check.Length > 0 && (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1") || animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie0")))
         {
             farP_Next = true;
         }
@@ -197,6 +196,13 @@ public class UnityChanAI : MonoBehaviour
 
     }
 
+    private void LookAt_Rotation_Y(Transform targetTransform) //재활용 간웅
+    {
+        Vector3 lookAtPosition = targetTransform.position;
+        lookAtPosition.y = transform.position.y;
+
+        transform.LookAt(lookAtPosition);
+    }
 
     private IEnumerator MotionDelay()
     {
@@ -225,21 +231,29 @@ public class UnityChanAI : MonoBehaviour
                     currentState = State.Idle;
                     DecideNearPattern();
                 }
-                else if (middlePattern)
+                else if (middlePattern || farPattern)
                 {
-                    //RanState();
-                    //yield return new WaitForSeconds(3f);
-
-                    //StartCoroutine(MotionDelay());
-                }
-                else if (farPattern)
-                {
+                    RanState();
                     yield return new WaitForSeconds(3f);
+                    StartCoroutine(MotionDelay());
                     if (farPattern)
                     {
-                        animator.SetTrigger("FarPattern");
-                    }
+                        yield return new WaitForSeconds(3f);
+                        if (farPattern)
+                        {
+                            animator.SetTrigger("FarPattern");
+                        }
 
+                    }
+                }
+                else
+                {
+                    yield return new WaitForSeconds(3f);
+                    if (!nearPattern && !middlePattern && !farPattern)
+                    {
+                        animator.SetTrigger("MustDie");
+                        yield break;
+                    }
                 }
 
                 yield return new WaitForSeconds(2f);
@@ -283,7 +297,7 @@ public class UnityChanAI : MonoBehaviour
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
         {
             isMotion = true;
-            transform.LookAt(Target.transform);
+            LookAt_Rotation_Y(Target.transform);
             transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
 
             if (!animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2") && farP_Next)
@@ -297,13 +311,55 @@ public class UnityChanAI : MonoBehaviour
             {
                 transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
             }
+            else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
+            {
+                isMotion = false;
+            }
         }
-        else
-        {
-            isMotion = false;
-        }
+        
     }
 
+    private void MustDiePattern()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie0")) //런
+        {
+            isMotion = true;
+            LookAt_Rotation_Y(Target.transform);
+            transform.position += transform.TransformDirection(Vector3.forward) * MDSpeed * Time.deltaTime;
+
+            if (!animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1") && farP_Next)
+            {
+                animator.SetTrigger("MD_Slide");
+            }
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1")) // 슬라이드
+        {
+            if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.7f)
+            {
+                transform.position += transform.TransformDirection(Vector3.forward) * MDSpeed * Time.deltaTime;
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9f)
+            {
+                Quaternion Look = Quaternion.LookRotation(Target.transform.position - transform.position);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, Look, 0.15f);
+            }
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && !nearPattern) // 달리는 중이고 플레이어가 5f안에 없을때
+        {
+            
+            transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
+            
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && nearPattern)
+        {
+            animator.SetTrigger("MD_Near");
+        }
+        else if(animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie2")) //백플립
+        {
+            LookAt_Rotation_Y(Target.transform);
+        }
+    }
 
 
 

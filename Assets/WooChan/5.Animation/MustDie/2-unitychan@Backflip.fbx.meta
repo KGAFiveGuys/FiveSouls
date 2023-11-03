@@ -51,10 +51,10 @@ ModelImporter:
       loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 1
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 0
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 1
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
@@ -550,13 +550,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: unitychan@Backflip(Clone)
+    - name: 2-unitychan@Backflip(Clone)
       parentName: 
       position: {x: 0.033761773, y: -0.056020584, z: 0.038089562}
       rotation: {x: -0.036501247, y: 0.36661845, z: 0.0131704295, w: 0.9295618}
       scale: {x: 1, y: 1, z: 1}
     - name: Character1_Hips
-      parentName: unitychan@Backflip(Clone)
+      parentName: 2-unitychan@Backflip(Clone)
       position: {x: -0, y: 0.868582, z: 0.011827}
       rotation: {x: 0.5590439, y: -0.6610813, z: -0.35800493, w: 0.34967697}
       scale: {x: 1, y: 1, z: 1}
@@ -1306,7 +1306,7 @@ ModelImporter:
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
-    skeletonHasParents: 1
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3

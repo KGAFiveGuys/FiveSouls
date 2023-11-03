@@ -56,6 +56,7 @@ public class RunState
     {
         transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
     }
+
 }
 
 public class SideRState
