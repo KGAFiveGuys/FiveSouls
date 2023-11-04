@@ -13,7 +13,9 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float CurrentStamina { get; private set; }
     [field: Header("Regenerate")]
     [field: SerializeField] public float RegenDelay { get; private set; } = 1f;
-    [field: SerializeField] public float RegenRatePerSeconds { get; private set; } = 10f;
+    [field: SerializeField] public float MaxRegenPerSeconds { get; private set; } = 30f;
+    [SerializeField] private float MaxRegenTimeThreshold = 2f;
+    [SerializeField] private AnimationCurve RegenLerpIntensity;
     [field: Header("Locomotion Cost")]
     [field: SerializeField] public float RunCostPerSeconds { get; private set; } = 20f;
     [field: SerializeField] public float JumpCost { get; private set; } = 5f;
@@ -44,12 +46,12 @@ public class Stamina : MonoBehaviour
 	}
 
 	[SerializeField] private float elapsedTimeAfterConsume;
-	private void Update()
+    private void Update()
 	{
-        if (elapsedTimeAfterConsume < 10f)
+        if (elapsedTimeAfterConsume < MaxRegenTimeThreshold)
             elapsedTimeAfterConsume += Time.deltaTime;
         else
-            elapsedTimeAfterConsume = 10f;
+            elapsedTimeAfterConsume = MaxRegenTimeThreshold;
         
         if(elapsedTimeAfterConsume > RegenDelay)
             ReGenerate();
@@ -68,7 +70,11 @@ public class Stamina : MonoBehaviour
             && !playerController.IsRun) // Default Locomotion 상태
             // To-Do : 상태조건 추가
         {
-            CurrentStamina = Mathf.Min(MaxStamina, CurrentStamina + RegenRatePerSeconds * Time.deltaTime);
+            var intensity = RegenLerpIntensity.Evaluate(elapsedTimeAfterConsume / MaxRegenTimeThreshold);
+            var targetStamina = CurrentStamina + intensity * MaxRegenPerSeconds * Time.deltaTime;
+            CurrentStamina = Mathf.Min(MaxStamina, targetStamina);
+            Debug.Log(MaxRegenPerSeconds * intensity);
+
             OnStaminaChanged();
         }
     }
