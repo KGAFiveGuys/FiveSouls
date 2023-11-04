@@ -189,6 +189,10 @@ public class PlayerController : MonoBehaviour
         if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad))
             IsRun = false;
 
+        // 스태미너가 0이면 달릴 수 없음
+        if (_stamina.CurrentStamina == 0)
+            IsRun = false;
+
         float speed = IsRun ? runSpeed : walkSpeed;
         if (IsLockOn)
         {
@@ -365,6 +369,9 @@ public class PlayerController : MonoBehaviour
     #region run_Action
     private void OnRunPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina == 0)
+            return;
+
         var isRun = context.ReadValueAsButton();
         if (isRun)
             IsRun = !IsRun;
@@ -373,6 +380,9 @@ public class PlayerController : MonoBehaviour
     #region jump_Action
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.JumpThreshold)
+            return;
+
         var isJump = context.ReadValueAsButton();
         if (isJump)
 		{
@@ -406,6 +416,9 @@ public class PlayerController : MonoBehaviour
     #region roll_Action
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.RollThreshold)
+            return;
+
         var isBlock = context.ReadValueAsButton();
         if (isBlock)
         {
@@ -424,6 +437,9 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.WeakAttackThreshold)
+            return;
+
         var isWeakAttack = context.ReadValueAsButton();
         if (isWeakAttack)
         {
@@ -443,13 +459,16 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.StrongAttackThreshold)
+            return;
+
         var isStrongAttack = context.ReadValueAsButton();
         if (isStrongAttack)
         {
             ControlState = ControlState.Uncontrollable;
             _attackController.ChangeAttackType(AttackType.Strong);
             _stamina.Consume(_stamina.StrongAttackCost);
-            _animator.SetTrigger(isStrongAttack_hash);
+            _animator.SetBool(isStrongAttack_hash, true);
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)

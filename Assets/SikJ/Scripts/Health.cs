@@ -24,7 +24,8 @@ public class Health : MonoBehaviour
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
         Debug.Log($"{gameObject.name}ÇÇ°Ý! {CurrentHP}/{MaxHP}");
 
-        OnHealthChanged();
+        if (gameObject.CompareTag("Player"))
+            OnHealthChanged();
 
         if (CurrentHP <= 0)
         {

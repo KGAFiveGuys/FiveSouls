@@ -15,15 +15,23 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float RegenDelay { get; private set; } = 1f;
     [field: SerializeField] public float MaxRegenPerSeconds { get; private set; } = 30f;
     [SerializeField] private float MaxRegenTimeThreshold = 2f;
+    [SerializeField] private float elapsedTimeAfterConsume;
     [SerializeField] private AnimationCurve RegenLerpIntensity;
+
     [field: Header("Locomotion Cost")]
     [field: SerializeField] public float RunCostPerSeconds { get; private set; } = 20f;
     [field: SerializeField] public float JumpCost { get; private set; } = 5f;
+    [field: SerializeField] public float JumpThreshold { get; private set; } = 2.5f;
     [field: SerializeField] public float RollCost { get; private set; } = 10f;
-    [field: Header("Combat Cost")]
+    [field: SerializeField] public float RollThreshold { get; private set; } = 5f;
+    [field: Header("Attack Cost")]
     [field: SerializeField] public float WeakAttackCost { get; private set; } = 10f;
-    [field: SerializeField] public float StrongAttackCost { get; private set; } = 10f;
+    [field: SerializeField] public float WeakAttackThreshold { get; private set; } = 5f;
+    [field: SerializeField] public float StrongAttackCost { get; private set; } = 20f;
+    [field: SerializeField] public float StrongAttackThreshold { get; private set; } = 10f;
+    [field: Header("Block Cost")]
     [field: SerializeField] public float BlockCost { get; private set; } = 10f;
+
 
     private PlayerController playerController;
     private Health playerHealth;
@@ -45,7 +53,6 @@ public class Stamina : MonoBehaviour
         };
 	}
 
-	[SerializeField] private float elapsedTimeAfterConsume;
     private void Update()
 	{
         if (elapsedTimeAfterConsume < MaxRegenTimeThreshold)
@@ -73,7 +80,6 @@ public class Stamina : MonoBehaviour
             var intensity = RegenLerpIntensity.Evaluate(elapsedTimeAfterConsume / MaxRegenTimeThreshold);
             var targetStamina = CurrentStamina + intensity * MaxRegenPerSeconds * Time.deltaTime;
             CurrentStamina = Mathf.Min(MaxStamina, targetStamina);
-            Debug.Log(MaxRegenPerSeconds * intensity);
 
             OnStaminaChanged();
         }
