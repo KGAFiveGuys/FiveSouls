@@ -80,7 +80,6 @@ public class Stamina : MonoBehaviour
             var intensity = RegenLerpIntensity.Evaluate(elapsedTimeAfterConsume / MaxRegenTimeThreshold);
             var targetStamina = CurrentStamina + intensity * MaxRegenPerSeconds * Time.deltaTime;
             CurrentStamina = Mathf.Min(MaxStamina, targetStamina);
-
             OnStaminaChanged();
         }
     }

@@ -7568,6 +7568,134 @@ PrefabInstance:
       propertyPath: staminaForeground
       value: 
       objectReference: {fileID: 1508518744}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundDelay
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].time
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].time
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].time
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].time
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].value
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].value
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].value
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].value
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].inSlope
+      value: 0.16437736
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].inSlope
+      value: 0.42229053
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].inSlope
+      value: 0.72918975
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].inSlope
+      value: 1.2206725
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].inSlope
+      value: 4.811325
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].inWeight
+      value: 0.40035185
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].outSlope
+      value: 0.16437736
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].outSlope
+      value: 0.42229053
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].inWeight
+      value: 0.7083333
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].outSlope
+      value: 0.72918975
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].inWeight
+      value: 0.47916684
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].outSlope
+      value: 1.2206725
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].inWeight
+      value: 0.12499989
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].outSlope
+      value: 4.811325
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].outWeight
+      value: 0.52083325
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].outWeight
+      value: 0.89583313
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].outWeight
+      value: 0.2708334
+      objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: regenTimeCheckLimit
       value: 2
@@ -7578,11 +7706,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: <RegenDelay>k__BackingField
-      value: 0.5
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: <WeakAttackCost>k__BackingField
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: <StrongAttackCost>k__BackingField
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: <MaxRegenPerSeconds>k__BackingField
-      value: 200
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: <RegenRatePerSeconds>k__BackingField
