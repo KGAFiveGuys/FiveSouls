@@ -69,7 +69,6 @@ public class PlayerHUDController : MonoBehaviour
                 {
                     currentSetStamina = SetStaminaBackground();
                     StartCoroutine(currentSetStamina);
-                    Debug.Log("StartLerp");
                 }
             }
             yield return null;
@@ -187,7 +186,6 @@ public class PlayerHUDController : MonoBehaviour
         {
             StopCoroutine(currentSetStamina);
             currentSetStamina = null;
-            Debug.Log("StopLerp");
         }
 
         // Foreground 가득 찬 경우 Background도 가득 채운다

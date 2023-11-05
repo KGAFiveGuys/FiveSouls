@@ -111,6 +111,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        _health.OnDead += () => { IsDead = true; };
+
         #region Set weapon colliders & rigidbodies
         foreach (Collider c in weaponColliders)
         {
@@ -168,11 +170,16 @@ public class PlayerController : MonoBehaviour
         if (!IsLockOn)
             return;
 
-        // Highlight locked on target
         var pos = Camera.main.WorldToScreenPoint(lockOnEnemy.transform.position);
-        var width = UI_lockOnPoint.GetComponent<RectTransform>().rect.width;
-        var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
-        UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
+        var rectTransform = UI_lockOnPoint.GetComponent<RectTransform>();
+        var scale = rectTransform.localScale;
+        var width = rectTransform.rect.width;
+        var height = rectTransform.rect.height;
+
+        var xOffset = scale.x * (width / 2);
+        var yOffset = scale.y * (height / 2);
+
+        UI_lockOnPoint.transform.position = new Vector3(pos.x - xOffset, pos.y + yOffset, pos.z);
     }
     private void SetDefaultCameraPosition()
     {
@@ -482,6 +489,9 @@ public class PlayerController : MonoBehaviour
     #region lockOn_Action
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
+        if (IsDead)
+            return;
+
         var isLockOn = context.ReadValueAsButton();
         var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
         if (isLockOn && !isBlending && CheckEnemyInRange())

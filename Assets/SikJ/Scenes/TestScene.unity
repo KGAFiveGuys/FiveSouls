@@ -13511,7 +13511,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784617115}
-  m_LocalRotation: {x: 0.19424808, y: -0.000000008439323, z: 0.0000000016711535, w: 0.98095244}
+  m_LocalRotation: {x: 0.19424808, y: 0.0000000084393195, z: -0.0000000016711529, w: 0.98095244}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -16010,6 +16010,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1288531635, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: startScale
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4399692570391712123, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -16112,27 +16116,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4399692571504942544, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571582649914, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571582649914, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571582649915, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4399692572067257729, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_Name
       value: PlayerHUD
-      objectReference: {fileID: 0}
-    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-      propertyPath: healthBackgroundDelay
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-      propertyPath: staminaBackgroundDelay
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-      propertyPath: healthBackgroundLerpDuration
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-      propertyPath: staminaBackgroundLerpDuration
-      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 4399692572067257733, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_Pivot.x
