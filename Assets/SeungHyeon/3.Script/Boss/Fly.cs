@@ -10,7 +10,6 @@ public class Fly : MonoBehaviour
     {
         if (collision.gameObject.layer.Equals(3))
         {
-            Debug.Log(collision.gameObject.layer);
             rb.AddForce(Vector3.up * 15f, ForceMode.Acceleration);
         }
     }

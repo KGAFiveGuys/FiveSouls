@@ -36,6 +36,7 @@ public class WizardControl : MonoBehaviour
     private float AttackTime = 0;
     [SerializeField] private float ThunderDelay = 0.5f;
     [SerializeField] private ThunderBoltCircle thunderBoltCircle;
+    [SerializeField] private ParticleSystem shadowburst;
     [SerializeField] private GameObject Fireball_Spawner;
     [SerializeField] private FireBallSpawner fireBallSpawner;
     [SerializeField] private float BackwardForce = 100f;
@@ -126,22 +127,25 @@ public class WizardControl : MonoBehaviour
     }
     private void ClosePattern()
     {
-        Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
-        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
-        {
-            Debug.Log("벽있음");
-        }
-        else
-        {
-            StartCoroutine(BackStep());
-        }
+        var collisionModule = shadowburst.collision;
+        collisionModule.enabled = true;
+        shadowburst.Play();
+        //Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
+        //if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        //{
+        //    Debug.Log("벽있음");
+        //}
+        //else
+        //{
+        //    StartCoroutine(BackStep());
+        //}
     }
     private void SelectAnimation(int pattern)
     {
       switch(pattern)
         {
             case 0:
-                Wizard_anim.SetTrigger("Attack");
+                Wizard_anim.SetTrigger("CloseBurst");
                 return;
             case 1:
                 Wizard_anim.SetTrigger("FireBall");
