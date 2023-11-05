@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1119446457}
   - component: {fileID: 1119446458}
   - component: {fileID: 1119446459}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: TestEnemyAttackCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -186,8 +186,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 1000
-  <CurrentHP>k__BackingField: 0
-  HealthSlider: {fileID: 0}
+  lockOnCollider: {fileID: 10167509951738986}
+  attackCollider: {fileID: 1119446458}
 --- !u!114 &20489483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,8 +200,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b10da30fdc772b4f959dab33895f7cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <CurrentAttackType>k__BackingField: 0
+  <CurrentAttackType>k__BackingField: 1
   attackCollider: {fileID: 1119446458}
   <TargetLayer>k__BackingField: 9
-  <WeakAttackBaseDamage>k__BackingField: 100
-  <StrongAttackBaseDamage>k__BackingField: 200
+  <WeakAttackBaseDamage>k__BackingField: 10
+  <StrongAttackBaseDamage>k__BackingField: 40

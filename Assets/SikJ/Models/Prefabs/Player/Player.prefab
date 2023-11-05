@@ -1527,6 +1527,7 @@ MonoBehaviour:
     m_Flags: 0
   walkSpeed: 10
   runSpeed: 18
+  runThresholdTime: 0.2
   rotateSpeed: 60
   jumpForce: 20
   runBehindAngle: 40
@@ -1538,6 +1539,7 @@ MonoBehaviour:
   lockOnLimitDistance: 55
   enemyDetectAngle: 15
   blendTime: 0.8
+  <LockedOnEnemy>k__BackingField: {fileID: 0}
   ragdollColliders:
   - {fileID: 2578728782318685910}
   - {fileID: 525086389009816317}
@@ -1605,8 +1607,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 100
-  <CurrentHP>k__BackingField: 0
-  HealthSlider: {fileID: 0}
+  lockOnCollider: {fileID: 0}
+  attackCollider: {fileID: 0}
 --- !u!114 &2309525717887462792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1621,8 +1623,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MaxStamina>k__BackingField: 100
   <CurrentStamina>k__BackingField: 0
-  <RegenerateDelay>k__BackingField: 3
-  StaminaSlider: {fileID: 0}
+  <RegenDelay>k__BackingField: 1
+  <MaxRegenPerSeconds>k__BackingField: 100
+  MaxRegenTimeThreshold: 2
+  elapsedTimeAfterConsume: 0
+  RegenLerpIntensity:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  <RunCostPerSeconds>k__BackingField: 20
+  <JumpCost>k__BackingField: 10
+  <JumpThreshold>k__BackingField: 2.5
+  <RollCost>k__BackingField: 20
+  <RollThreshold>k__BackingField: 5
+  <WeakAttackCost>k__BackingField: 10
+  <WeakAttackThreshold>k__BackingField: 5
+  <StrongAttackCost>k__BackingField: 20
+  <StrongAttackThreshold>k__BackingField: 10
+  <BlockCost>k__BackingField: 0
 --- !u!54 &2309525717887462794
 Rigidbody:
   m_ObjectHideFlags: 0
