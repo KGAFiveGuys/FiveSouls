@@ -168,6 +168,9 @@ public class PlayerHUDController : MonoBehaviour
 
     public void ChangeStaminaUI()
     {
+        // 보간 중 스태미너를 쓰는 경우 다시 보간한다.
+        elapsedTimeAfterDecreaseStamina = 0f;
+
         // 스태미너 변화량
         var delta = (_stamina.CurrentStamina / _stamina.MaxStamina) - staminaForeground.value;
 
@@ -195,6 +198,7 @@ public class PlayerHUDController : MonoBehaviour
     }
     
     private IEnumerator currentSetStamina;
+    private float elapsedTimeAfterDecreaseStamina = 0f;
     private IEnumerator SetStaminaBackground()
     {
         float elapsedTime = 0f;
@@ -204,14 +208,14 @@ public class PlayerHUDController : MonoBehaviour
             yield return null;
         }
 
-        elapsedTime = 0f;
+        elapsedTimeAfterDecreaseStamina = 0f;
         float progress = 0f;
-        while (elapsedTime < staminaBackgroundLerpDuration)
+        while (elapsedTimeAfterDecreaseStamina < staminaBackgroundLerpDuration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTimeAfterDecreaseStamina += Time.deltaTime;
             var start = staminaBackground.value;
             var end = staminaForeground.value;
-            progress = staminaBackgroundLerpIntensity.Evaluate(elapsedTime / staminaBackgroundLerpDuration);
+            progress = staminaBackgroundLerpIntensity.Evaluate(elapsedTimeAfterDecreaseStamina / staminaBackgroundLerpDuration);
             staminaBackground.value = Mathf.Lerp(start, end, progress);
 
             yield return null;
