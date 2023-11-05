@@ -590,7 +590,7 @@ public class PlayerController : MonoBehaviour
         var lastCameraPos = Camera.main.transform.position;
         
         float elapsedTime = 0f;
-        while (elapsedTime < blendTime)
+        while (LockedOnEnemy != null && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
@@ -609,7 +609,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator LerpDefaultCameraLookAtPosition()
     {
         float elapsedTime = 0f;
-        while (elapsedTime < blendTime)
+        while (LockedOnEnemy != null && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
