@@ -4,8 +4,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Diagnostics;
 using UnityEngine.AI;
+using System;
+
 public class MutantController : MonoBehaviour
 {
+    public GameObject rockPrefab; // 돌 프리팹
+    public Transform handPosition; // 손 위치
+    public Transform throwPosition; // 던질 위치
+    public float throwForce = 10.0f; // 던질 힘
+
+    private GameObject currentRock;
 
     private Health health;
 
@@ -100,17 +108,14 @@ public class MutantController : MonoBehaviour
             health = player.GetComponent<Health>();
             if (player != null)
             {
-                // playerHealth 컴포넌트가 찾아진 경우,
-                // 이곳에서 playerHealth를 사용하여 값을 가져올 수 있습니다.
                 float currentHP = health.CurrentHP;
                 print("Player의 현재 HP: " + currentHP);
             }
         }
     }
-
     private void Update()
     {
-        print(distance);
+       // print(distance);
         if(distance >= 3f)
         {
             playerAnimator.SetBool("isTarget", isTarget);
@@ -128,8 +133,6 @@ public class MutantController : MonoBehaviour
         //transform.LookAt(player.transform);
         print("누구보고있니 : " + player.name);
 
-
-//        Dance();
     }
     
     public void Togle_Cursor()
@@ -511,13 +514,28 @@ public class MutantController : MonoBehaviour
         }
         else if (distance <= 20f && distance > 10f)
         {
-            // 대쉬공격 ,  돌던지기 (일반)으로 발동.
+            int random = UnityEngine.Random.Range(0, 4);
+            switch (random)
+            {
+                case 0:
+                    //공격1
+                    break;
+                case 1:
+                    //공격2
+                    break;
+                case 2:
+                    //공격3
+                    break;
+                default:
+                    Console.WriteLine("올바르지 않은 값입니다.");
+                    break;
+            }
             print("middle");
         }
         else if (distance <= 10f)
         {
             // 캐릭터에게 걸어와서 근접공격 (일반 1 강공 1)
-            if(distance <= 3f)
+            if(distance <= 5f)
             {
                 playerAnimator.SetBool(isWeakAttack_hash, true);
             }
@@ -528,13 +546,9 @@ public class MutantController : MonoBehaviour
 
             print("close");
         }
-/*        else
-        {
-            if(Time.deltaTime > 30)
-            Howling_Att();
-        }*/
-
     }
+
+    //그로기상태 후 하울링 공격 > 광역기
 
     //대쉬 공격
     private void Dash_Att()
@@ -553,7 +567,7 @@ public class MutantController : MonoBehaviour
         }
     }
 
-    //강한공격 > 주먹질
+    //강한공격 1.주먹질
     private void Hammering_Att()
     {
         if (isHammering)
@@ -586,6 +600,35 @@ public class MutantController : MonoBehaviour
             agent.SetDestination(player.transform.position);
         }
 
+    }
+
+    //돌주워 던지기 약한공격 2.
+    private void PickUpRock()
+    {
+        // 돌을 생성하고 손 위치에 놓기
+        GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);
+        newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
+    }
+    //주운돌 던지기.
+    private void ThrowRock()
+    {
+        if (currentRock != null)
+        {
+            // 돌을 손에서 해제하고 던질 위치로 이동
+            currentRock.transform.parent = null;
+            currentRock.transform.position = throwPosition.position;
+
+            // 돌에 던질 힘을 적용
+            Rigidbody rockRigidbody = currentRock.GetComponent<Rigidbody>();
+            if (rockRigidbody != null)
+            {
+                rockRigidbody.AddForce(throwPosition.forward * throwForce, ForceMode.Impulse);
+            }
+
+            // 돌 던지는 애니메이션을 재생하거나 다른 동작 수행
+
+            currentRock = null; // 현재 돌 초기화
+        }
     }
 
 
