@@ -16082,6 +16082,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4399692571258778280, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571258778280, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571463230260, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692571463230260, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4399692571465329304, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -16101,6 +16117,22 @@ PrefabInstance:
     - target: {fileID: 4399692572067257729, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_Name
       value: PlayerHUD
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: healthBackgroundDelay
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: staminaBackgroundDelay
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: healthBackgroundLerpDuration
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4399692572067257732, guid: 91f7327c400263346a9177549340ecd1, type: 3}
+      propertyPath: staminaBackgroundLerpDuration
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 4399692572067257733, guid: 91f7327c400263346a9177549340ecd1, type: 3}
       propertyPath: m_Pivot.x

@@ -51,37 +51,66 @@ public class Stamina : MonoBehaviour
         playerHealth.OnDead += () =>
         {
             Consume(MaxStamina);
+            if (currentRegen != null)
+            {
+                StopCoroutine(currentRegen);
+                currentRegen = null;
+            }
         };
 	}
+
+	private void OnEnable()
+	{
+		if (currentRegen == null)
+		{
+            currentRegen = ReGenerateStamina();
+            StartCoroutine(currentRegen);
+        }
+    }
+
+	private void OnDisable()
+	{
+        if (currentRegen != null)
+        {
+            StopCoroutine(currentRegen);
+            currentRegen = null;
+        }
+    }
 
 	private void Update()
 	{
         if (elapsedTimeAfterConsume < MaxRegenTimeThreshold)
-            elapsedTimeAfterConsume += Time.deltaTime;
-        else
-            elapsedTimeAfterConsume = MaxRegenTimeThreshold;
-        
-        if(!playerController.IsDead && elapsedTimeAfterConsume > RegenDelay)
-            ReGenerate();
+            elapsedTimeAfterConsume = Mathf.Min(elapsedTimeAfterConsume + Time.deltaTime, MaxRegenTimeThreshold);
 	}
 
 	public void Consume(float value)
     {
+        if (playerController.IsDead)
+            return;
+
         elapsedTimeAfterConsume = 0;
         CurrentStamina = Math.Max(0, CurrentStamina - value);
         OnStaminaChanged();
     }
 
-    private void ReGenerate()
+    private IEnumerator currentRegen;
+    private IEnumerator ReGenerateStamina()
     {
-		if (!playerController.IsDead    // 생존 상태
-            && !playerController.IsRun) // Default Locomotion 상태
-            // To-Do : 상태조건 추가
-        {
-            var intensity = RegenLerpIntensity.Evaluate(elapsedTimeAfterConsume / MaxRegenTimeThreshold);
-            var targetStamina = CurrentStamina + intensity * MaxRegenPerSeconds * Time.deltaTime;
-            CurrentStamina = Mathf.Min(MaxStamina, targetStamina);
-            OnStaminaChanged();
-        }
+		while (true)
+		{
+            yield return null;
+
+            if (playerController.IsDead     // 사망한 상태
+                || playerController.IsRun)  // 스태미너 회복 불가한 상태
+                continue;
+
+            if(elapsedTimeAfterConsume > RegenDelay)
+			{
+                var intensity = RegenLerpIntensity.Evaluate(elapsedTimeAfterConsume / MaxRegenTimeThreshold);
+                var targetStamina = CurrentStamina + intensity * MaxRegenPerSeconds * Time.deltaTime;
+                CurrentStamina = Mathf.Min(MaxStamina, targetStamina);
+                OnStaminaChanged();
+            }
+		}
     }
 }

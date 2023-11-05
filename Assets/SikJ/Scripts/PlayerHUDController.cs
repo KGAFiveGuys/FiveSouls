@@ -55,7 +55,6 @@ public class PlayerHUDController : MonoBehaviour
         staminaForeground.value = _stamina.CurrentStamina / _stamina.MaxStamina;
         staminaBackground.value = staminaForeground.value;
 
-
         currentCheckStamina = CheckStaminaBackground();
         StartCoroutine(currentCheckStamina);
     }
@@ -79,7 +78,7 @@ public class PlayerHUDController : MonoBehaviour
 
     private void ResetHealthNStamina()
 	{
-        // 현재 진행중인 모든 Coroutine 중단
+        // 현재 진행중인 모든 UI관련 Coroutine 중단
         if (currentSetHealth != null)
             StopCoroutine(currentSetHealth);
         if (currentSetStamina != null)
