@@ -186,6 +186,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 1000
+  lockOnCollider: {fileID: 10167509951738986}
+  attackCollider: {fileID: 1119446458}
 --- !u!114 &20489483
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,6 +10,8 @@ public class Health : MonoBehaviour
     [field:SerializeField] public float MaxHP { get; private set; } = 1000f;
     // Total Current Health = CurrentHP * DigitScale
     public float CurrentHP { get; private set; }
+    [SerializeField] private Collider lockOnCollider;
+    [SerializeField] private Collider attackCollider;
 
     public event Action OnHealthChanged;
     public event Action OnDead;
@@ -28,8 +30,12 @@ public class Health : MonoBehaviour
 
         if (CurrentHP <= 0)
         {
+            if (lockOnCollider != null)
+                lockOnCollider.enabled = false;
+            if (attackCollider != null)
+                attackCollider.enabled = false;
+
             OnDead();
-            return;
         }
     }
 }

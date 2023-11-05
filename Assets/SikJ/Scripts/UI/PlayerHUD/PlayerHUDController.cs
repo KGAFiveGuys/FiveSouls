@@ -40,7 +40,6 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private AnimationCurve enemyBackgroundHealthLerpIntensity;
     [Header("Enemy Fury")]
 
-    private GameObject _lockedOnEnemy = null;
     private Health _lockedOnEnemyHealth = null;
     #endregion
 
@@ -256,15 +255,15 @@ public class PlayerHUDController : MonoBehaviour
     }
     #endregion
     #region LockedOnEnemy
-    private void ShowEnemyHealthNFury(GameObject lockedOnEnemy)
+    private void ShowEnemyHealthNFury()
 	{
-        _lockedOnEnemy = lockedOnEnemy;
-        _lockedOnEnemyHealth = _lockedOnEnemy.GetComponent<Health>();
+        _lockedOnEnemyHealth = _playerController.LockedOnEnemy.GetComponent<Health>();
         enemyForegroundHealth.value = _lockedOnEnemyHealth.CurrentHP / _lockedOnEnemyHealth.MaxHP;
         enemyBackgroundHealth.value = enemyForegroundHealth.value;
 
         // lockedOnEnemy의 Event 구독
         _lockedOnEnemyHealth.OnHealthChanged += ChangeEnemyHealth;
+        _lockedOnEnemyHealth.OnDead += _playerController.UnlockOnEnemy;
         _lockedOnEnemyHealth.OnDead += HideEnemyHealthNFury;
 
         enemyIndicator.SetActive(true);
@@ -272,13 +271,12 @@ public class PlayerHUDController : MonoBehaviour
 
     private void HideEnemyHealthNFury()
     {
-        if (_lockedOnEnemy == null)
+        if (_lockedOnEnemyHealth == null)
             return;
-
-        _lockedOnEnemy = null;
 
         // lockedOnEnemy의 Event 구독 취소
         _lockedOnEnemyHealth.OnHealthChanged -= ChangeEnemyHealth;
+        _lockedOnEnemyHealth.OnDead -= _playerController.UnlockOnEnemy;
         _lockedOnEnemyHealth.OnDead -= HideEnemyHealthNFury;
         _lockedOnEnemyHealth = null;
 

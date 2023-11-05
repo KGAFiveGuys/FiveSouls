@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
-    public event Action<GameObject> OnLockOn;
+    public event Action OnLockOn;
     public event Action OnLockOff;
     public InputAction ragdollTest;
 
@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
+    [field:SerializeField] public GameObject LockedOnEnemy { get; private set; }
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -153,19 +154,23 @@ public class PlayerController : MonoBehaviour
     private void CheckLockOnEnemyDistance()
     {
         // LockOn 상태에서 제한범위를 벗어나면 UnLock
-        if (IsLockOn && Vector3.Distance(transform.position, lockOnEnemy.transform.position) > lockOnLimitDistance)
+        if (IsLockOn && Vector3.Distance(transform.position, LockedOnEnemy.transform.position) > lockOnLimitDistance)
         {
-            UI_lockOnPoint.SetActive(false);
-            ToggleTargetGroupCamera(false);
-            IsLockOn = false;
+            UnlockOnEnemy();
         }
+    }
+    public void UnlockOnEnemy()
+	{
+        UI_lockOnPoint.SetActive(false);
+        ToggleTargetGroupCamera(false);
+        IsLockOn = false;
     }
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
             return;
 
-        var lookAtPos = new Vector3(lockOnEnemy.transform.position.x, 0, lockOnEnemy.transform.position.z);
+        var lookAtPos = new Vector3(LockedOnEnemy.transform.position.x, 0, LockedOnEnemy.transform.position.z);
         transform.LookAt(lookAtPos);
     }
     private void ShowLockOnPoint()
@@ -173,7 +178,7 @@ public class PlayerController : MonoBehaviour
         if (!IsLockOn)
             return;
 
-        var pos = Camera.main.WorldToScreenPoint(lockOnEnemy.transform.position);
+        var pos = Camera.main.WorldToScreenPoint(LockedOnEnemy.transform.position);
         var rectTransform = UI_lockOnPoint.GetComponent<RectTransform>();
         var scale = rectTransform.localScale;
         var width = rectTransform.rect.width;
@@ -488,9 +493,8 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
     }
     #endregion
-    private GameObject lockOnEnemy;
-    #region lockOn_Action
-    private void OnLockOnPerformed(InputAction.CallbackContext context)
+	#region lockOn_Action
+	private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
         if (IsDead)
             return;
@@ -499,11 +503,10 @@ public class PlayerController : MonoBehaviour
         var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
         if (isLockOn && !isBlending && CheckEnemyInRange())
 		{
-            
             IsLockOn = !IsLockOn;
 
 			if (IsLockOn == true)
-                OnLockOn(lockOnEnemy);
+                OnLockOn();
             else
                 OnLockOff();
         }
@@ -518,7 +521,7 @@ public class PlayerController : MonoBehaviour
             return true;
         }
 
-        lockOnEnemy = null;
+        LockedOnEnemy = null;
 
         float maxDotValue = float.MinValue;
         float minDistance = float.MaxValue;
@@ -542,7 +545,7 @@ public class PlayerController : MonoBehaviour
             if (minDistance > distance)
             {
                 minDistance = distance;
-                lockOnEnemy = enemyCollider.gameObject;
+                LockedOnEnemy = enemyCollider.gameObject;
             }
             
             // 카메라 시점 기준 가장 중앙의 적인지 확인
@@ -550,14 +553,14 @@ public class PlayerController : MonoBehaviour
             if (maxDotValue < dot)
             {
                 maxDotValue = dot;
-                lockOnEnemy = enemyCollider.gameObject;
+                LockedOnEnemy = enemyCollider.gameObject;
                 continue;
             }
         }
 
-        UI_lockOnPoint.SetActive(lockOnEnemy != null);
-        ToggleTargetGroupCamera(lockOnEnemy != null, lockOnEnemy);
-        return lockOnEnemy != null;
+        UI_lockOnPoint.SetActive(LockedOnEnemy != null);
+        ToggleTargetGroupCamera(LockedOnEnemy != null, LockedOnEnemy);
+        return LockedOnEnemy != null;
     }
 
     private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
@@ -571,9 +574,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (lockOnEnemy != null)
+            if (LockedOnEnemy != null)
             {
-                TargetGroup.RemoveMember(lockOnEnemy.transform);
+                TargetGroup.RemoveMember(LockedOnEnemy.transform);
                 StartCoroutine(LerpDefaultCameraFollowPosition());
                 StartCoroutine(LerpDefaultCameraLookAtPosition());
             }
@@ -610,7 +613,7 @@ public class PlayerController : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
 
-            var lastEnemyPos = lockOnEnemy.transform.position;
+            var lastEnemyPos = LockedOnEnemy.transform.position;
             var playerPos = transform.position;
 
             VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = Vector3.Lerp(
@@ -747,9 +750,9 @@ public class PlayerController : MonoBehaviour
         {
             // Debug detect enemy line of sight
             Gizmos.DrawLine(transform.position, new Vector3(
-                lockOnEnemy.transform.position.x,
+                LockedOnEnemy.transform.position.x,
                 0,
-                lockOnEnemy.transform.position.z
+                LockedOnEnemy.transform.position.z
             ));
         }
         else
