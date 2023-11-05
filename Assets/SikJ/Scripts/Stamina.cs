@@ -46,21 +46,22 @@ public class Stamina : MonoBehaviour
         CurrentStamina = MaxStamina;
     }
 
-	private void OnEnable()
+	private void Start()
 	{
-        playerHealth.OnDead += () => {
+        playerHealth.OnDead += () =>
+        {
             Consume(MaxStamina);
         };
 	}
 
-    private void Update()
+	private void Update()
 	{
         if (elapsedTimeAfterConsume < MaxRegenTimeThreshold)
             elapsedTimeAfterConsume += Time.deltaTime;
         else
             elapsedTimeAfterConsume = MaxRegenTimeThreshold;
         
-        if(elapsedTimeAfterConsume > RegenDelay)
+        if(!playerController.IsDead && elapsedTimeAfterConsume > RegenDelay)
             ReGenerate();
 	}
 

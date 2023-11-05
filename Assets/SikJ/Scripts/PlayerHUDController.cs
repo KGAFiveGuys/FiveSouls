@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(PlayerController))]
-[RequireComponent(typeof(Health))]
-[RequireComponent(typeof(Stamina))]
 public class PlayerHUDController : MonoBehaviour
 {
     [Header("Health")]
@@ -22,26 +19,32 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private float staminaBackgroundLerpDuration = .5f;
     [SerializeField] private AnimationCurve staminaBackgroundLerpIntensity;
 
-    private PlayerController _controller;
+    [Header("OnDead")]
+    [SerializeField] private float onDeadBackgroundDelay = .3f;
+    [SerializeField] private float onDeadBackgroundLerpDuration = .3f;
+    [SerializeField] private AnimationCurve onDeadBackgroundLerpIntensity;
+
     private Health _health;
     private Stamina _stamina;
     private void Awake()
     {
-        TryGetComponent(out _controller);
-        TryGetComponent(out _health);
-        TryGetComponent(out _stamina);
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        _health = playerObj.GetComponent<Health>();
+        _stamina = playerObj.GetComponent<Stamina>();
     }
 
     private void OnEnable()
     {
-        _health.OnHealthChanged += SetHealthUI;
-        _stamina.OnStaminaChanged += SetStaminaUI;
+        _health.OnHealthChanged += ChangeHealthUI;
+        _stamina.OnStaminaChanged += ChangeStaminaUI;
+        _health.OnDead += ResetHealthNStamina;
     }
 
     private void OnDisable()
     {
-        _health.OnHealthChanged -= SetHealthUI;
-        _stamina.OnStaminaChanged -= SetStaminaUI;
+        _health.OnHealthChanged -= ChangeHealthUI;
+        _stamina.OnStaminaChanged -= ChangeStaminaUI;
+        _health.OnDead -= ResetHealthNStamina;
     }
 
     private void Start()
@@ -52,19 +55,48 @@ public class PlayerHUDController : MonoBehaviour
         staminaForeground.value = _stamina.CurrentStamina / _stamina.MaxStamina;
         staminaBackground.value = staminaForeground.value;
 
-        StartCoroutine(CheckStaminaBackground());
 
-        _health.OnDead += () =>
-        {
-            _stamina.OnStaminaChanged -= SetStaminaUI;
-            staminaForeground.value = 0;
-            StartCoroutine(ResetStaminaBackground());
-        };
+        currentCheckStamina = CheckStaminaBackground();
+        StartCoroutine(currentCheckStamina);
     }
-    private IEnumerator ResetStaminaBackground()
+    private IEnumerator currentCheckStamina;
+    private IEnumerator CheckStaminaBackground()
     {
+        while (true)
+        {
+            if (staminaForeground.value < staminaBackground.value)
+            {
+                if (currentSetStamina == null)
+                {
+                    currentSetStamina = SetStaminaBackground();
+                    StartCoroutine(currentSetStamina);
+                    Debug.Log("StartLerp");
+                }
+            }
+            yield return null;
+        }
+    }
+
+    private void ResetHealthNStamina()
+	{
+        // 현재 진행중인 모든 Coroutine 중단
+        if (currentSetHealth != null)
+            StopCoroutine(currentSetHealth);
+        if (currentSetStamina != null)
+            StopCoroutine(currentSetStamina);
+        if (currentCheckStamina != null)
+            StopCoroutine(currentCheckStamina);
+
+        // UI 변경
+        healthForeground.value = 0;
+        staminaForeground.value = 0;
+        StartCoroutine(ResetHealthNStaminaBackground());
+    }
+    private IEnumerator ResetHealthNStaminaBackground()
+    {
+        // 잠시 대기
         float elapsedTime = 0f;
-        while (elapsedTime < healthBackgroundDelay)
+        while (elapsedTime < onDeadBackgroundDelay)
         {
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -73,20 +105,21 @@ public class PlayerHUDController : MonoBehaviour
         // 서서히 감소
         elapsedTime = 0f;
         float progress = 0f;
-        float startValue = staminaBackground.value;
-        float endValue = staminaForeground.value;
-        while (elapsedTime < healthBackgroundLerpDuration)
+        float healthStart = healthBackground.value;
+        float staminaStart = staminaBackground.value;
+        while (elapsedTime < onDeadBackgroundLerpDuration)
         {
             elapsedTime += Time.deltaTime;
-            progress = healthBackgroundLerpIntensity.Evaluate(elapsedTime / healthBackgroundLerpDuration);
-            staminaBackground.value = Mathf.Lerp(startValue, endValue, progress);
+            progress = onDeadBackgroundLerpIntensity.Evaluate(elapsedTime / onDeadBackgroundLerpDuration);
+            healthBackground.value = Mathf.Lerp(healthStart, 0, progress);
+            staminaBackground.value = Mathf.Lerp(staminaStart, 0, progress);
             yield return null;
         }
-        staminaBackground.value = endValue;
+        healthBackground.value = 0;
+        staminaBackground.value = 0;
     }
 
-    private IEnumerator lastHealthBackground = null;
-    public void SetHealthUI()
+    public void ChangeHealthUI()
     {
         // 현재 대기중인 background 처리를 위해 피격 전 체력 저장
         float lastHealthForeground = healthForeground.value;
@@ -95,17 +128,18 @@ public class PlayerHUDController : MonoBehaviour
         healthForeground.value = _health.CurrentHP / _health.MaxHP;
 
         // 현재 background가 변경 대기중이라면 중단 후 즉시 처리
-        if (lastHealthBackground != null)
+        if (currentSetHealth != null)
         {
-            StopCoroutine(lastHealthBackground);
+            StopCoroutine(currentSetHealth);
             healthBackground.value = lastHealthForeground;
         }
         
         // background가 대기중이 아니라면 지연된 처리
-        lastHealthBackground = SetHealthBackground();
-        StartCoroutine(lastHealthBackground);
+        currentSetHealth = SetHealthBackground();
+        StartCoroutine(currentSetHealth);
     }
-    
+
+    private IEnumerator currentSetHealth = null;
     private IEnumerator SetHealthBackground()
     {
         // 잠시 대기
@@ -130,10 +164,10 @@ public class PlayerHUDController : MonoBehaviour
         }
         healthBackground.value = endValue;
 
-        lastHealthBackground = null;
+        currentSetHealth = null;
     }
 
-    public void SetStaminaUI()
+    public void ChangeStaminaUI()
     {
         // 스태미너 변화량
         var delta = (_stamina.CurrentStamina / _stamina.MaxStamina) - staminaForeground.value;
@@ -147,10 +181,10 @@ public class PlayerHUDController : MonoBehaviour
 
         // Foreground와 Background가 일치되면 코루틴 종료한다
         if (staminaForeground.value == staminaBackground.value
-            && lastLerp != null)
+            && currentSetStamina != null)
         {
-            StopCoroutine(lastLerp);
-            lastLerp = null;
+            StopCoroutine(currentSetStamina);
+            currentSetStamina = null;
             Debug.Log("StopLerp");
         }
 
@@ -160,24 +194,8 @@ public class PlayerHUDController : MonoBehaviour
             staminaBackground.value = staminaForeground.value;
         }
     }
-
-    private IEnumerator CheckStaminaBackground()
-    {
-        while (true)
-        {
-            if (staminaForeground.value < staminaBackground.value)
-            {
-                if (lastLerp == null)
-                {
-                    lastLerp = SetStaminaBackground();
-                    StartCoroutine(lastLerp);
-                    Debug.Log("StartLerp");
-                }
-            }
-            yield return null;
-        }
-    }
-    private IEnumerator lastLerp;
+    
+    private IEnumerator currentSetStamina;
     private IEnumerator SetStaminaBackground()
     {
         float elapsedTime = 0f;
@@ -199,6 +217,6 @@ public class PlayerHUDController : MonoBehaviour
 
             yield return null;
         }
-        lastLerp = null;
+        currentSetStamina = null;
     }
 }

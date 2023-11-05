@@ -1177,7 +1177,6 @@ GameObject:
   - component: {fileID: 9054180422132575564}
   - component: {fileID: 2309525717887462799}
   - component: {fileID: 4780715231174191526}
-  - component: {fileID: 363001132425330811}
   - component: {fileID: 2309525717887462795}
   - component: {fileID: 2309525717887462792}
   - component: {fileID: 2309525717887462794}
@@ -1593,84 +1592,6 @@ MonoBehaviour:
   <TargetLayer>k__BackingField: 8
   <WeakAttackBaseDamage>k__BackingField: 100
   <StrongAttackBaseDamage>k__BackingField: 200
---- !u!114 &363001132425330811
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2309525717887462796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68a5196060259bd4e8e0d4fcb417f9eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthBackgroundDelay: 1
-  healthBackgroundLerpDuration: 0.8
-  healthBackgroundLerpIntensity:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.2
-      value: 0.02
-      inSlope: 0.16437736
-      outSlope: 0.16437736
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.40035185
-      outWeight: 0.52083325
-    - serializedVersion: 3
-      time: 0.4
-      value: 0.08
-      inSlope: 0.42229053
-      outSlope: 0.42229053
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.89583313
-    - serializedVersion: 3
-      time: 0.6
-      value: 0.2
-      inSlope: 0.72918975
-      outSlope: 0.72918975
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.7083333
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.8
-      value: 0.4
-      inSlope: 1.2206725
-      outSlope: 1.2206725
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.47916684
-      outWeight: 0.2708334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 4.811325
-      outSlope: 4.811325
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.12499989
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  healthForeground: {fileID: 0}
-  healthBackground: {fileID: 0}
-  staminaForeground: {fileID: 0}
-  staminaBackground: {fileID: 0}
 --- !u!114 &2309525717887462795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1699,14 +1620,25 @@ MonoBehaviour:
   <MaxStamina>k__BackingField: 100
   <CurrentStamina>k__BackingField: 0
   <RegenDelay>k__BackingField: 1
-  <RegenRatePerSeconds>k__BackingField: 10
+  <MaxRegenPerSeconds>k__BackingField: 30
+  MaxRegenTimeThreshold: 2
+  elapsedTimeAfterConsume: 0
+  RegenLerpIntensity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   <RunCostPerSeconds>k__BackingField: 20
   <JumpCost>k__BackingField: 10
+  <JumpThreshold>k__BackingField: 2.5
   <RollCost>k__BackingField: 20
+  <RollThreshold>k__BackingField: 5
   <WeakAttackCost>k__BackingField: 10
+  <WeakAttackThreshold>k__BackingField: 5
   <StrongAttackCost>k__BackingField: 20
+  <StrongAttackThreshold>k__BackingField: 10
   <BlockCost>k__BackingField: 5
-  elapsedTimeAfterConsume: 0
 --- !u!54 &2309525717887462794
 Rigidbody:
   m_ObjectHideFlags: 0
