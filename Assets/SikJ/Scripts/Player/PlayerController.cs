@@ -168,6 +168,7 @@ public class PlayerController : MonoBehaviour
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
         IsLockOn = false;
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Camera.main.transform.localEulerAngles.y;
     }
     private void LookLockOnEnemy()
     {
@@ -198,6 +199,7 @@ public class PlayerController : MonoBehaviour
         if (IsLockOn && !Camera.main.GetComponent<CinemachineBrain>().IsBlending)
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
+    
     Vector3 moveDirection;
     private void MovePlayer()
     {
@@ -428,7 +430,6 @@ public class PlayerController : MonoBehaviour
                 elapsedTimeAfterStopRunning = 0f;
 			}
 
-            Debug.Log(elapsedTimeAfterStopRunning);
             yield return null;
 		}
         IsRun = false;
@@ -544,25 +545,35 @@ public class PlayerController : MonoBehaviour
 
         var isLockOn = context.ReadValueAsButton();
         var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
-        if (isLockOn && !isBlending && CheckEnemyInRange())
+        var isEnemyDetected = CheckEnemyInRange();
+        if (isLockOn && !isBlending)
 		{
-            IsLockOn = !IsLockOn;
+			if (isEnemyDetected)
+			{
+                IsLockOn = !IsLockOn;
 
-			if (IsLockOn == true)
-                OnLockOn();
-            else
-                OnLockOff();
+                if (IsLockOn == true)
+                {
+                    OnLockOn();
+                }
+                else
+                {
+                    OnLockOff();
+                    UnlockOnEnemy();
+                }
+            }
+            // 적이 없는 경우 카메라를 플레이어 정면방향으로 회전
+			else
+			{
+                VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = transform.localEulerAngles.y;
+            }
         }
     }
 
     private bool CheckEnemyInRange()
     {
         if (IsLockOn)
-        {
-            UI_lockOnPoint.SetActive(false);
-            ToggleTargetGroupCamera(false);
             return true;
-        }
 
         LockedOnEnemy = null;
 
@@ -620,9 +631,9 @@ public class PlayerController : MonoBehaviour
             if (LockedOnEnemy != null)
             {
                 TargetGroup.RemoveMember(LockedOnEnemy.transform);
-                StartCoroutine(LerpDefaultCameraFollowPosition());
-                StartCoroutine(LerpDefaultCameraLookAtPosition());
-            }
+				StartCoroutine(LerpDefaultCameraFollowPosition());
+				StartCoroutine(LerpDefaultCameraLookAtPosition());
+			}
 
             VC_LockOn.SetActive(false);
         }

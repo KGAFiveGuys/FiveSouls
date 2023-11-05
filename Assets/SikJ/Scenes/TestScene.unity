@@ -1793,7 +1793,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738985, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_Name
-      value: TestEnemy
+      value: TestEnemy3
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738989, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_RootOrder
@@ -5034,17 +5034,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671063978}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &683960568 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4399692571112296561, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-  m_PrefabInstance: {fileID: 4399692570722482313}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &685736008
 GameObject:
   m_ObjectHideFlags: 0
@@ -5900,17 +5889,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 787101881}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &793457432 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4399692571037502353, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-  m_PrefabInstance: {fileID: 4399692570722482313}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &796870495
 GameObject:
   m_ObjectHideFlags: 0
@@ -6814,206 +6792,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthBackground
-      value: 
-      objectReference: {fileID: 793457432}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: healthForeground
-      value: 
-      objectReference: {fileID: 683960568}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackground
-      value: 
-      objectReference: {fileID: 1094286163}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaForeground
-      value: 
-      objectReference: {fileID: 1508518744}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundDelay
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpDuration
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].time
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].time
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].time
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].time
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].time
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].value
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].value
-      value: 0.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].value
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].value
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].inSlope
-      value: 0.16437736
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].inSlope
-      value: 0.42229053
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].inSlope
-      value: 0.72918975
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].inSlope
-      value: 1.2206725
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].inSlope
-      value: 4.811325
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].inWeight
-      value: 0.40035185
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].outSlope
-      value: 0.16437736
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].inWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].outSlope
-      value: 0.42229053
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].inWeight
-      value: 0.7083333
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].outSlope
-      value: 0.72918975
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].inWeight
-      value: 0.47916684
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].outSlope
-      value: 1.2206725
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].inWeight
-      value: 0.12499989
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[5].outSlope
-      value: 4.811325
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[1].outWeight
-      value: 0.52083325
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[2].outWeight
-      value: 0.89583313
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[3].outWeight
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 363001132425330811, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: staminaBackgroundLerpIntensity.m_Curve.Array.data[4].outWeight
-      value: 0.2708334
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: regenTimeCheckLimit
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <BlockCost>k__BackingField
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <RegenDelay>k__BackingField
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <WeakAttackCost>k__BackingField
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <StrongAttackCost>k__BackingField
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <MaxRegenPerSeconds>k__BackingField
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <RegenRatePerSeconds>k__BackingField
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <WeakAttackThreshold>k__BackingField
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: RegenLerpIntensity.m_Curve.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: <StrongAttackThreshold>k__BackingField
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: RegenLerpIntensity.m_Curve.Array.data[1].time
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: RegenLerpIntensity.m_Curve.Array.data[1].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: RegenLerpIntensity.m_Curve.Array.data[1].inSlope
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2309525717887462792, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: RegenLerpIntensity.m_Curve.Array.data[1].outSlope
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462796, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_Name
       value: Player
@@ -7034,10 +6812,6 @@ PrefabInstance:
       propertyPath: UI_lockOnPoint
       value: 
       objectReference: {fileID: 1288531634}
-    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: runThresholdTime
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 3118397271780095798, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -8137,17 +7911,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091666416}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1094286163 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4399692571814642650, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-  m_PrefabInstance: {fileID: 4399692570722482313}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1117720185
 GameObject:
   m_ObjectHideFlags: 0
@@ -8629,7 +8392,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738985, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_Name
-      value: TestEnemy
+      value: TestEnemy2
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738989, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_RootOrder
@@ -10563,17 +10326,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1508518744 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4399692571400246225, guid: 91f7327c400263346a9177549340ecd1, type: 3}
-  m_PrefabInstance: {fileID: 4399692570722482313}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1510272397
 GameObject:
   m_ObjectHideFlags: 0
@@ -13523,7 +13275,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784617115}
-  m_LocalRotation: {x: 0.19424808, y: -0.000000008439323, z: 0.0000000016711535, w: 0.98095244}
+  m_LocalRotation: {x: 0.19424808, y: 0.0000000084393195, z: -0.0000000016711529, w: 0.98095244}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -15951,7 +15703,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 10167509951738985, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_Name
-      value: TestEnemy
+      value: TestEnemy1
       objectReference: {fileID: 0}
     - target: {fileID: 10167509951738989, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_RootOrder
