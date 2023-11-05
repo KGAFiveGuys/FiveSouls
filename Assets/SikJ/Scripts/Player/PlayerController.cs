@@ -42,6 +42,10 @@ public class PlayerController : MonoBehaviour
     [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
     [SerializeField] private float runSpeed = 20f;
+    // 달리기로 간주할 이동벡터의 최소 크기
+    private const float runThresholdScalar = 0.75f;
+    [Tooltip("충분히 달리지 않는 경우 걷기로 전환하기 까지의 대기시간")]
+    [SerializeField] private float runThresholdTime = 0.5f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
     [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
@@ -382,6 +386,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region run_Action
+    private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
     {
         if (_stamina.CurrentStamina == 0)
@@ -389,8 +394,46 @@ public class PlayerController : MonoBehaviour
 
         var isRun = context.ReadValueAsButton();
         if (isRun)
-            IsRun = !IsRun;
+		{
+            if (currentCheckMovingEnoughToRun != null)
+            {
+                StopCoroutine(currentCheckMovingEnoughToRun);
+                currentCheckMovingEnoughToRun = null;
+            }
+
+            // Walk -> Run
+			if (!IsRun)
+			{
+                currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
+                StartCoroutine(currentCheckMovingEnoughToRun);
+            }
+
+			IsRun = !IsRun;
+        }
     }
+    private IEnumerator CheckMovingEnoughToRun()
+	{
+        float elapsedTimeAfterStopRunning = 0f;
+		while (true)
+		{
+            if (elapsedTimeAfterStopRunning > runThresholdTime)
+                break;
+
+            if (IsRun && desiredMove.magnitude < runThresholdScalar)
+			{
+                elapsedTimeAfterStopRunning += Time.deltaTime;
+			}
+			else if (IsRun && desiredMove.magnitude >= runThresholdScalar)
+			{
+                elapsedTimeAfterStopRunning = 0f;
+			}
+
+            Debug.Log(elapsedTimeAfterStopRunning);
+            yield return null;
+		}
+        IsRun = false;
+        currentCheckMovingEnoughToRun = null;
+	}
     #endregion
     #region jump_Action
     private void OnJumpPerformed(InputAction.CallbackContext context)
