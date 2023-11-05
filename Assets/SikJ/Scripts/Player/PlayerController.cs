@@ -1,4 +1,5 @@
 using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,6 +35,8 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
+    public event Action<GameObject> OnLockOn;
+    public event Action OnLockOff;
     public InputAction ragdollTest;
 
     [Header("PlayerMove")]
@@ -495,7 +498,15 @@ public class PlayerController : MonoBehaviour
         var isLockOn = context.ReadValueAsButton();
         var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
         if (isLockOn && !isBlending && CheckEnemyInRange())
+		{
+            
             IsLockOn = !IsLockOn;
+
+			if (IsLockOn == true)
+                OnLockOn(lockOnEnemy);
+            else
+                OnLockOff();
+        }
     }
 
     private bool CheckEnemyInRange()
