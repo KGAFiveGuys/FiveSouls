@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6779305739485419831
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6779305739485419828}
+  - component: {fileID: 1497584727}
+  m_Layer: 0
+  m_Name: SFX Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6779305739485419828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6779305739485419831}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1497584727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6779305739485419831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d41b6fbd3eab6fd468eb73a9397e4bef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioSourcePrefab: {fileID: 1384778255988411709, guid: 21a12d79b5808954cbfde91c1f6c96ee, type: 3}
+  AudioSourceCount: 10
+  timeSlowDown: {fileID: 8300000, guid: 2f50862631325f14595eb2f8db1b2f7c, type: 3}
+  playerOnBlock1: {fileID: 8300000, guid: dddccbd5538fa694e947d66fab12f1bf, type: 3}
+  playerOnBlock2: {fileID: 8300000, guid: d1c74aa93190684459be9b6fd3f2c6c9, type: 3}
+  playerOnWeakAttackCast: {fileID: 8300000, guid: 58150c9662a171447a640f7ac8fe0d66, type: 3}
+  playerOnStrongAttackCast: {fileID: 8300000, guid: 2fe67fa6738edd84792361ba0ff3e52c, type: 3}
+  playerOnWeakAttackHit: {fileID: 8300000, guid: 04c289db2221deb42b326857e7ad2b04, type: 3}
+  playerOnStrongAttackHit1: {fileID: 8300000, guid: 876e864002095814da5a4cae247fb322, type: 3}
+  playerOnStrongAttackHit2: {fileID: 8300000, guid: 1080975f9a11b9e41b34120147698f43, type: 3}
+  playerOnDead1: {fileID: 8300000, guid: eff835fcbe16cf546aee9b4aa898e722, type: 3}
+  playerOnDead2: {fileID: 8300000, guid: b3968c92abaf62940af70649ee853d37, type: 3}
+  playerOnEquipmentFall: {fileID: 8300000, guid: 48c9fe13396fbd343b66f1fef4c85ccc, type: 3}
+  playerOnRoll: {fileID: 0}
+  playerOnJump: {fileID: 0}
