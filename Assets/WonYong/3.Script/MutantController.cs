@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Diagnostics;
 using UnityEngine.AI;
-using System;
+using System.Linq;
 
 public class MutantController : MonoBehaviour
 {
@@ -12,6 +12,7 @@ public class MutantController : MonoBehaviour
     public Transform handPosition; // 손 위치
     public Transform throwPosition; // 던질 위치
     public float throwForce = 10.0f; // 던질 힘
+    public float addForceDuration = .5f; // 던지는 힘을 누적할 시간
 
     private GameObject currentRock;
 
@@ -42,8 +43,30 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float distanceToMove = 20f;
 
-    private float distance;
+    [Header("CoolTime")]
+    [SerializeField] private float Dash_cool;
+    [SerializeField] private float Swing_cool;
+    [SerializeField] private float Smash_cool;
+    [SerializeField] private float Rock_cool;
 
+
+    //스킬쿨타임 관리용
+    [Header("쿨돌아가나확인용")]
+    public float cool_Dash;
+    public float cool_Swing;
+    public float cool_Smash;
+    public float cool_Rock;
+
+    //쿨타임용 bool값 
+    bool isDash = false;
+    bool isSmash = false;
+    bool isSwing = false;
+    bool _isRun = false;
+    bool isRock = false;
+
+    //거리계산
+    private float distance;
+    //마우스 커서 가리기
     private bool isCursor = false;
 
     private AttackController attackController;
@@ -56,38 +79,37 @@ public class MutantController : MonoBehaviour
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isRun_hash = Animator.StringToHash("isRun");
+    
+    //========================================================================
     private readonly int isKnockDown_hash = Animator.StringToHash("isKnockDown");
     private readonly int isStanding_hash = Animator.StringToHash("isStanding");
     private readonly int isHowling_hash = Animator.StringToHash("isHowling");
+    private readonly int isSwing_hash = Animator.StringToHash("Swing");
+    private readonly int isSmash_hash = Animator.StringToHash("Smash");
 
     //플레이어와 몬스터의 거리계산용
     private GameObject player;
 
 
-    //쿨타임용 bool값 
-    bool isDash = false;
-    bool _isRun = false;
-    bool isHammering = false;
-    bool isDance = false;
-    private bool isTarget
+
+    public bool isTarget
     {
         get
         {
-            if (distance >= 30f || distance <= 20f)
+            if (distance >= 30f || (distance <= 5f && distance >=2.3f))
             {
                 return true;
             }
-            else 
+            else
             {
                 return false;
             }
         }
+        
     }
 
 
 
-    //스킬쿨타임 관리용
-    float cool_Dash;
     #endregion
     #region Cached colliders & rigidbodies
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -96,6 +118,7 @@ public class MutantController : MonoBehaviour
 
     private void Awake()
     {
+        StartCoroutine(Swing_Cool_co());
         TryGetComponent(out playerRigidbody);
         TryGetComponent(out playerAnimator);
         player = GameObject.FindGameObjectWithTag("Player");
@@ -115,22 +138,23 @@ public class MutantController : MonoBehaviour
     }
     private void Update()
     {
-       // print(distance);
-        if(distance >= 3f)
+        player.transform.position = player.transform.position;
+        print("isTarget : " + isTarget);
+        Move_ToPlayer();
+        Move();
+        Rotate(); 
+        Jugement_MonAction();
+        if(distance >= 0.5f)
         {
             playerAnimator.SetBool("isTarget", isTarget);
         }
-        Move_ToPlayer();
-        Move();
-        Rotate();
+
         if (Input.GetKeyDown(KeyCode.F1))
         {
             Togle_Cursor();
         }
-
-
-        Jugement_MonAction();
-        //transform.LookAt(player.transform);
+        print("isSwing : " + isSwing);
+        
         print("누구보고있니 : " + player.name);
 
     }
@@ -482,7 +506,7 @@ public class MutantController : MonoBehaviour
 
     private IEnumerator Dash_Cool_co()
     {
-        while (cool_Dash < 10f)
+        while (cool_Dash < Dash_cool)
         {
             cool_Dash += Time.deltaTime;
             yield return null;
@@ -498,15 +522,6 @@ public class MutantController : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
 
         distance = Vector3.Distance(player.transform.position, transform.position);
-
-
-
-        //todo : 거리의 조건에 따라 공격의 패턴이 나오도록 switch 문을 이용해 랜덤으로 발생하게 할것// 
-        //todo : 대쉬 공격은 쿨타임을 생성해서 2~30초에 한번만 하게 조정. => done
-        //todo : 공격 판정 만드세요 ~~~~~~~~~~~~~~~~~~~
-        //todo : 일반공격중 돌던지기 패턴 하나 만들것 => 일단 유도기능x 플레이어의 방향으로 던지는 방식. 
-        //       addForce 방식 , velocity 채용 내일 둘다적용해보고 좀더 괜찮은거로  ㄱ (줍는 애니메이션 -> 던지는 애니매이션 필요..)!
-
         if (distance <= 30f && distance > 20f)
         {
             Dash_Att();
@@ -514,43 +529,99 @@ public class MutantController : MonoBehaviour
         }
         else if (distance <= 20f && distance > 10f)
         {
-            int random = UnityEngine.Random.Range(0, 4);
-            switch (random)
+            if (!isDash)
             {
-                case 0:
-                    //공격1
-                    break;
-                case 1:
-                    //공격2
-                    break;
-                case 2:
-                    //공격3
-                    break;
-                default:
-                    Console.WriteLine("올바르지 않은 값입니다.");
-                    break;
+                transform.LookAt(player.transform);
+                agent.isStopped = true;
+            }
+            else
+            {
+                agent.isStopped = false;
             }
             print("middle");
         }
         else if (distance <= 10f)
         {
-            // 캐릭터에게 걸어와서 근접공격 (일반 1 강공 1)
-            if(distance <= 5f)
+            if (cool_Swing == 0 || cool_Smash == 0)
             {
-                playerAnimator.SetBool(isWeakAttack_hash, true);
+                switch (UnityEngine.Random.Range(0, 2))
+                {
+                    case 0:
+                        if(cool_Swing == 0)
+                        {
+                            Swing_att();
+                        }
+                        else
+                        {
+                            return;
+                        }
+                        
+                        break;
+                    case 1:
+                        if(cool_Smash == 0)
+                        {
+                            Smash_Att();
+                        }
+                        else
+                        {
+                            return;
+                        }
+                        break;
+                    default:
+                        print("둘다쿨타임");
+                        break;
+                }
             }
-            else
-            {
-                playerAnimator.SetBool(isWeakAttack_hash, false);
-            }
-
             print("close");
         }
     }
 
+    //네비게이션을 이용하여 플레이어에게 이동
+    private void Move_ToPlayer()
+    {
+
+        if (isDash)
+        {
+            while (count < 5f)
+            {
+                count += Time.deltaTime;
+            }
+            count = 0;
+            return;
+        }
+        else
+        {
+            agent.SetDestination(player.transform.position);
+        }
+
+    }
+
     //그로기상태 후 하울링 공격 > 광역기
 
-    //대쉬 공격
+    private IEnumerator Swing_Cool_co()
+    {
+        while (cool_Swing < Swing_cool)
+        {
+            cool_Swing += Time.deltaTime;
+            yield return null;
+        }
+        isSwing = false;
+        cool_Swing = 0;
+    }
+    private void Swing_att()
+    {
+        if(cool_Swing != 0)
+        {
+            isSwing = false;
+        }
+        isSwing = true;
+        //playerAnimator.SetBool(isSwing_hash, isSwing);
+        playerAnimator.SetTrigger("Swing");
+        StartCoroutine(Swing_Cool_co());
+    }
+   
+
+    //대쉬 공격 (강공1)
     private void Dash_Att()
     {
         if (isDash)
@@ -567,96 +638,108 @@ public class MutantController : MonoBehaviour
         }
     }
 
-    //강한공격 1.주먹질
-    private void Hammering_Att()
+    //강한공격 2.주먹질
+    private IEnumerator Smash_Cool_co()
     {
-        if (isHammering)
+        while(cool_Smash < Smash_cool)
         {
-            return;
+            cool_Smash += Time.deltaTime;
+            yield return null;
         }
-        else if (!isHammering)
-        {
-            playerAnimator.SetBool(isStrongAttack_hash, true);
-            isHammering = true;
-        }
+        isSmash = false;
+        cool_Smash = 0;
     }
+    private void Smash_Att()
+    {
+        if (cool_Smash != 0)
+        {
+            isSmash = false;
+        }
+        isSmash = true;
+        playerAnimator.SetTrigger("Smash");
+        StartCoroutine(Smash_Cool_co());
+        //playerAnimator.SetBool(isStrongAttack_hash, true);
+    }
+
+
     float count;
-    //네비게이션을 이용하여 플레이어에게 이동
-    private void Move_ToPlayer()
-    {
-        
-        if (isDash)
-        {
 
-            while (count < 2f)
-            {
-                count += Time.deltaTime;
-            }
-            count = 0;
-            return;
-        }
-        else
-        {
-            agent.SetDestination(player.transform.position);
-        }
-
-    }
 
     //돌주워 던지기 약한공격 2.
+    private IEnumerator Rock_Cool_co()
+    {
+        while (cool_Rock < Rock_cool)
+        {
+            cool_Rock += Time.deltaTime;
+            yield return null;
+        }
+        isRock = false;
+        cool_Rock = 0;
+
+    }
     private void PickUpRock()
     {
-        // 돌을 생성하고 손 위치에 놓기
-        GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);
-        newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
-    }
-    //주운돌 던지기.
-    private void ThrowRock()
-    {
-        if (currentRock != null)
+        if(cool_Rock == 0)
         {
-            // 돌을 손에서 해제하고 던질 위치로 이동
-            currentRock.transform.parent = null;
-            currentRock.transform.position = throwPosition.position;
-
-            // 돌에 던질 힘을 적용
-            Rigidbody rockRigidbody = currentRock.GetComponent<Rigidbody>();
-            if (rockRigidbody != null)
+            if (!isDash && currentRock == null)
             {
-                rockRigidbody.AddForce(throwPosition.forward * throwForce, ForceMode.Impulse);
+                // 돌을 생성하고 손 위치에 놓기
+                Vector3 offset = new Vector3(1f, -1f, -.91f);
+                GameObject newRock = Instantiate(rockPrefab, handPosition.position+offset, Quaternion.identity);                
+                newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
+
+                AnimationClip throwAnimation = playerAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
+                float waitTime = throwAnimation.length;
+                // 일정 시간 대기 후 돌을 부모에서 분리
+                StartCoroutine(DetachRockAfterTime(newRock, waitTime));
+
+                // 쿨다운 코루틴 시작
+                StartCoroutine(Rock_Cool_co());
             }
-
-            // 돌 던지는 애니메이션을 재생하거나 다른 동작 수행
-
-            currentRock = null; // 현재 돌 초기화
         }
     }
 
+    private IEnumerator DetachRockAfterTime(GameObject rock, float time)
+    {
+        yield return new WaitForSeconds(time);
+        // 돌을 부모에서 분리
+        rock.transform.parent = null;
+        // 돌의 Rigidbody 컴포넌트 가져오기
+        Rigidbody rb = rock.GetComponent<Rigidbody>();
+        
+        if (rb == null) yield break;
+
+        rb.isKinematic = false; // isKinematic을 비활성화
+        rb.useGravity = true;   // 중력 사용을 활성화
+        
+        // 플레이어의 방향으로 던지기
+        // 플레이어의 전방 방향
+        var handPos = handPosition.position;
+        var playerGroundPos = new Vector3(player.transform.position.x, 0, player.transform.position.z);
+        Vector3 throwDirection = playerGroundPos - handPos;
+
+        //rb.AddForce(throwDirection * throwForce, ForceMode.Acceleration);
+
+        float elapsedTime = 0f;
+        while (elapsedTime < addForceDuration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            UnityEngine.Debug.DrawLine(handPos, handPos + throwDirection * 100f, Color.magenta);
+
+            var force = throwDirection * Mathf.Lerp(throwForce, 0, (elapsedTime / addForceDuration));
+            rb.AddForce(force, ForceMode.Acceleration);
+
+            yield return null;
+        }
+
+        //Vector3 throwDirection = (player.transform.position - transform.position).normalized;
+        //Vector3 throwVelocity = throwDirection * throwForce * Time.deltaTime;
+        //transform.Translate(throwVelocity, Space.World);
 
 
-    //춤추는건 나중에 하자;.
-    //private void Dance()
-    //{
-    //    if (isDance)
-    //    {
-    //        return;
-    //    }
-    //    else if (!isDance && health.CurrentHP <= 0)
-    //    {
-    //        isDance = true;
-    //        playerAnimator.SetBool("isDance", true);
-    //    }
-    //}
-    //private void Howling_Att()
-    //{
-    //    if (isHowling)
-    //    {
-    //        return;
-    //    }
-    //    else if (!isHowling)
-    //    {
-    //        playerAnimator.SetBool(isHowling_hash, true);
-    //    }
-    //}
+    }
+    //주운돌 던지기.
 
 
 }
