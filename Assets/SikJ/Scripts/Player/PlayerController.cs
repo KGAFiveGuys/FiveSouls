@@ -322,6 +322,10 @@ public class PlayerController : MonoBehaviour
         ragdollTest.Enable();
         #endregion
         _health.OnDead += Die;
+        _attackController.OnWeakAttackCast += () => SFXManager.Instance.OnPlayerWeakAttackCast();
+        _attackController.OnWeakAttackHit += () => SFXManager.Instance.OnPlayerWeakAttackHit();
+        _attackController.OnStrongAttackCast += () => SFXManager.Instance.OnPlayerStrongAttackCast();
+        _attackController.OnStrongAttackHit += () => SFXManager.Instance.OnPlayerStrongAttackHit();
     }
 
     private void OnDisable()
@@ -703,6 +707,7 @@ public class PlayerController : MonoBehaviour
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
+        SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
         StartCoroutine(HandleEquipment(true));
     }

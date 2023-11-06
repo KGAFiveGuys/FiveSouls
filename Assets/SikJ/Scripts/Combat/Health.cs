@@ -25,7 +25,8 @@ public class Health : MonoBehaviour
     {
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
 
-        OnHealthChanged();
+        if(OnHealthChanged != null)
+            OnHealthChanged();
 
         if (CurrentHP <= 0)
         {

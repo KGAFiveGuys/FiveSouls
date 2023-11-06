@@ -33,7 +33,7 @@ public class DealDamage : MonoBehaviour
             }
 
             targetBlockController.Block(damage);
-            _attackController.Attack(targetHealth, damage);
+            _attackController.Attack(targetHealth, damage, true);
         }
         // 적중된 경우
         else if (layerMask == (int)_attackController.AttackLayer)
@@ -50,7 +50,7 @@ public class DealDamage : MonoBehaviour
                     break;
             }
 
-            _attackController.Attack(targetHealth, damage);
+            _attackController.Attack(targetHealth, damage, false);
         }
     }
 }
