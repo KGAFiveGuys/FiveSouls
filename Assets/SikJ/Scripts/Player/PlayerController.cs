@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject VC_Default;
     [SerializeField] private GameObject VC_LockOn;
     [SerializeField] private CinemachineTargetGroup TargetGroup;
+    [SerializeField] private AnimationCurve resetRotationIntensity;
+    [SerializeField] private float resetRotationTime = .5f;
     [SerializeField] private float enemyDetectDistance = 60f;
     [SerializeField] private float lockOnLimitDistance = 80f;
     [Tooltip("시야각의 절반")]
@@ -322,10 +324,10 @@ public class PlayerController : MonoBehaviour
         ragdollTest.Enable();
         #endregion
         _health.OnDead += Die;
-        _attackController.OnWeakAttackCast += () => SFXManager.Instance.OnPlayerWeakAttackCast();
-        _attackController.OnWeakAttackHit += () => SFXManager.Instance.OnPlayerWeakAttackHit();
-        _attackController.OnStrongAttackCast += () => SFXManager.Instance.OnPlayerStrongAttackCast();
-        _attackController.OnStrongAttackHit += () => SFXManager.Instance.OnPlayerStrongAttackHit();
+        _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private void OnDisable()
@@ -370,6 +372,10 @@ public class PlayerController : MonoBehaviour
         ragdollTest.Disable();
         #endregion
         _health.OnDead -= Die;
+        _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private Vector2 desiredMove;
@@ -573,9 +579,28 @@ public class PlayerController : MonoBehaviour
             // 적이 없는 경우 카메라를 플레이어 정면방향으로 회전
 			else
 			{
-                VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = transform.localEulerAngles.y;
+                StartCoroutine(ResetDefaultVCRotation());
             }
         }
+    }
+
+    private IEnumerator ResetDefaultVCRotation()
+    {
+        // 더 가까운 방향으로 회전하도록 수정 필요
+
+        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+        var endRotation = transform.localEulerAngles.y;
+
+        float elapsedTime = 0f;
+        var progress = 0f;
+        while (elapsedTime < resetRotationTime)
+        {
+            elapsedTime += Time.deltaTime;
+            progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
+            yield return null;
+        }
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
 
     private bool CheckEnemyInRange()
