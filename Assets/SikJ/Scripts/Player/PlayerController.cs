@@ -31,14 +31,18 @@ public class PlayerController : MonoBehaviour
     public InputAction rotate;
     public InputAction run;
     public InputAction weakAttack;
+    public event Action OnWeakAttack;
     public InputAction strongAttack;
+    public event Action OnStrongAttack;
     public InputAction block;
+    public event Action OnBlock;
     public InputAction roll;
+    public event Action OnRoll;
     public InputAction jump;
+    public event Action OnJump;
     public InputAction lockOn;
     public event Action OnLockOn;
     public event Action OnLockOff;
-    public InputAction ragdollTest;
 
     [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
@@ -318,10 +322,6 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed += OnLockOnPerformed;
         lockOn.Enable();
-
-        ragdollTest.performed += OnRagdollPerformed;
-        ragdollTest.canceled += OnRagdollCanceled;
-        ragdollTest.Enable();
         #endregion
         _health.OnDead += Die;
         _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
@@ -366,10 +366,6 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed -= OnLockOnPerformed;
         lockOn.Disable();
-
-        ragdollTest.performed -= OnRagdollPerformed;
-        ragdollTest.canceled -= OnRagdollCanceled;
-        ragdollTest.Disable();
         #endregion
         _health.OnDead -= Die;
         _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
@@ -460,6 +456,7 @@ public class PlayerController : MonoBehaviour
 		{
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
+            OnJump();
         }
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
@@ -476,6 +473,7 @@ public class PlayerController : MonoBehaviour
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.BlockCost);
             _animator.SetBool(isBlock_hash, true);
+            OnBlock();
         }
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
@@ -498,6 +496,7 @@ public class PlayerController : MonoBehaviour
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
+            OnRoll();
         }
     }
     private void OnRollCanceled(InputAction.CallbackContext context)
@@ -520,6 +519,7 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Weak);
             _stamina.Consume(_stamina.WeakAttackCost);
             _animator.SetBool(isWeakAttack_hash, true);
+            OnWeakAttack();
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
@@ -542,6 +542,7 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Strong);
             _stamina.Consume(_stamina.StrongAttackCost);
             _animator.SetBool(isStrongAttack_hash, true);
+            OnStrongAttack();
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)
@@ -716,17 +717,9 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-    #region ragdoll_Action
-    private void OnRagdollPerformed(InputAction.CallbackContext context)
-    {
-        var isRagdoll = context.ReadValueAsButton();
-        if (isRagdoll)
-        {
-            Die();
-        }
-    }
-
-    public void Die()
+    
+	#region Die
+	public void Die()
     {
         IsLockOn = false;
         UI_lockOnPoint.SetActive(false);
@@ -734,21 +727,8 @@ public class PlayerController : MonoBehaviour
 
         SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
-        StartCoroutine(HandleEquipment(true));
+        StartCoroutine(DropEquipments(true));
     }
-
-    private void OnRagdollCanceled(InputAction.CallbackContext context)
-    {
-        Revive();
-    }
-
-    public void Revive()
-    {
-        ToggleRagdoll(false);
-        StartCoroutine(HandleEquipment(false));
-        IsRun = false;
-    }
-
     public void ToggleRagdoll(bool isRagdoll)
     {
         #region Toggle ragdoll colliders & rigidbodies
@@ -775,7 +755,7 @@ public class PlayerController : MonoBehaviour
     /// <para>true if drop</para>
     /// <para>false if pick-up</para>
     /// </param>
-    private IEnumerator HandleEquipment(bool isDrop)
+    private IEnumerator DropEquipments(bool isDrop)
     {
         if (isDrop)
             yield return new WaitForSeconds(dropDelay);
@@ -824,6 +804,12 @@ public class PlayerController : MonoBehaviour
         #endregion
     }
     #endregion
+    public void Revive()
+    {
+        ToggleRagdoll(false);
+        StartCoroutine(DropEquipments(false));
+        IsRun = false;
+    }
 
     private void OnDrawGizmos()
     {
