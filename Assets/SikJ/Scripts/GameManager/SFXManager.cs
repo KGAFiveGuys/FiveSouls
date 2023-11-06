@@ -61,40 +61,40 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    public void OnTimeSlowDown(float duration) => Play(timeSlowDown, duration, .75f);
+    public void OnTimeSlowDown(float duration) => Play(timeSlowDown, 1f, duration, .75f);
     public void OnPlayerBlock(float duration)
     {
-        PlayOneShot(playerOnBlock1);
-        Play(playerOnBlock2, duration, 1.1f);
+        PlayOneShot(playerOnBlock1, .6f);
+        Play(playerOnBlock2, .8f, duration, 1.1f);
     }
-    public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast);
-    public void OnPlayerStrongAttackCast() => PlayOneShot(playerOnWeakAttackCast);
-    public void OnPlayerWeakAttackHit() => PlayOneShot(playerOnWeakAttackHit);
+    public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
+    public void OnPlayerStrongAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
+    public void OnPlayerWeakAttackHit() => PlayOneShot(playerOnWeakAttackHit, 1f);
     public void OnPlayerStrongAttackHit()
     {
-        PlayOneShot(playerOnStrongAttackHit1);
-        PlayOneShot(playerOnStrongAttackHit2);
+        PlayOneShot(playerOnStrongAttackHit1, 1f);
+        PlayOneShot(playerOnStrongAttackHit2, 1f);
     }
-    public void OnPlayerRoll() => PlayOneShot(playerOnRoll);
-    public void OnPlayerJump() => PlayOneShot(playerOnJump);
+    public void OnPlayerJump() => PlayOneShot(playerOnJump, 1f);
     public void OnPlayerDead()
     {
-        PlayOneShot(playerOnDead1);
-        PlayOneShot(playerOnDead2);
+        PlayOneShot(playerOnDead1, .8f);
+        PlayOneShot(playerOnDead2, .8f);
     }
-    public void OnPlayerEquipmentFall() => PlayOneShot(playerOnEquipmentFall);
+    public void OnPlayerEquipmentFall() => PlayOneShot(playerOnEquipmentFall, .8f);
 
     /// <summary>
     /// Find playable audioSource, then PlayOneShot.
     /// </summary>
     /// <param name="clip">Audio clip to play</param>
-    private void PlayOneShot(AudioClip clip)
+    private void PlayOneShot(AudioClip clip, float startVolume)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
                 audioSource.PlayOneShot(clip);
+                StartCoroutine(RestoreVolume(audioSource, .5f));
                 break;
             }
         }
@@ -106,20 +106,20 @@ public class SFXManager : MonoBehaviour
     /// <param name="clip">Audio clip to play</param>
     /// <param name="duration">Time to keep play</param>
     /// <param name="rateToMute">Rate in duration to mute and stop audio clip</param>
-    private void Play(AudioClip clip, float duration, float rateToMute)
+    private void Play(AudioClip clip, float startVolume, float duration, float rateToMute)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
                 audioSource.clip = clip;
-                StartCoroutine(Play(audioSource, duration, rateToMute));
+                StartCoroutine(Play(audioSource, startVolume, duration, rateToMute));
                 break;
             }
         }
     }
 
-    private IEnumerator Play(AudioSource audioSource, float duration, float rateToMute)
+    private IEnumerator Play(AudioSource audioSource, float startVolume, float duration, float rateToMute)
     {
         audioSource.Play();
 
@@ -130,19 +130,19 @@ public class SFXManager : MonoBehaviour
 
             // Turn down volume to mute.
             if (elapsedTime / duration <= rateToMute)
-                audioSource.volume = Mathf.Lerp(1f, 0f, elapsedTime / duration);
+                audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsedTime / duration);
             else if (audioSource.volume > 0)
                 audioSource.volume = 0;
 
             yield return null;
         }
-        
-        StartCoroutine(StopNRestoreVolume(audioSource, .5f));
+
+        audioSource.Stop();
+        StartCoroutine(RestoreVolume(audioSource, .5f));
     }
 
-    private IEnumerator StopNRestoreVolume(AudioSource audioSource, float restoreTime)
+    private IEnumerator RestoreVolume(AudioSource audioSource, float restoreTime)
     {
-        audioSource.Stop();
         var volumeStart = audioSource.volume;
 
         float elapsedTime = 0f;

@@ -5,11 +5,13 @@ using UnityEngine;
 public class BlockController : MonoBehaviour
 {
     [SerializeField] private Collider blockCollider;
+    [SerializeField] private ParticleSystem blockParticle;
     [field: Tooltip("데미지 감소 비율")]
     [field: SerializeField] [field: Range(0f, 1f)] public float BlockDampRate { get; private set; } = .2f;
     [SerializeField] private float knockBackDurationPerDamage = .2f;
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
+    
 
     [SerializeField] private Health characterHealth;
 
@@ -54,6 +56,7 @@ public class BlockController : MonoBehaviour
         var duration = damage * knockBackDurationPerDamage;
         lastKnockBack = KnockBack(duration);
         StartCoroutine(lastKnockBack);
+        blockParticle.Play();
         SFXManager.Instance.OnTimeSlowDown(duration);
         SFXManager.Instance.OnPlayerBlock(duration);
     }
