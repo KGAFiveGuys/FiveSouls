@@ -9,7 +9,7 @@ public class Health : MonoBehaviour
     // Total Max Health = MaxHP * DigitScale
     [field:SerializeField] public float MaxHP { get; private set; } = 1000f;
     // Total Current Health = CurrentHP * DigitScale
-    public float CurrentHP { get; private set; }
+    [field: SerializeField] public float CurrentHP { get; private set; }
     [SerializeField] private Collider lockOnCollider;
     [SerializeField] private Collider attackCollider;
 
@@ -24,7 +24,6 @@ public class Health : MonoBehaviour
     public void GetDamage(float damage)
     {
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
-        Debug.Log($"{gameObject.name}ÇÇ°Ý! {CurrentHP}/{MaxHP}");
 
         OnHealthChanged();
 

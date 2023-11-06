@@ -14,6 +14,7 @@ public enum ControlState
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(AttackController))]
+[RequireComponent(typeof(BlockController))]
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
@@ -88,6 +89,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
     private AttackController _attackController;
+    private BlockController _blockController;
     private Health _health;
     private Stamina _stamina;
     private Animator _animator;
@@ -107,6 +109,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _rigidbody);
         TryGetComponent(out _collider);
         TryGetComponent(out _attackController);
+        TryGetComponent(out _blockController);
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
@@ -470,6 +473,7 @@ public class PlayerController : MonoBehaviour
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         IsRun = false;
+        _blockController.TurnOffBlockCollider();
     }
     #endregion
     #region roll_Action

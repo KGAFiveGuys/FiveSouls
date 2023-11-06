@@ -6,6 +6,7 @@ public enum CombatLayerMask
 {
     Enemy = 8,
     Player = 9,
+    Shield = 11,
 }
 
 public enum AttackType
@@ -17,9 +18,9 @@ public enum AttackType
 public class AttackController : MonoBehaviour
 {
     [field: SerializeField] public AttackType CurrentAttackType { get; private set; } = AttackType.Weak;
-    [field: Header("Value")]
+    [field: SerializeField] public CombatLayerMask AttackLayer { get; set; } = CombatLayerMask.Enemy;
+    [field: SerializeField] public CombatLayerMask BlockableLayer { get; set; } = CombatLayerMask.Shield;
     [SerializeField] private Collider attackCollider;
-    [field: SerializeField] public CombatLayerMask TargetLayer { get; set; } = CombatLayerMask.Enemy;
     [field: SerializeField] public float WeakAttackBaseDamage { get; private set; } = 10f;
     [field: SerializeField] public float StrongAttackBaseDamage { get; private set; } = 20f;
 
@@ -40,7 +41,7 @@ public class AttackController : MonoBehaviour
         CurrentAttackType = type;
     }
 
-    public void Damage(Health targetHealth, float damage)
+    public void Attack(Health targetHealth, float damage)
     {
         targetHealth.GetDamage(damage);
         TurnOffAttackCollider();
