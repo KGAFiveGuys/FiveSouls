@@ -124,21 +124,22 @@ public class WizardControl : MonoBehaviour
             }
             yield return null;
         }
+        
     }
     private void ClosePattern()
     {
         var collisionModule = shadowburst.collision;
         collisionModule.enabled = true;
         shadowburst.Play();
-        //Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
-        //if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
-        //{
-        //    Debug.Log("벽있음");
-        //}
-        //else
-        //{
-        //    StartCoroutine(BackStep());
-        //}
+        Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
+        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        {
+            Debug.Log("벽있음");
+        }
+        else
+        {
+            StartCoroutine(BackStep());
+        }
     }
     private void SelectAnimation(int pattern)
     {
