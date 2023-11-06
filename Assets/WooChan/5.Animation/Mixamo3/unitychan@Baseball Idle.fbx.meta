@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: d4d4ece4d9ee8d141a491eac72ccd01f
+guid: defcc4c9494aa904ca3131effa090fae
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: Mma Kick
+    second: Baseball Idle
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -59,7 +59,7 @@ ModelImporter:
       : position error = 175.765259 mm\n\t'Character1_Head' : position error = 87.595757
       mm\nCopied Avatar Rig Configuration mis-match. Inbetween bone rotation in copied
       configuration does not match rotation in animation file:\n\t'Character1_Spine'
-      : rotation error = 7.552905 deg\n"
+      : rotation error = 39.466602 deg\n"
     animationImportErrors: 
     animationImportWarnings: "\nClip 'mixamo.com' has import animation warnings that
       might lower retargeting quality:\nNote: Activate translation DOF on avatar
@@ -78,11 +78,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Mma Kick
+      name: Baseball Idle
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 100
+      lastFrame: 139
       wrapMode: 0
       orientationOffsetY: 0
       level: -0.7
