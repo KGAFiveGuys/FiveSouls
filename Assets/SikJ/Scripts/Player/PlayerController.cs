@@ -31,16 +31,14 @@ public class PlayerController : MonoBehaviour
     public InputAction rotate;
     public InputAction run;
     public InputAction weakAttack;
-    public event Action OnWeakAttack;
     public InputAction strongAttack;
-    public event Action OnStrongAttack;
     public InputAction block;
-    public event Action OnBlock;
     public InputAction roll;
-    public event Action OnRoll;
     public InputAction jump;
-    public event Action OnJump;
     public InputAction lockOn;
+
+    public event Action OnRoll;
+    public event Action OnJump;
     public event Action OnLockOn;
     public event Action OnLockOff;
 
@@ -456,7 +454,7 @@ public class PlayerController : MonoBehaviour
 		{
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
-            OnJump();
+            OnJump?.Invoke();
         }
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
@@ -473,7 +471,6 @@ public class PlayerController : MonoBehaviour
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.BlockCost);
             _animator.SetBool(isBlock_hash, true);
-            OnBlock();
         }
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
@@ -496,7 +493,7 @@ public class PlayerController : MonoBehaviour
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
-            OnRoll();
+            OnRoll?.Invoke();
         }
     }
     private void OnRollCanceled(InputAction.CallbackContext context)
@@ -519,7 +516,6 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Weak);
             _stamina.Consume(_stamina.WeakAttackCost);
             _animator.SetBool(isWeakAttack_hash, true);
-            OnWeakAttack();
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
@@ -542,7 +538,6 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Strong);
             _stamina.Consume(_stamina.StrongAttackCost);
             _animator.SetBool(isStrongAttack_hash, true);
-            OnStrongAttack();
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)

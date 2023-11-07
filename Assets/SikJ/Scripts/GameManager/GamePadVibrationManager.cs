@@ -31,6 +31,17 @@ public class GamePadVibrationManager : MonoBehaviour
     public static GamePadVibrationManager Instance => _instance;
 
     private PlayerController _playerController;
+    private AttackController _playerAttackController;
+    private BlockController _playerBlockController;
+
+    private event Action playerWeakAttackCastAction = null;
+    private event Action playerStrongAttackCastAction = null;
+    private event Action playerBlockCastAction = null;
+    private event Action playerBlockSucceedAction = null;
+    private event Action playerRollAction = null;
+    private event Action playerJumpAction = null;
+    private event Action playerWeakAttackHitAction = null;
+    private event Action playerStrongAttackHitAction = null;
 
     private void Awake()
     {
@@ -44,42 +55,46 @@ public class GamePadVibrationManager : MonoBehaviour
             Destroy(this);
         }
 
-        _playerController = FindObjectOfType<PlayerController>();
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        _playerController = playerObj.GetComponent<PlayerController>();
+        _playerAttackController = playerObj.GetComponent<AttackController>();
+        _playerBlockController = playerObj.GetComponent<BlockController>();
     }
-
-    private event Action playerWeakAttackCastAction = null;
-    private event Action playerStrongAttackCastAction = null;
-    private event Action playerBlockCastAction = null;
-    private event Action playerRollAction = null;
-    private event Action playerJumpAction = null;
-    private event Action playerWeakAttackHitAction = null;
-    private event Action playerStrongAttackHitAction = null;
 
     private void OnEnable()
     {
-        playerWeakAttackCastAction = () => { Vibrate(playerWeakAttackCast); };
-        playerStrongAttackCastAction = () => { Vibrate(playerStrongAttackCast); };
-        playerBlockCastAction = () => { Vibrate(playerBlockCast); };
         playerRollAction = () => { Vibrate(playerRoll); };
         playerJumpAction = () => { Vibrate(playerJump); };
+        playerWeakAttackCastAction = () => { Vibrate(playerWeakAttackCast); };
+        playerWeakAttackHitAction = () => { Vibrate(playerWeakAttackHit); };
+        playerStrongAttackCastAction = () => { Vibrate(playerStrongAttackCast); };
+        playerStrongAttackHitAction = () => { Vibrate(playerStrongAttackHit); };
+        playerBlockCastAction = () => { Vibrate(playerBlockCast); };
+        playerBlockSucceedAction = () => { Vibrate(playerBlockSucceed); };
 
-        _playerController.OnWeakAttack += playerWeakAttackCastAction;
-        _playerController.OnStrongAttack += playerStrongAttackCastAction;
-        _playerController.OnBlock += playerBlockCastAction;
         _playerController.OnRoll += playerRollAction;
         _playerController.OnJump += playerJumpAction;
+        _playerAttackController.OnWeakAttackCast += playerWeakAttackCastAction;
+        _playerAttackController.OnWeakAttackHit += playerWeakAttackHitAction;
+        _playerAttackController.OnStrongAttackCast += playerStrongAttackCastAction;
+        _playerAttackController.OnStrongAttackHit += playerStrongAttackHitAction;
+        _playerBlockController.OnBlockCast += playerBlockCastAction;
+        _playerBlockController.OnBlockSucceed += playerBlockSucceedAction;
     }
 
-	private void OnDisable()
-	{
-        _playerController.OnWeakAttack -= playerWeakAttackCastAction;
-        _playerController.OnStrongAttack -= playerStrongAttackCastAction;
-        _playerController.OnBlock -= playerBlockCastAction;
+    private void OnDisable()
+    {
         _playerController.OnRoll -= playerRollAction;
         _playerController.OnJump -= playerJumpAction;
+        _playerAttackController.OnWeakAttackCast -= playerWeakAttackCastAction;
+        _playerAttackController.OnWeakAttackHit -= playerWeakAttackHitAction;
+        _playerAttackController.OnStrongAttackCast -= playerStrongAttackCastAction;
+        _playerAttackController.OnStrongAttackHit -= playerStrongAttackHitAction;
+        _playerBlockController.OnBlockCast -= playerBlockCastAction;
+        _playerBlockController.OnBlockSucceed -= playerBlockSucceedAction;
     }
 
-	private void OnDestroy()
+    private void OnDestroy()
 	{
         if (Gamepad.current != null)
             Gamepad.current.SetMotorSpeeds(0, 0);

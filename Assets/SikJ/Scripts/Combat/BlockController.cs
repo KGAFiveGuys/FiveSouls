@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Health))]
 public class BlockController : MonoBehaviour
 {
     [SerializeField] private Collider blockCollider;
@@ -11,13 +13,21 @@ public class BlockController : MonoBehaviour
     [SerializeField] private float knockBackDurationPerDamage = .2f;
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
-    
 
-    [SerializeField] private Health characterHealth;
+    [SerializeField] private Health _characterHealth;
+
+    private event Action OnDeadWhileKnockBack;
+    public event Action OnBlockCast;
+    public event Action OnBlockSucceed;
+
+    private void Awake()
+    {
+        TryGetComponent(out _characterHealth);
+    }
 
     private void OnEnable()
     {
-        characterHealth.OnDead += () =>
+        OnDeadWhileKnockBack = () =>
         {
             if (lastKnockBack != null)
             {
@@ -25,12 +35,20 @@ public class BlockController : MonoBehaviour
                 lastKnockBack = null;
             }
         };
+
+        _characterHealth.OnDead += OnDeadWhileKnockBack;
+    }
+
+    private void OnDisable()
+    {
+        _characterHealth.OnDead -= OnDeadWhileKnockBack;
     }
 
     // Animation Event
     public void TurnOnBlockCollider()
     {
         blockCollider.gameObject.SetActive(true);
+        OnBlockCast?.Invoke();
     }
 
     public void TurnOffBlockCollider()
@@ -40,8 +58,10 @@ public class BlockController : MonoBehaviour
 
     public void Block(float damage)
     {
-        if (characterHealth.CurrentHP == 0)
+        if (_characterHealth.CurrentHP == 0)
             return;
+
+        OnBlockSucceed?.Invoke();
 
         TurnOffBlockCollider();
 
