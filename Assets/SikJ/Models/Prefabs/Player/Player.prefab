@@ -1413,31 +1413,6 @@ MonoBehaviour:
       m_Action: Lock On
       m_Flags: 0
     m_Flags: 0
-  ragdollTest:
-    m_Name: Ragdoll Test
-    m_Type: 0
-    m_ExpectedControlType: Axis
-    m_Id: 274d865a-9e13-4641-abcc-d6f46d885bcf
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 63a2d87c-9c0f-4d26-b21a-62a2d61b74c6
-      m_Path: <Gamepad>/select
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Ragdoll Test
-      m_Flags: 0
-    - m_Name: 
-      m_Id: 94f1c702-0f74-405e-96c2-5afb48847dd9
-      m_Path: <Keyboard>/escape
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Ragdoll Test
-      m_Flags: 0
-    m_Flags: 0
   walkSpeed: 10
   runSpeed: 18
   runThresholdTime: 0.2
@@ -1448,6 +1423,13 @@ MonoBehaviour:
   VC_Default: {fileID: 0}
   VC_LockOn: {fileID: 0}
   TargetGroup: {fileID: 0}
+  resetRotationIntensity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  resetRotationTime: 0.5
   enemyDetectDistance: 50
   lockOnLimitDistance: 55
   enemyDetectAngle: 15
@@ -1505,7 +1487,7 @@ MonoBehaviour:
   <CurrentAttackType>k__BackingField: 0
   <AttackLayer>k__BackingField: 8
   <BlockableLayer>k__BackingField: 11
-  attackCollider: {fileID: 8271343808061388476}
+  <AttackCollider>k__BackingField: {fileID: 8271343808061388476}
   <WeakAttackBaseDamage>k__BackingField: 100
   <StrongAttackBaseDamage>k__BackingField: 200
 --- !u!114 &1000676100695774633
@@ -1576,7 +1558,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  characterHealth: {fileID: 2309525717887462795}
+  _characterHealth: {fileID: 0}
 --- !u!114 &2309525717887462795
 MonoBehaviour:
   m_ObjectHideFlags: 0

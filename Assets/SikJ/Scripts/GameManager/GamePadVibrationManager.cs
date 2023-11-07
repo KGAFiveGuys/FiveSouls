@@ -8,6 +8,10 @@ public class GamePadVibrationManager : MonoBehaviour
 {
     [SerializeField] private static IEnumerator currentVibration = null;
     [SerializeField] private static int currentPriority = -1;
+    
+    [Header("Player Locomotion")]
+    [SerializeField] private VibrationSO playerRoll;
+    [SerializeField] private VibrationSO playerJump;
 
     [Header("Player Combat")]
     // Block
@@ -22,10 +26,6 @@ public class GamePadVibrationManager : MonoBehaviour
     // Dead
     [SerializeField] private VibrationSO playerDead;
     [SerializeField] private VibrationSO playerEquipmentFall;
-
-    [Header("Player Locomotion")]
-    [SerializeField] private VibrationSO playerRoll;
-    [SerializeField] private VibrationSO playerJump;
 
     public static GamePadVibrationManager _instance = null;
     public static GamePadVibrationManager Instance => _instance;
