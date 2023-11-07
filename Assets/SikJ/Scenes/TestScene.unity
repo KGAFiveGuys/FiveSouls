@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: <StrongAttackBaseDamage>k__BackingField
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 1119446456, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 10167509951738985, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: m_Name
       value: TestEnemy1 (2)
@@ -197,6 +201,10 @@ PrefabInstance:
     - target: {fileID: 10167509951738990, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
       propertyPath: startOffset.x
       value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078819337684237070, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
+      propertyPath: <MaxHP>k__BackingField
+      value: 1000000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37f5635afb040f84f925ba09df8c59a5, type: 3}
@@ -14703,6 +14711,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a9b3393beb69db4eb935e166f6d7b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerRoll: {fileID: 11400000, guid: 199e1640acf632e479d2629443e027c0, type: 2}
+  playerJump: {fileID: 11400000, guid: 7127c1f9a1b25df4d9ec47ede0d244b9, type: 2}
   playerBlockCast: {fileID: 11400000, guid: c5328b2c544059446b87125b9d4c4f1c, type: 2}
   playerBlockSucceed: {fileID: 11400000, guid: 82e11215fbda5e54f91e1ad23b4c1e52, type: 2}
   playerWeakAttackCast: {fileID: 11400000, guid: 0b35877c6aaa6ae48a6890848164c6f9, type: 2}
@@ -14711,8 +14721,6 @@ MonoBehaviour:
   playerStrongAttackHit: {fileID: 11400000, guid: 91eb96093fda8d241a28d00e16a19db4, type: 2}
   playerDead: {fileID: 11400000, guid: c15e892b12778a447805a0a9264c4183, type: 2}
   playerEquipmentFall: {fileID: 11400000, guid: 767501c04abc3f3478685f5e223a9ccc, type: 2}
-  playerRoll: {fileID: 11400000, guid: 199e1640acf632e479d2629443e027c0, type: 2}
-  playerJump: {fileID: 11400000, guid: 7127c1f9a1b25df4d9ec47ede0d244b9, type: 2}
 --- !u!1 &2039046113
 GameObject:
   m_ObjectHideFlags: 0
