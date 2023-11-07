@@ -2,17 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AttackController))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Rigidbody))]
 public class UnityChanAI : MonoBehaviour
 {
+    private AttackController attackController;
     private Animator animator;
     [SerializeField] Rigidbody rigidbody;
+
+    // AttackCollider
+    [SerializeField] private Collider screwAttackCollider;
+    [SerializeField] private Collider projectileCollider;
+    [SerializeField] private Collider advPunchCollider;
     
     [SerializeField] private bool isIdle = false;
     [SerializeField] private bool isWalk = false;
     [SerializeField] private bool isWalk_R = false;
     [SerializeField] private bool isWalk_L = false;
-
-
 
     [SerializeField] private GameObject Target = null;
     [SerializeField] private float TargetDistance = 0f;
@@ -20,23 +27,28 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private float RunSpeed = 30f;
     [SerializeField] private float MDSpeed = 50f;
 
-    [SerializeField] private bool nearPattern = false;
-    [SerializeField] private bool middlePattern = false;
-    [SerializeField] private bool farPattern = false;
+    [SerializeField] private bool near = false;
+    [SerializeField] private bool middle = false;
+    [SerializeField] private bool far = false;
 
-
+    [SerializeField] private float NearPatternGraceTime = 0f;
+    [SerializeField] private float NearPatternTime = 0f;
     [SerializeField] private float MiddlePatternGraceTime = 0f;
     [SerializeField] private float MiddlePatternTime = 0f;
     [SerializeField] private float farPatternGraceTime = 0f;
 
-
     [SerializeField] private float MustDieGraceTime = 0f;
 
     [SerializeField] private GameObject projectile;
-    [SerializeField] private Transform ProjectileParent;
+    private Transform ProjectileParent;
     [SerializeField] private float ProjectileSpeed;
+
     private bool middleP1 = false;
     private bool middleP2 = false;
+    private bool AdvPunch_T1 = false;
+    private bool AdvPunch_T2 = false;
+    private bool CartWheelNext = false;
+    private int CartWheelRan = 0;
 
     [SerializeField] private bool farP_Next = false; // farpattern 다음으로 넘어가기 위해서 한번더 체크하는용도
     [SerializeField] private bool farP_trigger = false;
@@ -48,6 +60,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void Awake()
     {
+        TryGetComponent(out attackController);
         TryGetComponent(out animator);
         TryGetComponent(out rigidbody);
     }
@@ -55,7 +68,8 @@ public class UnityChanAI : MonoBehaviour
     private void Start()
     {
         P_layer = LayerMask.GetMask("Player");
-        MiddlePatternTime = Random.Range(3, 8);
+        MiddlePatternTime = Random.Range(3, 5);
+        NearPatternTime = Random.Range(1f, 2f);
 
         StartCoroutine(DecidePattern());
     }
@@ -77,26 +91,17 @@ public class UnityChanAI : MonoBehaviour
     private void Update()
     {
         transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-        if (Target && !isMotion) // 플레이어만 바라봄
+        if (Target && !isMotion)
         {
             LookAt_Rotation_Y(Target.transform);
         }
 
-        //if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
-        //{
-        //    isMotion = false;
-        //} //Idle 인지 체크 후 IsMotion에 반환
-        //else
-        //{
-        //    isMotion = true;
-        //}
 
-        
-
+        CartWheel();
+        AdvancePunch();
         MiddlePattern();
         FarPattern();
         MustDiePattern();
-
 
     }
 
@@ -120,27 +125,27 @@ public class UnityChanAI : MonoBehaviour
         
         if (near.Length > 0)
         {
-            nearPattern = true;
-            middlePattern = false;
-            farPattern = false;
+            this.near = true;
+            this.middle = false;
+            this.far = false;
         }
         else if (middle.Length > 0)
         {
-            nearPattern = false;
-            middlePattern = true;
-            farPattern = false;
+            this.near = false;
+            this.middle = true;
+            this.far = false;
         }
         else if (far.Length > 0)
         {
-            nearPattern = false;
-            middlePattern = false;
-            farPattern = true;
+            this.near = false;
+            this.middle = false;
+            this.far = true;
         }
         else
         {
-            nearPattern = false;
-            middlePattern = false;
-            farPattern = false;
+            this.near = false;
+            this.middle = false;
+            this.far = false;
         }
 
         TargetDistance = Vector3.Distance(transform.position, Target.transform.position);
@@ -173,24 +178,40 @@ public class UnityChanAI : MonoBehaviour
             if (!isMotion)
             {
 
-                if (nearPattern)
+                if (near)
                 {
+                    StopMovement();
                     MiddlePatternGraceTime = 0f;
-                    DecideNearPattern();
+                    
+                    while (NearPatternGraceTime < NearPatternTime && near)
+                    {
+                        if (!isMotion)
+                        {
+                            NearPatternGraceTime += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+                    if (near && NearPatternGraceTime > NearPatternTime)
+                    {
+                        DecideNearPattern();
+
+                        NearPatternGraceTime = 0f;
+                        NearPatternTime = Random.Range(1f, 2f);
+                    }
                 }
                 else
                 {
                     RandomMovement();
                 }
 
-                if (middlePattern || nearPattern)
+                if (middle || near)
                 {
                     farPatternGraceTime = 0f;
                     MustDieGraceTime = 0f;
                 }
-                if (middlePattern)
+                if (middle)
                 {
-                    while (MiddlePatternGraceTime < MiddlePatternTime && middlePattern)
+                    while (MiddlePatternGraceTime < MiddlePatternTime && middle)
                     {
                         if (!isMotion)
                         {
@@ -198,29 +219,35 @@ public class UnityChanAI : MonoBehaviour
                         }
                         yield return null;
                     }
-                    if(middlePattern && MiddlePatternGraceTime > MiddlePatternTime)
+                    if(middle && MiddlePatternGraceTime > MiddlePatternTime)
                     {
-                        int Ran = Random.Range(0, 3);
+                        int Ran = Random.Range(0, 4);
                         if(Ran == 0 || Ran == 1)
                         {
                             ResetPos();
                             isIdle = true;
                             animator.SetTrigger("Roll");
                         }
-                        else
+                        else if(Ran == 2)
                         {
                             ResetPos();
                             isIdle = true;
                             StartCoroutine(BackBackPattern());
                         }
+                        else if (Ran == 3)
+                        {
+                            ResetPos();
+                            isIdle = true;
+                            animator.SetTrigger("AdvancePunch");
+                        }
                         MiddlePatternGraceTime = 0f;
-                        MiddlePatternTime = Random.Range(3, 8);
+                        MiddlePatternTime = Random.Range(3, 5);
                     }
                 }
-                if (farPattern)
+                if (far)
                 {
                     MustDieGraceTime = 0f;
-                    while (farPatternGraceTime < 6f && farPattern)
+                    while (farPatternGraceTime < 6f && far)
                     {
                         if (!isMotion)
                         {
@@ -228,7 +255,7 @@ public class UnityChanAI : MonoBehaviour
                         }
                         yield return null;
                     }
-                    if (farPattern && farPatternGraceTime > 5f)
+                    if (far && farPatternGraceTime > 5f)
                     {
                         int Ran = Random.Range(0, 2);
                         
@@ -249,12 +276,12 @@ public class UnityChanAI : MonoBehaviour
                 }
                 else
                 {
-                    while (!nearPattern && !middlePattern && !farPattern && MustDieGraceTime < 10f)
+                    while (!near && !middle && !far && MustDieGraceTime < 10f)
                     {
                         yield return null;
                         MustDieGraceTime += Time.deltaTime;
                     }
-                    if (!nearPattern && !middlePattern && !farPattern && MustDieGraceTime > 10f)
+                    if (!near && !middle && !far && MustDieGraceTime > 10f)
                     {
                         animator.SetTrigger("MustDie");
                         ResetPos();
@@ -269,42 +296,60 @@ public class UnityChanAI : MonoBehaviour
             }
             yield return null;
         }
-
+        
     }
 
     private void DecideNearPattern()
     {
-        int Ran = Random.Range(0, 5);
+        int Ran = Random.Range(0, 7);
+        isMotion = true;
+        ResetPos();
         if (Ran == 0)
         {
-            return;
+            animator.SetTrigger("Kick");
+
         }
         else if (Ran == 1)
         {
-            //animator.SetTrigger("Pattern1");
+            animator.SetTrigger("LegSweep");
+
         }
         else if (Ran == 2)
         {
-            //animator.SetTrigger("Pattern2");
+            animator.SetTrigger("DropKick");
+
         }
         else if (Ran == 3)
         {
-            animator.SetTrigger("Pattern3");
+            animator.SetTrigger("Kick");
         }
         else if (Ran == 4)
         {
-            animator.SetTrigger("Pattern4");
+            animator.SetTrigger("LegSweep");
         }
+        else if(Ran == 5)
+        {
+            animator.SetTrigger("DropKick");
+        }
+        else if (Ran == 6)
+        {
+            animator.SetTrigger("CartWheel");
+        }
+
     }
 
+    private void Off_isMotion()
+    {
+        isMotion = false;
+    }
 
     private void ResetPos()
     {
-        isIdle = false;
+        isIdle = true;
         isWalk = false;
         isWalk_R = false;
         isWalk_L = false;
-        animator.SetBool("isIdle",false);
+        animator.SetBool("isIdle",true);
         animator.SetBool("isWalk", false);
         animator.SetBool("isSide_R", false);
         animator.SetBool("isSide_L", false);
@@ -324,6 +369,7 @@ public class UnityChanAI : MonoBehaviour
         if (!isMove)
         {
             ResetPos();
+            isIdle = false;
             int Ran = Random.Range(0, 5);
             if (Ran == 0 || Ran == 1)
             {
@@ -342,6 +388,15 @@ public class UnityChanAI : MonoBehaviour
                 isIdle = true;
             }
             StartCoroutine(MoveDelay());
+        }
+    }
+    private void StopMovement()
+    {
+        if (isMove)
+        {
+            StopCoroutine(MoveDelay());
+            isMove = false;
+            ResetPos();
         }
     }
     private void MoveUpdate()
@@ -392,6 +447,10 @@ public class UnityChanAI : MonoBehaviour
     {
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern1"))
         {
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = screwAttackCollider;
+            attackController.StrongAttackBaseDamage = 200;
+
             isMotion = true;
             transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
 
@@ -446,13 +505,13 @@ public class UnityChanAI : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation, Look, 0.15f);
             }
         }
-        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && !nearPattern) // 달리는 중이고 플레이어가 5f안에 없을때
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && !near) // 달리는 중이고 플레이어가 5f안에 없을때
         {
             
             transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
             
         }
-        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && nearPattern)
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && near)
         {
             animator.SetTrigger("MD_Near");
         }
@@ -471,11 +530,14 @@ public class UnityChanAI : MonoBehaviour
             LookAt_Rotation_Y(Target.transform);
             if (!middleP1)
             {
-                StartCoroutine(MiddleP_Delay()); // 1~4초 후 패턴2로 넘어감
+                StartCoroutine(MiddleP_Delay()); // 1~3초 후 패턴2로 넘어감
             } 
         }
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MiddlePattern3"))
         {
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = projectileCollider;
+            attackController.StrongAttackBaseDamage = 100;
             if (!middleP2)
             {
                 StartCoroutine(MiddleP_Delay2()); // 1초 후 패턴 넘어감
@@ -491,7 +553,7 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator MiddleP_Delay()
     {
         middleP1 = true;
-        float Ran = Random.Range(1, 4);
+        float Ran = Random.Range(1, 3);
         yield return new WaitForSeconds(Ran);
         animator.SetTrigger("MiddlePattern2");
         yield break;
@@ -544,6 +606,108 @@ public class UnityChanAI : MonoBehaviour
         }
     }
     //--------------------------------------------middlepattern
+
+
+    //--------------------------------------------AdvancePunch & CartWheel
+    private void CartWheel()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Cartwheel"))
+        {
+            isMotion = true;
+            LookAt_Rotation_Y(Target.transform);
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.3f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.7f)
+            {
+                transform.position += transform.TransformDirection(Vector3.back) * 10f * Time.deltaTime;
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.75f)
+            {
+                if (!CartWheelNext)
+                {
+                    CartWheelNext = true;
+                    CartWheelRan = Random.Range(0, 3);
+                    if (CartWheelRan == 0)
+                    {
+                        animator.SetTrigger("AdvancePunch");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("CartWheelNext");
+                    }
+                    StartCoroutine(CartWheelDelay());
+                }
+            }
+        }
+    }
+    private IEnumerator CartWheelDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        CartWheelNext = false;
+        isMotion = false;
+        yield break;
+    }
+
+
+    private void AdvancePunch()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("AdvancePunch1"))
+        {
+            isMotion = true;
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = advPunchCollider;
+            attackController.StrongAttackBaseDamage = 100;
+            LookAt_Rotation_Y(Target.transform);
+            if (!AdvPunch_T1)
+            {
+                StartCoroutine(AdvPunchDelay()); // 1~3초 후 패턴2로 넘어감
+            }
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("AdvancePunch2"))
+        {
+            
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.65f)
+            {
+                LookAt_Rotation_Y(Target.transform);
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.65f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
+            {
+                transform.position += transform.TransformDirection(Vector3.forward) * 150f * Time.deltaTime;
+            }
+            else if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
+            {
+                if (!AdvPunch_T2)
+                {
+                    StartCoroutine(AdvPunchDelay2());
+                }
+                
+            }
+        }
+        else
+        {
+            AdvPunch_T1 = false;
+            AdvPunch_T2 = false;
+        }
+    }
+    private IEnumerator AdvPunchDelay()
+    {
+        AdvPunch_T1 = true;
+        float Ran = Random.Range(1, 3);
+        yield return new WaitForSeconds(Ran);
+
+        animator.SetTrigger("AdvancePunch2");
+        yield break;
+    }
+    private IEnumerator AdvPunchDelay2()
+    {
+        AdvPunch_T2 = true;
+        yield return new WaitForSeconds(0.5f);
+        animator.SetTrigger("AdvancePunch3");
+        attackController.TurnOffAttackCollider();
+        isMotion = false;
+        yield break;
+    }
+
+    //--------------------------------------------AdvancePunch
+
 
     private void Roll()
     {
@@ -600,7 +764,7 @@ public class UnityChanAI : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, 5f);
-        Gizmos.DrawWireSphere(transform.position, 10f);
+        //Gizmos.DrawWireSphere(transform.position, 10f);
         Gizmos.DrawWireSphere(transform.position, 20f);
         Gizmos.DrawWireSphere(transform.position, 40f);
     }
