@@ -148,7 +148,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Update()
-    {
+    {        
         SetDefaultCameraPosition();
 
         CheckLockOnEnemyDistance();
@@ -305,11 +305,9 @@ public class PlayerController : MonoBehaviour
         run.Enable();
 
         weakAttack.performed += OnWeakAttackPerformed;
-        weakAttack.canceled += OnWeakAttackCanceled;
         weakAttack.Enable();
 
         strongAttack.performed += OnStrongAttackPerformed;
-        strongAttack.canceled += OnStrongAttackCanceled;
         strongAttack.Enable();
 
         block.performed += OnBlockPerformed;
@@ -317,11 +315,9 @@ public class PlayerController : MonoBehaviour
         block.Enable();
 
         roll.performed += OnRollPerformed;
-        roll.canceled += OnRollCanceled;
         roll.Enable();
 
         jump.performed += OnJumpPerformed;
-        jump.canceled += OnJumpCanceled;
         jump.Enable();
 
         lockOn.performed += OnLockOnPerformed;
@@ -345,11 +341,9 @@ public class PlayerController : MonoBehaviour
         run.Disable();
 
         weakAttack.performed -= OnWeakAttackPerformed;
-        weakAttack.canceled -= OnWeakAttackCanceled;
         weakAttack.Disable();
 
         strongAttack.performed -= OnStrongAttackPerformed;
-        strongAttack.canceled -= OnStrongAttackCanceled;
         strongAttack.Disable();
 
         block.performed -= OnBlockPerformed;
@@ -357,11 +351,9 @@ public class PlayerController : MonoBehaviour
         block.Disable();
 
         roll.performed -= OnRollPerformed;
-        roll.canceled -= OnRollCanceled;
         roll.Disable();
 
         jump.performed -= OnJumpPerformed;
-        jump.canceled -= OnJumpCanceled;
         jump.Disable();
 
         lockOn.performed -= OnLockOnPerformed;
@@ -435,24 +427,28 @@ public class PlayerController : MonoBehaviour
 	}
     #endregion
     #region jump_Action
+    private bool isJumping = false;
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
         if (ControlState == ControlState.Uncontrollable
+            || isJumping
             || _stamina.CurrentStamina < _stamina.JumpThreshold)
             return;
 
         var isJump = context.ReadValueAsButton();
         if (isJump)
 		{
-            ControlState = ControlState.Uncontrollable;
+            isJumping = true;
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
             OnJump?.Invoke();
+            StartCoroutine(CancelJump());
         }
     }
-    private void OnJumpCanceled(InputAction.CallbackContext context)
+    private IEnumerator CancelJump()
     {
-        ControlState = ControlState.Controllable;
+        yield return new WaitForSeconds(.9f);
+        isJumping = false;
         _animator.SetBool(isJump_hash, false);
     }
     #endregion
@@ -489,12 +485,14 @@ public class PlayerController : MonoBehaviour
             _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
             OnRoll?.Invoke();
+            StartCoroutine(CancelRoll());
         }
     }
-    private void OnRollCanceled(InputAction.CallbackContext context)
+    private IEnumerator CancelRoll()
     {
-        ControlState = ControlState.Controllable;
+        yield return new WaitForSeconds(.9f);
         _animator.SetBool(isRoll_hash, false);
+        ControlState = ControlState.Controllable;
         IsRun = false;
     }
     #endregion
@@ -512,10 +510,12 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Weak);
             _stamina.Consume(_stamina.WeakAttackCost);
             _animator.SetBool(isWeakAttack_hash, true);
+            StartCoroutine(CancelWeakAttack());
         }
     }
-    private void OnWeakAttackCanceled(InputAction.CallbackContext context)
+    private IEnumerator CancelWeakAttack()
     {
+        yield return new WaitForSeconds(1f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isWeakAttack_hash, false);
         IsRun = false;
@@ -535,10 +535,12 @@ public class PlayerController : MonoBehaviour
             _attackController.ChangeAttackType(AttackType.Strong);
             _stamina.Consume(_stamina.StrongAttackCost);
             _animator.SetBool(isStrongAttack_hash, true);
+            StartCoroutine(CancelStrongAttack());
         }
     }
-    private void OnStrongAttackCanceled(InputAction.CallbackContext context)
+    private IEnumerator CancelStrongAttack()
     {
+        yield return new WaitForSeconds(.9f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isStrongAttack_hash, false);
         IsRun = false;
