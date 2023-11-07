@@ -177,6 +177,4 @@ public class WizardControl : MonoBehaviour
         Wizard_rb.AddForce(Backward_Movement);
         yield return null;
     }
-
-
 }
