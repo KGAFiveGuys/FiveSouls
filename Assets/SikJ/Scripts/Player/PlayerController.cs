@@ -1,4 +1,5 @@
 using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,7 @@ public enum ControlState
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(AttackController))]
+[RequireComponent(typeof(BlockController))]
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
@@ -34,11 +36,19 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
-    public InputAction ragdollTest;
+
+    public event Action OnRoll;
+    public event Action OnJump;
+    public event Action OnLockOn;
+    public event Action OnLockOff;
 
     [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
     [SerializeField] private float runSpeed = 20f;
+    // 달리기로 간주할 이동벡터의 최소 크기
+    private const float runThresholdScalar = 0.75f;
+    [Tooltip("충분히 달리지 않는 경우 걷기로 전환하기 까지의 대기시간")]
+    [SerializeField] private float runThresholdTime = 0.5f;
     [SerializeField] private float rotateSpeed = 60f;
     [SerializeField] private float jumpForce = 20f;
     [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
@@ -49,11 +59,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject VC_Default;
     [SerializeField] private GameObject VC_LockOn;
     [SerializeField] private CinemachineTargetGroup TargetGroup;
+    [SerializeField] private AnimationCurve resetRotationIntensity;
+    [SerializeField] private float resetRotationTime = .5f;
     [SerializeField] private float enemyDetectDistance = 60f;
     [SerializeField] private float lockOnLimitDistance = 80f;
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
+    [field:SerializeField] public GameObject LockedOnEnemy { get; private set; }
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -80,6 +93,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
     private AttackController _attackController;
+    private BlockController _blockController;
     private Health _health;
     private Stamina _stamina;
     private Animator _animator;
@@ -99,6 +113,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _rigidbody);
         TryGetComponent(out _collider);
         TryGetComponent(out _attackController);
+        TryGetComponent(out _blockController);
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
@@ -111,6 +126,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        _health.OnDead += () => { IsDead = true; };
+
         #region Set weapon colliders & rigidbodies
         foreach (Collider c in weaponColliders)
         {
@@ -137,8 +154,6 @@ public class PlayerController : MonoBehaviour
     {
         SetDefaultCameraPosition();
 
-        CheckDead();
-
         CheckLockOnEnemyDistance();
         LookLockOnEnemy();
         ShowLockOnPoint();
@@ -146,33 +161,28 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         AnimatePlayerMove();
     }
-    private void CheckDead()
-    {
-        if (IsDead)
-            return;
-
-        if (_health.CurrentHP == 0)
-        {
-            IsDead = true;
-            Die();
-        }
-    }
+    
     private void CheckLockOnEnemyDistance()
     {
         // LockOn 상태에서 제한범위를 벗어나면 UnLock
-        if (IsLockOn && Vector3.Distance(transform.position, lockOnEnemy.transform.position) > lockOnLimitDistance)
+        if (IsLockOn && Vector3.Distance(transform.position, LockedOnEnemy.transform.position) > lockOnLimitDistance)
         {
-            UI_lockOnPoint.SetActive(false);
-            ToggleTargetGroupCamera(false);
-            IsLockOn = false;
+            UnlockOnEnemy();
         }
+    }
+    public void UnlockOnEnemy()
+	{
+        UI_lockOnPoint.SetActive(false);
+        ToggleTargetGroupCamera(false);
+        IsLockOn = false;
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Camera.main.transform.localEulerAngles.y;
     }
     private void LookLockOnEnemy()
     {
         if (!IsLockOn)
             return;
 
-        var lookAtPos = new Vector3(lockOnEnemy.transform.position.x, 0, lockOnEnemy.transform.position.z);
+        var lookAtPos = new Vector3(LockedOnEnemy.transform.position.x, 0, LockedOnEnemy.transform.position.z);
         transform.LookAt(lookAtPos);
     }
     private void ShowLockOnPoint()
@@ -180,17 +190,23 @@ public class PlayerController : MonoBehaviour
         if (!IsLockOn)
             return;
 
-        // Highlight locked on target
-        var pos = Camera.main.WorldToScreenPoint(lockOnEnemy.transform.position);
-        var width = UI_lockOnPoint.GetComponent<RectTransform>().rect.width;
-        var height = UI_lockOnPoint.GetComponent<RectTransform>().rect.height;
-        UI_lockOnPoint.transform.position = new Vector3(pos.x - width / 2, pos.y + height / 2, pos.z);
+        var pos = Camera.main.WorldToScreenPoint(LockedOnEnemy.transform.position);
+        var rectTransform = UI_lockOnPoint.GetComponent<RectTransform>();
+        var scale = rectTransform.localScale;
+        var width = rectTransform.rect.width;
+        var height = rectTransform.rect.height;
+
+        var xOffset = scale.x * (width / 2);
+        var yOffset = scale.y * (height / 2);
+
+        UI_lockOnPoint.transform.position = new Vector3(pos.x - xOffset, pos.y + yOffset, pos.z);
     }
     private void SetDefaultCameraPosition()
     {
         if (IsLockOn && !Camera.main.GetComponent<CinemachineBrain>().IsBlending)
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
+    
     Vector3 moveDirection;
     private void MovePlayer()
     {
@@ -201,11 +217,21 @@ public class PlayerController : MonoBehaviour
         if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad))
             IsRun = false;
 
+        // 스태미너가 0이면 달릴 수 없음
+        if (_stamina.CurrentStamina == 0)
+            IsRun = false;
+
         float speed = IsRun ? runSpeed : walkSpeed;
         if (IsLockOn)
         {
             moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
             transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
+
+            // To-Do : Collision Check
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
+
             Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
         }
         // FreeLook이면 desiredMove로 moveDirection을 조정
@@ -229,6 +255,11 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * speed);
             transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
+
+            // To-Do : Collision Check
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
         }
         Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
     }
@@ -250,7 +281,7 @@ public class PlayerController : MonoBehaviour
         // Run
         _animator.SetBool(isSprint_hash, IsRun);
 
-        // Rotate
+        // To-Do : Rotate
     }
 
     private void OnEnable()
@@ -289,11 +320,12 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed += OnLockOnPerformed;
         lockOn.Enable();
-
-        ragdollTest.performed += OnRagdollPerformed;
-        ragdollTest.canceled += OnRagdollCanceled;
-        ragdollTest.Enable();
         #endregion
+        _health.OnDead += Die;
+        _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private void OnDisable()
@@ -332,11 +364,12 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed -= OnLockOnPerformed;
         lockOn.Disable();
-
-        ragdollTest.performed -= OnRagdollPerformed;
-        ragdollTest.canceled -= OnRagdollCanceled;
-        ragdollTest.Disable();
         #endregion
+        _health.OnDead -= Die;
+        _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private Vector2 desiredMove;
@@ -362,19 +395,67 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region run_Action
+    private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina == 0)
+            return;
+
         var isRun = context.ReadValueAsButton();
         if (isRun)
-            IsRun = !IsRun;
+		{
+            if (currentCheckMovingEnoughToRun != null)
+            {
+                StopCoroutine(currentCheckMovingEnoughToRun);
+                currentCheckMovingEnoughToRun = null;
+            }
+
+            // Walk -> Run
+			if (!IsRun)
+			{
+                currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
+                StartCoroutine(currentCheckMovingEnoughToRun);
+            }
+
+			IsRun = !IsRun;
+        }
     }
+    private IEnumerator CheckMovingEnoughToRun()
+	{
+        float elapsedTimeAfterStopRunning = 0f;
+		while (true)
+		{
+            if (elapsedTimeAfterStopRunning > runThresholdTime)
+                break;
+
+            if (IsRun && desiredMove.magnitude < runThresholdScalar)
+			{
+                elapsedTimeAfterStopRunning += Time.deltaTime;
+			}
+			else if (IsRun && desiredMove.magnitude >= runThresholdScalar)
+			{
+                elapsedTimeAfterStopRunning = 0f;
+			}
+
+            yield return null;
+		}
+        IsRun = false;
+        currentCheckMovingEnoughToRun = null;
+	}
     #endregion
     #region jump_Action
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.JumpThreshold)
+            return;
+
         var isJump = context.ReadValueAsButton();
         if (isJump)
+		{
+            _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
+            OnJump?.Invoke();
+        }
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {
@@ -388,6 +469,7 @@ public class PlayerController : MonoBehaviour
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
+            _stamina.Consume(_stamina.BlockCost);
             _animator.SetBool(isBlock_hash, true);
         }
     }
@@ -396,16 +478,22 @@ public class PlayerController : MonoBehaviour
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         IsRun = false;
+        _blockController.TurnOffBlockCollider();
     }
     #endregion
     #region roll_Action
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.RollThreshold)
+            return;
+
         var isBlock = context.ReadValueAsButton();
         if (isBlock)
         {
             ControlState = ControlState.Uncontrollable;
+            _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
+            OnRoll?.Invoke();
         }
     }
     private void OnRollCanceled(InputAction.CallbackContext context)
@@ -418,11 +506,15 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.WeakAttackThreshold)
+            return;
+
         var isWeakAttack = context.ReadValueAsButton();
         if (isWeakAttack)
         {
-            _attackController.ChangeAttackType(AttackType.Weak);
             ControlState = ControlState.Uncontrollable;
+            _attackController.ChangeAttackType(AttackType.Weak);
+            _stamina.Consume(_stamina.WeakAttackCost);
             _animator.SetBool(isWeakAttack_hash, true);
         }
     }
@@ -436,12 +528,16 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
+        if (_stamina.CurrentStamina < _stamina.StrongAttackThreshold)
+            return;
+
         var isStrongAttack = context.ReadValueAsButton();
         if (isStrongAttack)
         {
-            _attackController.ChangeAttackType(AttackType.Strong);
             ControlState = ControlState.Uncontrollable;
-            _animator.SetTrigger(isStrongAttack_hash);
+            _attackController.ChangeAttackType(AttackType.Strong);
+            _stamina.Consume(_stamina.StrongAttackCost);
+            _animator.SetBool(isStrongAttack_hash, true);
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)
@@ -451,26 +547,64 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
     }
     #endregion
-    private GameObject lockOnEnemy;
-    #region lockOn_Action
-    private void OnLockOnPerformed(InputAction.CallbackContext context)
+	#region lockOn_Action
+	private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
+        if (IsDead)
+            return;
+
         var isLockOn = context.ReadValueAsButton();
         var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
-        if (isLockOn && !isBlending && CheckEnemyInRange())
-            IsLockOn = !IsLockOn;
+        var isEnemyDetected = CheckEnemyInRange();
+        if (isLockOn && !isBlending)
+		{
+			if (isEnemyDetected)
+			{
+                IsLockOn = !IsLockOn;
+
+                if (IsLockOn == true)
+                {
+                    OnLockOn();
+                }
+                else
+                {
+                    OnLockOff();
+                    UnlockOnEnemy();
+                }
+            }
+            // 적이 없는 경우 카메라를 플레이어 정면방향으로 회전
+			else
+			{
+                StartCoroutine(ResetDefaultVCRotation());
+            }
+        }
+    }
+
+    private IEnumerator ResetDefaultVCRotation()
+    {
+        // 더 가까운 방향으로 회전하도록 수정 필요
+
+        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+        var endRotation = transform.localEulerAngles.y;
+
+        float elapsedTime = 0f;
+        var progress = 0f;
+        while (elapsedTime < resetRotationTime)
+        {
+            elapsedTime += Time.deltaTime;
+            progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
+            yield return null;
+        }
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
 
     private bool CheckEnemyInRange()
     {
         if (IsLockOn)
-        {
-            UI_lockOnPoint.SetActive(false);
-            ToggleTargetGroupCamera(false);
             return true;
-        }
 
-        lockOnEnemy = null;
+        LockedOnEnemy = null;
 
         float maxDotValue = float.MinValue;
         float minDistance = float.MaxValue;
@@ -494,7 +628,7 @@ public class PlayerController : MonoBehaviour
             if (minDistance > distance)
             {
                 minDistance = distance;
-                lockOnEnemy = enemyCollider.gameObject;
+                LockedOnEnemy = enemyCollider.gameObject;
             }
             
             // 카메라 시점 기준 가장 중앙의 적인지 확인
@@ -502,14 +636,14 @@ public class PlayerController : MonoBehaviour
             if (maxDotValue < dot)
             {
                 maxDotValue = dot;
-                lockOnEnemy = enemyCollider.gameObject;
+                LockedOnEnemy = enemyCollider.gameObject;
                 continue;
             }
         }
 
-        UI_lockOnPoint.SetActive(lockOnEnemy != null);
-        ToggleTargetGroupCamera(lockOnEnemy != null, lockOnEnemy);
-        return lockOnEnemy != null;
+        UI_lockOnPoint.SetActive(LockedOnEnemy != null);
+        ToggleTargetGroupCamera(LockedOnEnemy != null, LockedOnEnemy);
+        return LockedOnEnemy != null;
     }
 
     private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
@@ -523,12 +657,12 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (lockOnEnemy != null)
+            if (LockedOnEnemy != null)
             {
-                TargetGroup.RemoveMember(lockOnEnemy.transform);
-                StartCoroutine(LerpDefaultCameraFollowPosition());
-                StartCoroutine(LerpDefaultCameraLookAtPosition());
-            }
+                TargetGroup.RemoveMember(LockedOnEnemy.transform);
+				StartCoroutine(LerpDefaultCameraFollowPosition());
+				StartCoroutine(LerpDefaultCameraLookAtPosition());
+			}
 
             VC_LockOn.SetActive(false);
         }
@@ -539,7 +673,7 @@ public class PlayerController : MonoBehaviour
         var lastCameraPos = Camera.main.transform.position;
         
         float elapsedTime = 0f;
-        while (elapsedTime < blendTime)
+        while (LockedOnEnemy != null && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
@@ -558,11 +692,11 @@ public class PlayerController : MonoBehaviour
     private IEnumerator LerpDefaultCameraLookAtPosition()
     {
         float elapsedTime = 0f;
-        while (elapsedTime < blendTime)
+        while (LockedOnEnemy != null && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
-            var lastEnemyPos = lockOnEnemy.transform.position;
+            var lastEnemyPos = LockedOnEnemy.transform.position;
             var playerPos = transform.position;
 
             VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = Vector3.Lerp(
@@ -578,38 +712,18 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-    #region ragdoll_Action
-    private void OnRagdollPerformed(InputAction.CallbackContext context)
-    {
-        var isRagdoll = context.ReadValueAsButton();
-        if (isRagdoll)
-        {
-            Die();
-        }
-    }
-
-    public void Die()
+    
+	#region Die
+	public void Die()
     {
         IsLockOn = false;
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
+        SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
-        StartCoroutine(HandleEquipment(true));
+        StartCoroutine(DropEquipments(true));
     }
-
-    private void OnRagdollCanceled(InputAction.CallbackContext context)
-    {
-        Revive();
-    }
-
-    public void Revive()
-    {
-        ToggleRagdoll(false);
-        StartCoroutine(HandleEquipment(false));
-        IsRun = false;
-    }
-
     public void ToggleRagdoll(bool isRagdoll)
     {
         #region Toggle ragdoll colliders & rigidbodies
@@ -636,7 +750,7 @@ public class PlayerController : MonoBehaviour
     /// <para>true if drop</para>
     /// <para>false if pick-up</para>
     /// </param>
-    private IEnumerator HandleEquipment(bool isDrop)
+    private IEnumerator DropEquipments(bool isDrop)
     {
         if (isDrop)
             yield return new WaitForSeconds(dropDelay);
@@ -685,6 +799,12 @@ public class PlayerController : MonoBehaviour
         #endregion
     }
     #endregion
+    public void Revive()
+    {
+        ToggleRagdoll(false);
+        StartCoroutine(DropEquipments(false));
+        IsRun = false;
+    }
 
     private void OnDrawGizmos()
     {
@@ -699,9 +819,9 @@ public class PlayerController : MonoBehaviour
         {
             // Debug detect enemy line of sight
             Gizmos.DrawLine(transform.position, new Vector3(
-                lockOnEnemy.transform.position.x,
+                LockedOnEnemy.transform.position.x,
                 0,
-                lockOnEnemy.transform.position.z
+                LockedOnEnemy.transform.position.z
             ));
         }
         else
