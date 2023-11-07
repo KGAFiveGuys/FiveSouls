@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: SoundEffectSO_PlayerEquipmentFall
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 48c9fe13396fbd343b66f1fef4c85ccc, type: 3}
+  delay: 0
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0.8
+      inSlope: -0.00353761
+      outSlope: -0.00353761
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.26666668
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0.6
+      inSlope: -0.4179976
+      outSlope: -0.4179976
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.054166675
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

@@ -68,7 +68,6 @@ public class SFXManager : MonoBehaviour
         SFXPlayWhole(SFX_playerBlock1);
         SFXPlayPartial(SFX_playerBlock2, duration);
     }
-    //public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
     public void OnPlayerWeakAttackCast() => SFXPlayWhole(SFX_playerWeakAttackCast);
     public void OnPlayerStrongAttackCast() => SFXPlayWhole(SFX_playerStrongAttackCast);
     public void OnPlayerWeakAttackHit() => SFXPlayWhole(SFX_playerWeakAttackHit);

@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: SoundEffectSO_PlayerWeakAttackHit
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 04c289db2221deb42b326857e7ad2b04, type: 3}
+  delay: 0
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      inSlope: -0.0016897116
+      outSlope: -0.0016897116
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.27916667
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0.4
+      inSlope: -0.3944001
+      outSlope: -0.3944001
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.12916666
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: SoundEffectSO_PlayerStrongAttackCast
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 2fe67fa6738edd84792361ba0ff3e52c, type: 3}
+  delay: 0
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0.8
+      inSlope: -0.0033793165
+      outSlope: -0.0033793165
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.27916667
     - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      time: 0.8
+      value: 0.4
+      inSlope: -0.65094346
+      outSlope: -0.65094346
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.06666666
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

@@ -107,6 +107,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
+    private readonly int isWeakAttackTrigger_hash = Animator.StringToHash("isWeakAttackTrigger");
 
     private void Awake()
     {
@@ -446,12 +447,14 @@ public class PlayerController : MonoBehaviour
     #region jump_Action
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina < _stamina.JumpThreshold)
+        if (ControlState == ControlState.Uncontrollable
+            || _stamina.CurrentStamina < _stamina.JumpThreshold)
             return;
 
         var isJump = context.ReadValueAsButton();
         if (isJump)
 		{
+            ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
             OnJump?.Invoke();
@@ -484,11 +487,12 @@ public class PlayerController : MonoBehaviour
     #region roll_Action
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina < _stamina.RollThreshold)
+        if (ControlState == ControlState.Uncontrollable
+            || _stamina.CurrentStamina < _stamina.RollThreshold)
             return;
 
-        var isBlock = context.ReadValueAsButton();
-        if (isBlock)
+        var isRoll = context.ReadValueAsButton();
+        if (isRoll)
         {
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.RollCost);
@@ -506,7 +510,8 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina < _stamina.WeakAttackThreshold)
+        if (ControlState == ControlState.Uncontrollable
+            || _stamina.CurrentStamina < _stamina.WeakAttackThreshold)
             return;
 
         var isWeakAttack = context.ReadValueAsButton();
@@ -528,7 +533,8 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina < _stamina.StrongAttackThreshold)
+        if (ControlState == ControlState.Uncontrollable
+            || _stamina.CurrentStamina < _stamina.StrongAttackThreshold)
             return;
 
         var isStrongAttack = context.ReadValueAsButton();
@@ -713,6 +719,8 @@ public class PlayerController : MonoBehaviour
 
     #endregion
     
+
+
 	#region Die
 	public void Die()
     {

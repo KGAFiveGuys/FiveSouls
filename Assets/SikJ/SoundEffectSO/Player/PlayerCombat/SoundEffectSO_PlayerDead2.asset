@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: SoundEffectSO_PlayerDead2
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: b3968c92abaf62940af70649ee853d37, type: 3}
+  delay: 0
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      inSlope: -0.00104712
+      outSlope: -0.00104712
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.30168903
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0.8
+      inSlope: -0.54334766
+      outSlope: -0.54334766
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.048808336
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
