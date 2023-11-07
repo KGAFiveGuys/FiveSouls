@@ -35,14 +35,20 @@ public class AttackController : MonoBehaviour
     // Animation Event
     public void TurnOnAttackCollider()
     {
-        AttackCollider?.gameObject.SetActive(true);
+        if (AttackCollider == null)
+            return;
+
+        AttackCollider.gameObject.SetActive(true);
         OnAttackCast?.Invoke();
     }
 
     // Animation Event
     public void TurnOffAttackCollider()
     {
-        AttackCollider?.gameObject.SetActive(false);
+        if (AttackCollider == null)
+            return;
+
+        AttackCollider.gameObject.SetActive(false);
     }
 
     public void ChangeAttackType(AttackType type)
