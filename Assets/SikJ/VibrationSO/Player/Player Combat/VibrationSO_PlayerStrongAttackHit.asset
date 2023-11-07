@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: VibrationSO_PlayerStrongAttackHit
   m_EditorClassIdentifier: 
   <Priority>k__BackingField: 10
-  <Duration>k__BackingField: 0.35
+  <Duration>k__BackingField: 0.5
   <LowMoterIntensity>k__BackingField:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.25
+      value: 0.35
       inSlope: -0.03509438
       outSlope: -0.03509438
       tangentMode: 0

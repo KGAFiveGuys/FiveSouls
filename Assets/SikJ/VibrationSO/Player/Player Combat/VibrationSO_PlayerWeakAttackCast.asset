@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VibrationSO_PlayerWeakAttackCast
   m_EditorClassIdentifier: 
   <Priority>k__BackingField: 10
-  <Duration>k__BackingField: 0.1
+  <Duration>k__BackingField: 0.2
   <LowMoterIntensity>k__BackingField:
     serializedVersion: 2
     m_Curve:

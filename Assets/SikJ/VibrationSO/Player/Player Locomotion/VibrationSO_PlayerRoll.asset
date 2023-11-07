@@ -13,16 +13,52 @@ MonoBehaviour:
   m_Name: VibrationSO_PlayerRoll
   m_EditorClassIdentifier: 
   <Priority>k__BackingField: 10
-  <Duration>k__BackingField: 0
+  <Duration>k__BackingField: 0.3
   <LowMoterIntensity>k__BackingField:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.15
+      inSlope: 0.0014427142
+      outSlope: 0.0014427142
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.17699021
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -0.35579517
+      outSlope: -0.35579517
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.058333337
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   <HighMoterIntensity>k__BackingField:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0.0014427142
+      outSlope: 0.0014427142
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.17699021
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -0.46949777
+      outSlope: -0.46949777
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.070833325
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4

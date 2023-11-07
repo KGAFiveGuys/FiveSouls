@@ -716,6 +716,9 @@ public class PlayerController : MonoBehaviour
 	#region Die
 	public void Die()
     {
+        if (IsDead)
+            return;
+
         IsLockOn = false;
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);

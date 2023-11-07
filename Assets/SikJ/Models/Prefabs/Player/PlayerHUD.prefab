@@ -1869,7 +1869,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  playerBackgroundDelay_OnDead: 0.3
+  playerBackgroundDelay_OnDead: 0.8
   playerBackgroundLerpDuration_OnDead: 0.3
   playerBackgroundLerpIntensity_OnDead:
     serializedVersion: 2

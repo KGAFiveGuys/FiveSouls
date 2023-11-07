@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: VibrationSO_PlayerStrongAttackCast
   m_EditorClassIdentifier: 
   <Priority>k__BackingField: 10
-  <Duration>k__BackingField: 0.15
+  <Duration>k__BackingField: 0.2
   <LowMoterIntensity>k__BackingField:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.25
+      value: 0.2
       inSlope: -0.02271536
       outSlope: -0.02271536
       tangentMode: 0
@@ -43,7 +43,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.20039673
+      value: 0.3
       inSlope: -0.011041892
       outSlope: -0.011041892
       tangentMode: 0
@@ -53,11 +53,11 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -0.26037723
-      outSlope: -0.26037723
+      inSlope: -0.6676472
+      outSlope: -0.6676472
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.041666687
+      inWeight: 0.048998177
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
