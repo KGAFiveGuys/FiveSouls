@@ -12,7 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
   m_Name: SoundEffectSO_PlayerWeakAttackCast
   m_EditorClassIdentifier: 
-  isFullPlay: 0
   clip: {fileID: 8300000, guid: 58150c9662a171447a640f7ac8fe0d66, type: 3}
-  startVolume: 1
-  playRateToMute: 1
+  volumeOverTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

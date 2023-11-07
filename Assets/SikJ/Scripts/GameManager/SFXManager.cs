@@ -13,7 +13,6 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private float TimeToUnmuteAfterPlay = .5f;
 
     [Header("Common")]
-    [SerializeField] private AudioClip timeSlowDown;
     [SerializeField] private SoundEffectSO SFX_timeSlowDown;
 
     [Header("Player Combat")]
@@ -63,88 +62,92 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    public void OnTimeSlowDown(float duration) => SFXPlay(SFX_timeSlowDown, duration);
+    public void OnTimeSlowDown(float duration) => SFXPlayPartial(SFX_timeSlowDown, duration);
     public void OnPlayerBlock(float duration)
     {
-        SFXPlayOneShot(SFX_playerBlock1);
-        SFXPlay(SFX_playerBlock2, duration);
+        SFXPlayWhole(SFX_playerBlock1);
+        SFXPlayPartial(SFX_playerBlock2, duration);
     }
     //public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
-    public void OnPlayerWeakAttackCast() => SFXPlayOneShot(SFX_playerWeakAttackCast);
-    public void OnPlayerStrongAttackCast() => SFXPlayOneShot(SFX_playerStrongAttackCast);
-    public void OnPlayerWeakAttackHit() => SFXPlayOneShot(SFX_playerWeakAttackHit);
+    public void OnPlayerWeakAttackCast() => SFXPlayWhole(SFX_playerWeakAttackCast);
+    public void OnPlayerStrongAttackCast() => SFXPlayWhole(SFX_playerStrongAttackCast);
+    public void OnPlayerWeakAttackHit() => SFXPlayWhole(SFX_playerWeakAttackHit);
     public void OnPlayerStrongAttackHit()
     {
-        SFXPlayOneShot(SFX_playerStrongAttackHit1);
-        SFXPlayOneShot(SFX_playerStrongAttackHit2);
+        SFXPlayWhole(SFX_playerStrongAttackHit1);
+        SFXPlayWhole(SFX_playerStrongAttackHit2);
     }
-    public void OnPlayerJump() => SFXPlayOneShot(SFX_playerJump);
+    public void OnPlayerJump() => SFXPlayWhole(SFX_playerJump);
     public void OnPlayerDead()
     {
-        SFXPlayOneShot(SFX_playerDead1);
-        SFXPlayOneShot(SFX_playerDead1);
+        SFXPlayWhole(SFX_playerDead1);
+        SFXPlayWhole(SFX_playerDead1);
     }
-    public void OnPlayerEquipmentFall() => SFXPlayOneShot(SFX_playerEquipmentFall);
+    public void OnPlayerEquipmentFall() => SFXPlayWhole(SFX_playerEquipmentFall);
 
-    private void SFXPlayOneShot(SoundEffectSO sfx)
+    private void SFXPlayWhole(SoundEffectSO sfx)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
-                audioSource.volume = sfx.startVolume;
-                audioSource.PlayOneShot(sfx.clip);
-                StartCoroutine(RestoreVolume(audioSource, TimeToUnmuteAfterPlay));
+                StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
                 break;
             }
         }
     }
 
-    private void SFXPlay(SoundEffectSO sfx, float duration)
+    private void SFXPlayPartial(SoundEffectSO sfx, float duration)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
-                audioSource.volume = sfx.startVolume;
-                audioSource.clip = sfx.clip;
-                StartCoroutine(Play(audioSource, sfx.startVolume, duration, sfx.playRateToMute));
+                StartCoroutine(StartPlay(audioSource, sfx, duration));
                 break;
             }
         }
     }
 
-    private IEnumerator Play(AudioSource audioSource, float startVolume, float duration, float rateToMute)
+    private IEnumerator StartPlay(AudioSource source, SoundEffectSO sfx, float duration)
     {
-        audioSource.Play();
-
+        // Delay
         float elapsedTime = 0f;
-        while (elapsedTime < duration)
+        while (elapsedTime < sfx.delay)
         {
             elapsedTime += Time.deltaTime;
-
-            // Turn down volume to mute.
-            if (elapsedTime / duration <= rateToMute)
-                audioSource.volume = Mathf.Lerp(startVolume, 0f, elapsedTime / duration);
-            else if (audioSource.volume > 0)
-                audioSource.volume = 0;
-
             yield return null;
         }
 
-        audioSource.Stop();
-        StartCoroutine(RestoreVolume(audioSource, TimeToUnmuteAfterPlay));
-    }
+        // Start Play
+        source.clip = sfx.clip;
+        source.volume = sfx.volumeOverTime.Evaluate(0);
+        source.Play();
 
-    private IEnumerator RestoreVolume(AudioSource audioSource, float restoreTime)
-    {
-        var volumeStart = audioSource.volume;
-
-        float elapsedTime = 0f;
-        while (elapsedTime < restoreTime)
+        // Lerp Volumne
+        elapsedTime = 0f;
+        while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
-            audioSource.volume = Mathf.Lerp(volumeStart, 1, elapsedTime / restoreTime);
+            source.volume = sfx.volumeOverTime.Evaluate(elapsedTime / duration);
+            yield return null;
+        }
+        source.volume = sfx.volumeOverTime.Evaluate(duration);
+
+        // Stop Play
+        source.Stop();
+        StartCoroutine(RestoreVolume(source));
+    }
+
+    private IEnumerator RestoreVolume(AudioSource audioSource)
+    {
+        // 서서히 복원
+        var volumeStart = audioSource.volume;
+        float elapsedTime = 0f;
+        while (elapsedTime < TimeToUnmuteAfterPlay)
+        {
+            elapsedTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(volumeStart, 1, elapsedTime / TimeToUnmuteAfterPlay);
             yield return null;
         }
         audioSource.volume = 1f;
