@@ -14,6 +14,7 @@ public enum ControlState
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(AttackController))]
+[RequireComponent(typeof(BlockController))]
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
@@ -35,9 +36,11 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
+
+    public event Action OnRoll;
+    public event Action OnJump;
     public event Action OnLockOn;
     public event Action OnLockOff;
-    public InputAction ragdollTest;
 
     [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
@@ -56,6 +59,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject VC_Default;
     [SerializeField] private GameObject VC_LockOn;
     [SerializeField] private CinemachineTargetGroup TargetGroup;
+    [SerializeField] private AnimationCurve resetRotationIntensity;
+    [SerializeField] private float resetRotationTime = .5f;
     [SerializeField] private float enemyDetectDistance = 60f;
     [SerializeField] private float lockOnLimitDistance = 80f;
     [Tooltip("시야각의 절반")]
@@ -88,6 +93,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
     private AttackController _attackController;
+    private BlockController _blockController;
     private Health _health;
     private Stamina _stamina;
     private Animator _animator;
@@ -107,6 +113,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _rigidbody);
         TryGetComponent(out _collider);
         TryGetComponent(out _attackController);
+        TryGetComponent(out _blockController);
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
@@ -313,12 +320,12 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed += OnLockOnPerformed;
         lockOn.Enable();
-
-        ragdollTest.performed += OnRagdollPerformed;
-        ragdollTest.canceled += OnRagdollCanceled;
-        ragdollTest.Enable();
         #endregion
         _health.OnDead += Die;
+        _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private void OnDisable()
@@ -357,12 +364,12 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed -= OnLockOnPerformed;
         lockOn.Disable();
-
-        ragdollTest.performed -= OnRagdollPerformed;
-        ragdollTest.canceled -= OnRagdollCanceled;
-        ragdollTest.Disable();
         #endregion
         _health.OnDead -= Die;
+        _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
+        _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
+        _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
+        _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
     private Vector2 desiredMove;
@@ -447,6 +454,7 @@ public class PlayerController : MonoBehaviour
 		{
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
+            OnJump?.Invoke();
         }
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
@@ -470,6 +478,7 @@ public class PlayerController : MonoBehaviour
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         IsRun = false;
+        _blockController.TurnOffBlockCollider();
     }
     #endregion
     #region roll_Action
@@ -484,6 +493,7 @@ public class PlayerController : MonoBehaviour
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
+            OnRoll?.Invoke();
         }
     }
     private void OnRollCanceled(InputAction.CallbackContext context)
@@ -565,9 +575,28 @@ public class PlayerController : MonoBehaviour
             // 적이 없는 경우 카메라를 플레이어 정면방향으로 회전
 			else
 			{
-                VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = transform.localEulerAngles.y;
+                StartCoroutine(ResetDefaultVCRotation());
             }
         }
+    }
+
+    private IEnumerator ResetDefaultVCRotation()
+    {
+        // 더 가까운 방향으로 회전하도록 수정 필요
+
+        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+        var endRotation = transform.localEulerAngles.y;
+
+        float elapsedTime = 0f;
+        var progress = 0f;
+        while (elapsedTime < resetRotationTime)
+        {
+            elapsedTime += Time.deltaTime;
+            progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
+            yield return null;
+        }
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
 
     private bool CheckEnemyInRange()
@@ -683,38 +712,18 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-    #region ragdoll_Action
-    private void OnRagdollPerformed(InputAction.CallbackContext context)
-    {
-        var isRagdoll = context.ReadValueAsButton();
-        if (isRagdoll)
-        {
-            Die();
-        }
-    }
-
-    public void Die()
+    
+	#region Die
+	public void Die()
     {
         IsLockOn = false;
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
+        SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
-        StartCoroutine(HandleEquipment(true));
+        StartCoroutine(DropEquipments(true));
     }
-
-    private void OnRagdollCanceled(InputAction.CallbackContext context)
-    {
-        Revive();
-    }
-
-    public void Revive()
-    {
-        ToggleRagdoll(false);
-        StartCoroutine(HandleEquipment(false));
-        IsRun = false;
-    }
-
     public void ToggleRagdoll(bool isRagdoll)
     {
         #region Toggle ragdoll colliders & rigidbodies
@@ -741,7 +750,7 @@ public class PlayerController : MonoBehaviour
     /// <para>true if drop</para>
     /// <para>false if pick-up</para>
     /// </param>
-    private IEnumerator HandleEquipment(bool isDrop)
+    private IEnumerator DropEquipments(bool isDrop)
     {
         if (isDrop)
             yield return new WaitForSeconds(dropDelay);
@@ -790,6 +799,12 @@ public class PlayerController : MonoBehaviour
         #endregion
     }
     #endregion
+    public void Revive()
+    {
+        ToggleRagdoll(false);
+        StartCoroutine(DropEquipments(false));
+        IsRun = false;
+    }
 
     private void OnDrawGizmos()
     {

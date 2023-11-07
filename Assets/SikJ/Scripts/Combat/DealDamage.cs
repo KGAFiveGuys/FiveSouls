@@ -4,26 +4,53 @@ using UnityEngine;
 
 public class DealDamage : MonoBehaviour
 {
-    [SerializeField] private AttackController dealDamage;
+    [SerializeField] private AttackController _attackController;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer != (int)dealDamage.TargetLayer)
+        var layerMask = other.gameObject.layer;
+
+        if (layerMask != (int)_attackController.BlockableLayer
+           && layerMask != (int)_attackController.AttackLayer)
             return;
 
-        var targetHealth = other.gameObject.GetComponent<Health>();
-
-        float damage = 0f;
-        switch (dealDamage.CurrentAttackType)
+        // 规绢等 版快
+        if (layerMask == (int)_attackController.BlockableLayer)
         {
-            case AttackType.Weak:
-                damage = dealDamage.WeakAttackBaseDamage;
-                break;
-            case AttackType.Strong:
-                damage = dealDamage.StrongAttackBaseDamage;
-                break;
-        }
+            var targetBlockController = other.gameObject.GetComponent<BlockDamage>().BlockController;
+            Health targetHealth = targetBlockController.gameObject.GetComponent<Health>();
+            float damage = 0f;
+            switch (_attackController.CurrentAttackType)
+            {
+                case AttackType.Weak:
+                    damage = _attackController.WeakAttackBaseDamage;
+                    damage *= (1 - targetBlockController.BlockDampRate);
+                    break;
+                case AttackType.Strong:
+                    damage = _attackController.StrongAttackBaseDamage;
+                    damage *= (1 - targetBlockController.BlockDampRate);
+                    break;
+            }
 
-        dealDamage.Damage(targetHealth, damage);
+            targetBlockController.Block(damage);
+            _attackController.Attack(targetHealth, damage, true);
+        }
+        // 利吝等 版快
+        else if (layerMask == (int)_attackController.AttackLayer)
+        {
+            Health targetHealth = other.gameObject.GetComponent<Health>();
+            float damage = 0f;
+            switch (_attackController.CurrentAttackType)
+            {
+                case AttackType.Weak:
+                    damage = _attackController.WeakAttackBaseDamage;
+                    break;
+                case AttackType.Strong:
+                    damage = _attackController.StrongAttackBaseDamage;
+                    break;
+            }
+
+            _attackController.Attack(targetHealth, damage, false);
+        }
     }
 }
