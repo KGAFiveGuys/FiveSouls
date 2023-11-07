@@ -46,15 +46,28 @@ MonoBehaviour:
   AudioSourcePrefab: {fileID: 1384778255988411709, guid: 21a12d79b5808954cbfde91c1f6c96ee, type: 3}
   AudioSourceCount: 10
   timeSlowDown: {fileID: 8300000, guid: 2f50862631325f14595eb2f8db1b2f7c, type: 3}
+  SFX_timeSlowDown: {fileID: 11400000, guid: 10786e3698af80740acddef3ec874c3d, type: 2}
   playerOnBlock1: {fileID: 8300000, guid: dddccbd5538fa694e947d66fab12f1bf, type: 3}
   playerOnBlock2: {fileID: 8300000, guid: d1c74aa93190684459be9b6fd3f2c6c9, type: 3}
+  SFX_playerBlock1: {fileID: 11400000, guid: 74fc9291797c96a4fbe4884669b0e85f, type: 2}
+  SFX_playerBlock2: {fileID: 11400000, guid: e501c1a96dc78b74889c0966ae1a12b0, type: 2}
   playerOnWeakAttackCast: {fileID: 8300000, guid: 58150c9662a171447a640f7ac8fe0d66, type: 3}
   playerOnStrongAttackCast: {fileID: 8300000, guid: 2fe67fa6738edd84792361ba0ff3e52c, type: 3}
+  SFX_playerWeakAttackCast: {fileID: 11400000, guid: c5ee99c38d908eb4389fddf21d16ba74, type: 2}
+  SFX_playerStrongAttackCast: {fileID: 11400000, guid: 8180f79bb54a9a74994ab13be759b420, type: 2}
   playerOnWeakAttackHit: {fileID: 8300000, guid: 04c289db2221deb42b326857e7ad2b04, type: 3}
   playerOnStrongAttackHit1: {fileID: 8300000, guid: 876e864002095814da5a4cae247fb322, type: 3}
   playerOnStrongAttackHit2: {fileID: 8300000, guid: 1080975f9a11b9e41b34120147698f43, type: 3}
+  SFX_playerWeakAttackHit: {fileID: 11400000, guid: 3552003ed9ffa6f4ebbb7118253fd431, type: 2}
+  SFX_playerStrongAttackHit1: {fileID: 11400000, guid: 3600a1e8a38047a4da1a37f26c69747a, type: 2}
+  SFX_playerStrongAttackHit2: {fileID: 11400000, guid: 21469c43a0566054a97edf40a9d70f52, type: 2}
   playerOnDead1: {fileID: 8300000, guid: eff835fcbe16cf546aee9b4aa898e722, type: 3}
   playerOnDead2: {fileID: 8300000, guid: b3968c92abaf62940af70649ee853d37, type: 3}
   playerOnEquipmentFall: {fileID: 8300000, guid: 48c9fe13396fbd343b66f1fef4c85ccc, type: 3}
+  SFX_playerDead1: {fileID: 11400000, guid: f3c0da999a66a3a4c8fa973e43f2dd5b, type: 2}
+  SFX_playerDead2: {fileID: 11400000, guid: e501c1a96dc78b74889c0966ae1a12b0, type: 2}
+  SFX_playerEquipmentFall: {fileID: 11400000, guid: 262c3e3f11dd0244fbbdf51bfa493092, type: 2}
   playerOnRoll: {fileID: 0}
   playerOnJump: {fileID: 0}
+  SFX_playerRoll: {fileID: 11400000, guid: 2bcee72d0949bad4c83a3bedb070fb47, type: 2}
+  SFX_playerJump: {fileID: 11400000, guid: 82363618d433476449ab60e3a676eb36, type: 2}

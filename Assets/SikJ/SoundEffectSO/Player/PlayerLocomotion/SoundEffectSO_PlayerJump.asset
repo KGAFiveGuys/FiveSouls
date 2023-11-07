@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
+  m_Name: SoundEffectSO_PlayerJump
+  m_EditorClassIdentifier: 
+  isFullPlay: 0
+  clip: {fileID: 0}
+  startVolume: 1
+  playRateToMute: 1

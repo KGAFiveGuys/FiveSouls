@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
+  m_Name: SoundEffectSO_PlayerStrongAttackHit1
+  m_EditorClassIdentifier: 
+  isFullPlay: 0
+  clip: {fileID: 8300000, guid: 876e864002095814da5a4cae247fb322, type: 3}
+  startVolume: 1
+  playRateToMute: 1

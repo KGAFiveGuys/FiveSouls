@@ -10,29 +10,31 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private GameObject AudioSourcePrefab;
     [SerializeField] private int AudioSourceCount = 10;
     private List<AudioSource> AudioSources = new List<AudioSource>();
+    [SerializeField] private float TimeToUnmuteAfterPlay = .5f;
 
     [Header("Common")]
     [SerializeField] private AudioClip timeSlowDown;
+    [SerializeField] private SoundEffectSO SFX_timeSlowDown;
 
     [Header("Player Combat")]
     // Block
-    [SerializeField] private AudioClip playerOnBlock1;
-    [SerializeField] private AudioClip playerOnBlock2;
+    [SerializeField] private SoundEffectSO SFX_playerBlock1;
+    [SerializeField] private SoundEffectSO SFX_playerBlock2;
     // Attack Cast
-    [SerializeField] private AudioClip playerOnWeakAttackCast;
-    [SerializeField] private AudioClip playerOnStrongAttackCast;
+    [SerializeField] private SoundEffectSO SFX_playerWeakAttackCast;
+    [SerializeField] private SoundEffectSO SFX_playerStrongAttackCast;
     // Attack Hit
-    [SerializeField] private AudioClip playerOnWeakAttackHit;
-    [SerializeField] private AudioClip playerOnStrongAttackHit1;
-    [SerializeField] private AudioClip playerOnStrongAttackHit2;
+    [SerializeField] private SoundEffectSO SFX_playerWeakAttackHit;
+    [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit1;
+    [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit2;
     // Dead
-    [SerializeField] private AudioClip playerOnDead1;
-    [SerializeField] private AudioClip playerOnDead2;
-    [SerializeField] private AudioClip playerOnEquipmentFall;
+    [SerializeField] private SoundEffectSO SFX_playerDead1;
+    [SerializeField] private SoundEffectSO SFX_playerDead2;
+    [SerializeField] private SoundEffectSO SFX_playerEquipmentFall;
 
     [Header("Player Locomotion")]
-    [SerializeField] private AudioClip playerOnRoll;
-    [SerializeField] private AudioClip playerOnJump;
+    [SerializeField] private SoundEffectSO SFX_playerRoll;
+    [SerializeField] private SoundEffectSO SFX_playerJump;
 
     private void Awake()
     {
@@ -61,59 +63,52 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    public void OnTimeSlowDown(float duration) => Play(timeSlowDown, 1f, duration, .75f);
+    public void OnTimeSlowDown(float duration) => SFXPlay(SFX_timeSlowDown, duration);
     public void OnPlayerBlock(float duration)
     {
-        PlayOneShot(playerOnBlock1, .6f);
-        Play(playerOnBlock2, .8f, duration, 1.1f);
+        SFXPlayOneShot(SFX_playerBlock1);
+        SFXPlay(SFX_playerBlock2, duration);
     }
-    public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
-    public void OnPlayerStrongAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
-    public void OnPlayerWeakAttackHit() => PlayOneShot(playerOnWeakAttackHit, 1f);
+    //public void OnPlayerWeakAttackCast() => PlayOneShot(playerOnWeakAttackCast, 1f);
+    public void OnPlayerWeakAttackCast() => SFXPlayOneShot(SFX_playerWeakAttackCast);
+    public void OnPlayerStrongAttackCast() => SFXPlayOneShot(SFX_playerStrongAttackCast);
+    public void OnPlayerWeakAttackHit() => SFXPlayOneShot(SFX_playerWeakAttackHit);
     public void OnPlayerStrongAttackHit()
     {
-        PlayOneShot(playerOnStrongAttackHit1, 1f);
-        PlayOneShot(playerOnStrongAttackHit2, 1f);
+        SFXPlayOneShot(SFX_playerStrongAttackHit1);
+        SFXPlayOneShot(SFX_playerStrongAttackHit2);
     }
-    public void OnPlayerJump() => PlayOneShot(playerOnJump, 1f);
+    public void OnPlayerJump() => SFXPlayOneShot(SFX_playerJump);
     public void OnPlayerDead()
     {
-        PlayOneShot(playerOnDead1, .8f);
-        PlayOneShot(playerOnDead2, .8f);
+        SFXPlayOneShot(SFX_playerDead1);
+        SFXPlayOneShot(SFX_playerDead1);
     }
-    public void OnPlayerEquipmentFall() => PlayOneShot(playerOnEquipmentFall, .8f);
+    public void OnPlayerEquipmentFall() => SFXPlayOneShot(SFX_playerEquipmentFall);
 
-    /// <summary>
-    /// Find playable audioSource, then PlayOneShot.
-    /// </summary>
-    /// <param name="clip">Audio clip to play</param>
-    private void PlayOneShot(AudioClip clip, float startVolume)
+    private void SFXPlayOneShot(SoundEffectSO sfx)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
-                audioSource.PlayOneShot(clip);
-                StartCoroutine(RestoreVolume(audioSource, .5f));
+                audioSource.volume = sfx.startVolume;
+                audioSource.PlayOneShot(sfx.clip);
+                StartCoroutine(RestoreVolume(audioSource, TimeToUnmuteAfterPlay));
                 break;
             }
         }
     }
 
-    /// <summary>
-    /// Find playable audioSource, then play until time to mute.
-    /// </summary>
-    /// <param name="clip">Audio clip to play</param>
-    /// <param name="duration">Time to keep play</param>
-    /// <param name="rateToMute">Rate in duration to mute and stop audio clip</param>
-    private void Play(AudioClip clip, float startVolume, float duration, float rateToMute)
+    private void SFXPlay(SoundEffectSO sfx, float duration)
     {
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
             {
-                audioSource.clip = clip;
-                StartCoroutine(Play(audioSource, startVolume, duration, rateToMute));
+                audioSource.volume = sfx.startVolume;
+                audioSource.clip = sfx.clip;
+                StartCoroutine(Play(audioSource, sfx.startVolume, duration, sfx.playRateToMute));
                 break;
             }
         }
@@ -138,7 +133,7 @@ public class SFXManager : MonoBehaviour
         }
 
         audioSource.Stop();
-        StartCoroutine(RestoreVolume(audioSource, .5f));
+        StartCoroutine(RestoreVolume(audioSource, TimeToUnmuteAfterPlay));
     }
 
     private IEnumerator RestoreVolume(AudioSource audioSource, float restoreTime)
