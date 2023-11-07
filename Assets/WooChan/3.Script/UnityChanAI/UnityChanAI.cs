@@ -55,7 +55,7 @@ public class UnityChanAI : MonoBehaviour
     private void Start()
     {
         P_layer = LayerMask.GetMask("Player");
-        MiddlePatternTime = Random.Range(3, 10);
+        MiddlePatternTime = Random.Range(3, 8);
 
         StartCoroutine(DecidePattern());
     }
@@ -175,6 +175,7 @@ public class UnityChanAI : MonoBehaviour
 
                 if (nearPattern)
                 {
+                    MiddlePatternGraceTime = 0f;
                     DecideNearPattern();
                 }
                 else
@@ -189,7 +190,7 @@ public class UnityChanAI : MonoBehaviour
                 }
                 if (middlePattern)
                 {
-                    while (MiddlePatternGraceTime < 10f && middlePattern)
+                    while (MiddlePatternGraceTime < MiddlePatternTime && middlePattern)
                     {
                         if (!isMotion)
                         {
@@ -213,8 +214,7 @@ public class UnityChanAI : MonoBehaviour
                             StartCoroutine(BackBackPattern());
                         }
                         MiddlePatternGraceTime = 0f;
-                        MiddlePatternTime = Random.Range(3, 10);
-
+                        MiddlePatternTime = Random.Range(3, 8);
                     }
                 }
                 if (farPattern)
@@ -234,15 +234,15 @@ public class UnityChanAI : MonoBehaviour
                         
                         if(Ran == 0)
                         {
-                            animator.SetTrigger("FarPattern");
                             ResetPos();
                             isIdle = true;
+                            animator.SetTrigger("FarPattern");
                         }
                         else if(Ran == 1)
                         {
-                            animator.SetTrigger("MiddlePattern");
                             ResetPos();
                             isIdle = true;
+                            animator.SetTrigger("MiddlePattern");
                         }
                         farPatternGraceTime = 0f;
                     }
@@ -281,11 +281,11 @@ public class UnityChanAI : MonoBehaviour
         }
         else if (Ran == 1)
         {
-            animator.SetTrigger("Pattern1");
+            //animator.SetTrigger("Pattern1");
         }
         else if (Ran == 2)
         {
-            animator.SetTrigger("Pattern2");
+            //animator.SetTrigger("Pattern2");
         }
         else if (Ran == 3)
         {
