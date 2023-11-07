@@ -49,8 +49,6 @@ public class PlayerController : MonoBehaviour
     private const float runThresholdScalar = 0.75f;
     [Tooltip("충분히 달리지 않는 경우 걷기로 전환하기 까지의 대기시간")]
     [SerializeField] private float runThresholdTime = 0.5f;
-    [SerializeField] private float rotateSpeed = 60f;
-    [SerializeField] private float jumpForce = 20f;
     [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
     [SerializeField] [Range(0f, 90f)] private float runBehindAngle = 50f;
 
@@ -91,13 +89,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
 
     private Rigidbody _rigidbody;
-    private CapsuleCollider _collider;
     private AttackController _attackController;
     private BlockController _blockController;
     private Health _health;
     private Stamina _stamina;
     private Animator _animator;
     #region AnimatorParameters
+    private readonly int moveMagnitude_hash = Animator.StringToHash("moveMagnitude");
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
     private readonly int isSprint_hash = Animator.StringToHash("isSprint");
@@ -112,7 +110,6 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         TryGetComponent(out _rigidbody);
-        TryGetComponent(out _collider);
         TryGetComponent(out _attackController);
         TryGetComponent(out _blockController);
         TryGetComponent(out _health);
@@ -220,6 +217,7 @@ public class PlayerController : MonoBehaviour
     }
     
     Vector3 moveDirection;
+    float moveMagnitude;
     private void MovePlayer()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
@@ -278,16 +276,17 @@ public class PlayerController : MonoBehaviour
     private void AnimatePlayerMove()
     {
         // Move
+        moveMagnitude = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
+        _animator.SetFloat(moveMagnitude_hash, moveMagnitude);
         if (IsLockOn)
         {
             _animator.SetFloat(moveX_hash, moveDirection.x);
-            _animator.SetFloat(moveY_hash, moveDirection.z);    
+            _animator.SetFloat(moveY_hash, moveDirection.z);
         }
         else
         {
-            var value = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
             _animator.SetFloat(moveX_hash, 0);
-            _animator.SetFloat(moveY_hash, value);
+            _animator.SetFloat(moveY_hash, moveMagnitude);
         }
 
         // Run
@@ -473,6 +472,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {
+        ControlState = ControlState.Controllable;
         _animator.SetBool(isJump_hash, false);
     }
     #endregion
@@ -729,8 +729,6 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-    
-
 
 	#region Die
 	public void Die()
