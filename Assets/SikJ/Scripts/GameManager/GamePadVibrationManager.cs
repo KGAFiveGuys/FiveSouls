@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 
 public class GamePadVibrationManager : MonoBehaviour
 {
-    [SerializeField] private static IEnumerator currentVibration = null;
-    [SerializeField] private static int currentPriority = -1;
+    private static IEnumerator currentVibration = null;
+    private static int currentPriority = -1;
     
     [Header("Player Locomotion")]
     [SerializeField] private VibrationSO playerRoll;
@@ -34,15 +34,15 @@ public class GamePadVibrationManager : MonoBehaviour
     private BlockController _playerBlockController;
     private Health _playerHealth;
 
-    private event Action playerWeakAttackCastVibration = null;
-    private event Action playerStrongAttackCastVibration = null;
-    private event Action playerBlockCastVibration = null;
-    private event Action playerBlockSucceedVibration = null;
-    private event Action playerRollVibration = null;
-    private event Action playerJumpVibration = null;
-    private event Action playerWeakAttackHitVibration = null;
-    private event Action playerStrongAttackHitVibration = null;
-    private event Action playerDeadVibration = null;
+    private event Action PlayerWeakAttackCastVibration = null;
+    private event Action PlayerStrongAttackCastVibration = null;
+    private event Action PlayerBlockCastVibration = null;
+    private event Action PlayerBlockSucceedVibration = null;
+    private event Action PlayerRollVibration = null;
+    private event Action PlayerJumpVibration = null;
+    private event Action PlayerWeakAttackHitVibration = null;
+    private event Action PlayerStrongAttackHitVibration = null;
+    private event Action PlayerDeadVibration = null;
 
     private void Awake()
     {
@@ -65,38 +65,38 @@ public class GamePadVibrationManager : MonoBehaviour
 
     private void OnEnable()
     {
-        playerRollVibration = () => { Vibrate(playerRoll); };
-        playerJumpVibration = () => { Vibrate(playerJump); };
-        playerWeakAttackCastVibration = () => { Vibrate(playerWeakAttackCast); };
-        playerWeakAttackHitVibration = () => { Vibrate(playerWeakAttackHit); };
-        playerStrongAttackCastVibration = () => { Vibrate(playerStrongAttackCast); };
-        playerStrongAttackHitVibration = () => { Vibrate(playerStrongAttackHit); };
-        playerBlockCastVibration = () => { Vibrate(playerBlockCast); };
-        playerBlockSucceedVibration = () => { Vibrate(playerBlockSucceed); };
-        playerDeadVibration = () => { Vibrate(playerDead); };
+        PlayerRollVibration = () => { Vibrate(playerRoll); };
+        PlayerJumpVibration = () => { Vibrate(playerJump); };
+        PlayerWeakAttackCastVibration = () => { Vibrate(playerWeakAttackCast); };
+        PlayerWeakAttackHitVibration = () => { Vibrate(playerWeakAttackHit); };
+        PlayerStrongAttackCastVibration = () => { Vibrate(playerStrongAttackCast); };
+        PlayerStrongAttackHitVibration = () => { Vibrate(playerStrongAttackHit); };
+        PlayerBlockCastVibration = () => { Vibrate(playerBlockCast); };
+        PlayerBlockSucceedVibration = () => { Vibrate(playerBlockSucceed); };
+        PlayerDeadVibration = () => { Vibrate(playerDead); };
 
-        _playerController.OnRoll += playerRollVibration;
-        _playerController.OnJump += playerJumpVibration;
-        _playerAttackController.OnWeakAttackCast += playerWeakAttackCastVibration;
-        _playerAttackController.OnWeakAttackHit += playerWeakAttackHitVibration;
-        _playerAttackController.OnStrongAttackCast += playerStrongAttackCastVibration;
-        _playerAttackController.OnStrongAttackHit += playerStrongAttackHitVibration;
-        _playerBlockController.OnBlockCast += playerBlockCastVibration;
-        _playerBlockController.OnBlockSucceed += playerBlockSucceedVibration;
-        _playerHealth.OnDead += playerDeadVibration;
+        _playerController.OnRoll += PlayerRollVibration;
+        _playerController.OnJump += PlayerJumpVibration;
+        _playerAttackController.OnWeakAttackCast += PlayerWeakAttackCastVibration;
+        _playerAttackController.OnWeakAttackHit += PlayerWeakAttackHitVibration;
+        _playerAttackController.OnStrongAttackCast += PlayerStrongAttackCastVibration;
+        _playerAttackController.OnStrongAttackHit += PlayerStrongAttackHitVibration;
+        _playerBlockController.OnBlockCast += PlayerBlockCastVibration;
+        _playerBlockController.OnBlockSucceed += PlayerBlockSucceedVibration;
+        _playerHealth.OnDead += PlayerDeadVibration;
     }
 
     private void OnDisable()
     {
-        _playerController.OnRoll -= playerRollVibration;
-        _playerController.OnJump -= playerJumpVibration;
-        _playerAttackController.OnWeakAttackCast -= playerWeakAttackCastVibration;
-        _playerAttackController.OnWeakAttackHit -= playerWeakAttackHitVibration;
-        _playerAttackController.OnStrongAttackCast -= playerStrongAttackCastVibration;
-        _playerAttackController.OnStrongAttackHit -= playerStrongAttackHitVibration;
-        _playerBlockController.OnBlockCast -= playerBlockCastVibration;
-        _playerBlockController.OnBlockSucceed -= playerBlockSucceedVibration;
-        _playerHealth.OnDead -= playerDeadVibration;
+        _playerController.OnRoll -= PlayerRollVibration;
+        _playerController.OnJump -= PlayerJumpVibration;
+        _playerAttackController.OnWeakAttackCast -= PlayerWeakAttackCastVibration;
+        _playerAttackController.OnWeakAttackHit -= PlayerWeakAttackHitVibration;
+        _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastVibration;
+        _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitVibration;
+        _playerBlockController.OnBlockCast -= PlayerBlockCastVibration;
+        _playerBlockController.OnBlockSucceed -= PlayerBlockSucceedVibration;
+        _playerHealth.OnDead -= PlayerDeadVibration;
     }
 
     private void OnDestroy()

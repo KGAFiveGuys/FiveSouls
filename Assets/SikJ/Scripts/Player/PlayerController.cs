@@ -216,7 +216,7 @@ public class PlayerController : MonoBehaviour
     }
     
     Vector3 moveDirection;
-    float moveMagnitude;
+    //float moveMagnitude;
     private void MovePlayer()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
@@ -275,8 +275,8 @@ public class PlayerController : MonoBehaviour
     private void AnimatePlayerMove()
     {
         // Move
-        moveMagnitude = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
-        _animator.SetFloat(moveMagnitude_hash, moveMagnitude);
+        //moveMagnitude = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
+        _animator.SetFloat(moveMagnitude_hash, moveDirection.magnitude);
         if (IsLockOn)
         {
             _animator.SetFloat(moveX_hash, moveDirection.x);
@@ -285,7 +285,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             _animator.SetFloat(moveX_hash, 0);
-            _animator.SetFloat(moveY_hash, moveMagnitude);
+            _animator.SetFloat(moveY_hash, moveDirection.magnitude);
         }
 
         // Run
@@ -438,16 +438,28 @@ public class PlayerController : MonoBehaviour
         var isJump = context.ReadValueAsButton();
         if (isJump)
 		{
+            // 이동하던 방향으로 밀어준다
+            float lastSpeed = IsRun ? runSpeed : walkSpeed;
+            lastSpeed *= 2f;
+            Vector3 lastMovement = moveDirection * (lastSpeed * moveDirection.magnitude);
+
             isJumping = true;
+            IsRun = false;
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
             OnJump?.Invoke();
-            StartCoroutine(CancelJump());
+            StartCoroutine(CancelJump(lastMovement));
         }
     }
-    private IEnumerator CancelJump()
+    private IEnumerator CancelJump(Vector3 lastMovement)
     {
-        yield return new WaitForSeconds(.9f);
+        float elapsedTime = 0f;
+		while (elapsedTime < .9f)
+		{
+            elapsedTime += Time.deltaTime;
+            transform.Translate(lastMovement * Time.deltaTime, Space.World);
+            yield return null;
+		}
         isJumping = false;
         _animator.SetBool(isJump_hash, false);
     }
