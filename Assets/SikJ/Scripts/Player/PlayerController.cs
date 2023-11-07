@@ -105,7 +105,6 @@ public class PlayerController : MonoBehaviour
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
-    private readonly int isWeakAttackTrigger_hash = Animator.StringToHash("isWeakAttackTrigger");
 
     private void Awake()
     {
@@ -302,10 +301,6 @@ public class PlayerController : MonoBehaviour
         move.canceled += OnMoveCanceled;
         move.Enable();
 
-        rotate.performed += OnRotatePerformed;
-        rotate.canceled += OnRotateCanceled;
-        rotate.Enable();
-
         run.performed += OnRunPerformed;
         run.Enable();
 
@@ -342,24 +337,20 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         #region Disable InputActions
-        move.Disable();
         move.performed -= OnMovePerformed;
         move.performed -= OnMoveCanceled;
-
-        rotate.Disable();
-        rotate.performed -= OnRotatePerformed;
-        rotate.performed -= OnRotateCanceled;
+        move.Disable();
 
         run.performed -= OnRunPerformed;
         run.Disable();
 
-        weakAttack.Disable();
         weakAttack.performed -= OnWeakAttackPerformed;
         weakAttack.canceled -= OnWeakAttackCanceled;
+        weakAttack.Disable();
 
-        strongAttack.Disable();
         strongAttack.performed -= OnStrongAttackPerformed;
         strongAttack.canceled -= OnStrongAttackCanceled;
+        strongAttack.Disable();
 
         block.performed -= OnBlockPerformed;
         block.canceled -= OnBlockCanceled;
@@ -392,17 +383,6 @@ public class PlayerController : MonoBehaviour
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         desiredMove = Vector2.zero;
-    }
-    #endregion
-    private Vector2 desiredRotate;
-    #region rotate_Action
-    private void OnRotatePerformed(InputAction.CallbackContext context)
-    {
-        desiredRotate = context.ReadValue<Vector2>().normalized;
-    }
-    private void OnRotateCanceled(InputAction.CallbackContext context)
-    {
-        desiredRotate = Vector2.zero;
     }
     #endregion
     #region run_Action
