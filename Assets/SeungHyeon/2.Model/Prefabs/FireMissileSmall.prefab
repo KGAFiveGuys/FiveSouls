@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3953900615366835326}
   - component: {fileID: 3953900615388748142}
   - component: {fileID: 7109279038435836607}
+  - component: {fileID: 3312998820105316532}
   - component: {fileID: 2942148902882862939}
   m_Layer: 8
   m_Name: FireMissileSmall
@@ -36,6 +37,7 @@ Transform:
   - {fileID: 2748160517443395690}
   - {fileID: 3953900615370319106}
   - {fileID: 3953900615370308030}
+  - {fileID: 6112393576436297573}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4904,6 +4906,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1057dbc55932ac346adb99bacbf304e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3312998820105316532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3953900615370794390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b10da30fdc772b4f959dab33895f7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <CurrentAttackType>k__BackingField: 1
+  <AttackLayer>k__BackingField: 9
+  <BlockableLayer>k__BackingField: 11
+  <AttackCollider>k__BackingField: {fileID: 2372419566847919314}
+  <WeakAttackBaseDamage>k__BackingField: 500
+  <StrongAttackBaseDamage>k__BackingField: 500
 --- !u!135 &2942148902882862939
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4913,7 +4933,7 @@ SphereCollider:
   m_GameObject: {fileID: 3953900615370794390}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -14462,6 +14482,64 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!1 &5695002382075418478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6112393576436297573}
+  - component: {fileID: 2372419566847919314}
+  - component: {fileID: 873529831008540257}
+  m_Layer: 8
+  m_Name: AttackCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6112393576436297573
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5695002382075418478}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3953900615370308022}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &2372419566847919314
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5695002382075418478}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &873529831008540257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5695002382075418478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ecbfb1757b23d49bdf23b956ab6515, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attackController: {fileID: 3312998820105316532}
 --- !u!1 &6350753490166238438
 GameObject:
   m_ObjectHideFlags: 0

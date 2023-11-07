@@ -14385,6 +14385,7 @@ GameObject:
   - component: {fileID: 1315135474617158357}
   - component: {fileID: 1315135474616785093}
   - component: {fileID: 1315135474636847042}
+  - component: {fileID: 7856063163338033051}
   m_Layer: 0
   m_Name: AuraRingLightning
   m_TagString: Untagged
@@ -19119,6 +19120,24 @@ MonoBehaviour:
   AttackDelay: 0.5
   LightningBolt: {fileID: 1818183115425042514}
   Thunderbolt: {fileID: 1818183115410524314}
+--- !u!114 &7856063163338033051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315135474636847053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b10da30fdc772b4f959dab33895f7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <CurrentAttackType>k__BackingField: 1
+  <AttackLayer>k__BackingField: 9
+  <BlockableLayer>k__BackingField: 11
+  <AttackCollider>k__BackingField: {fileID: 0}
+  <WeakAttackBaseDamage>k__BackingField: 500
+  <StrongAttackBaseDamage>k__BackingField: 500
 --- !u!1 &1818183115425004100
 GameObject:
   m_ObjectHideFlags: 0
@@ -38269,6 +38288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ps: {fileID: 0}
+  _attackController: {fileID: 7856063163338033051}
 --- !u!1 &1818183115425042514
 GameObject:
   m_ObjectHideFlags: 0
