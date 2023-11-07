@@ -21,10 +21,12 @@ public class AttackController : MonoBehaviour
     [field: SerializeField] public AttackType CurrentAttackType { get; private set; } = AttackType.Weak;
     [field: SerializeField] public CombatLayerMask AttackLayer { get; set; } = CombatLayerMask.Enemy;
     [field: SerializeField] public CombatLayerMask BlockableLayer { get; set; } = CombatLayerMask.Shield;
-    [SerializeField] private Collider attackCollider;
-    [field: SerializeField] public float WeakAttackBaseDamage { get; private set; } = 10f;
-    [field: SerializeField] public float StrongAttackBaseDamage { get; private set; } = 20f;
+    [field: SerializeField] public Collider AttackCollider { get; set; }
+    [field: SerializeField] public float WeakAttackBaseDamage { get; set; } = 10f;
+    [field: SerializeField] public float StrongAttackBaseDamage { get; set; } = 20f;
 
+    private event Action OnAttackCast = null;
+    private event Action OnAttackHit = null;
     public event Action OnWeakAttackCast;
     public event Action OnWeakAttackHit;
     public event Action OnStrongAttackCast;
@@ -33,20 +35,36 @@ public class AttackController : MonoBehaviour
     // Animation Event
     public void TurnOnAttackCollider()
     {
-        attackCollider.gameObject.SetActive(true);
-        if(OnWeakAttackCast != null)
-            OnWeakAttackCast();
+        if (AttackCollider == null)
+            return;
+
+        AttackCollider.gameObject.SetActive(true);
+        OnAttackCast?.Invoke();
     }
 
     // Animation Event
     public void TurnOffAttackCollider()
     {
-        attackCollider.gameObject.SetActive(false);
+        if (AttackCollider == null)
+            return;
+
+        AttackCollider.gameObject.SetActive(false);
     }
 
     public void ChangeAttackType(AttackType type)
     {
         CurrentAttackType = type;
+        switch (CurrentAttackType)
+        {
+            case AttackType.Weak:
+                OnAttackCast = OnWeakAttackCast;
+                break;
+            case AttackType.Strong:
+                OnAttackCast = OnStrongAttackCast;
+                break;
+            default:
+                break;
+        }
     }
 
     public void Attack(Health targetHealth, float damage, bool isBlocked)
@@ -56,14 +74,13 @@ public class AttackController : MonoBehaviour
             switch (CurrentAttackType)
             {
                 case AttackType.Weak:
-                    if (OnWeakAttackHit != null)
-                        OnWeakAttackHit();
+                    OnAttackHit = OnWeakAttackHit;
                     break;
                 case AttackType.Strong:
-                    if (OnStrongAttackHit != null)
-                        OnStrongAttackHit();
+                    OnAttackHit = OnStrongAttackHit;
                     break;
             }
+            OnAttackHit?.Invoke();
         }
 
         targetHealth.GetDamage(damage);
