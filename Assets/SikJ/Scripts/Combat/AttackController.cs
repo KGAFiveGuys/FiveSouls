@@ -34,7 +34,8 @@ public class AttackController : MonoBehaviour
     public void TurnOnAttackCollider()
     {
         attackCollider.gameObject.SetActive(true);
-        OnWeakAttackCast();
+        if(OnWeakAttackCast != null)
+            OnWeakAttackCast();
     }
 
     // Animation Event

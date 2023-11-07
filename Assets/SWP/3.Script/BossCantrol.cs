@@ -14,11 +14,10 @@ public class BossCantrol : MonoBehaviour
     [SerializeField] private LayerMask TargetMask;
     [SerializeField] private float detectRange = 30f;
     [SerializeField] private float stopdistance = 1.25f;//근접공격거리 & 보스멈출거리
-    [SerializeField] private float MaxHP;
-    [SerializeField] private float currentHP;
     private Transform Target;
     private Animator HulkAnimator;
     private NavMeshAgent agent;
+    private Health bossHealth;
 
     //공격범위
     private float distance = 50f;
@@ -68,6 +67,7 @@ public class BossCantrol : MonoBehaviour
     {
         TryGetComponent(out agent);
         TryGetComponent(out HulkAnimator);
+        TryGetComponent(out bossHealth);
     }
 
     private void Update()
@@ -98,17 +98,21 @@ public class BossCantrol : MonoBehaviour
 
     private void NaviTarget()
     {
-        if (isTarget)
+        if (agent.enabled != false)
         {
-            agent.stoppingDistance = stopdistance * transform.localScale.x;
-            agent.SetDestination(new Vector3(Target.position.x, 0, Target.position.z));
-            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-            transform.LookAt(Target.position + targetTF.normalized * 5f);
-            agent.isStopped = false;
-        }
-        else
-        {
-            agent.isStopped = true;
+            if (isTarget)
+            {
+                agent.stoppingDistance = stopdistance * transform.localScale.x;
+                Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+                agent.SetDestination(targetTF);
+                transform.LookAt(Target.position + targetTF.normalized * 5f);
+                agent.isStopped = false;
+            }
+            else
+            {
+                agent.isStopped = true;
+            }
+
         }
 
     }
@@ -117,21 +121,21 @@ public class BossCantrol : MonoBehaviour
     {
         delayTime = Random.Range(3, 8);
         // 체력이 반 이하면 점프공격해줭
-        if (currentHP <= (MaxHP * 0.5f) && OnlyOne)
+        if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && OnlyOne)
         {
             OnlyOne = false;
-            yield return StartCoroutine(AngryAttackCo());
+            yield return AngryAttackCo();
         }
 
         if (distance > stopdistance * transform.localScale.x * 2 && distance <= AdDistance * transform.localScale.x)
         {
             //슬라이딩해줭
-            yield return StartCoroutine(SlideAttackCo());
+            yield return SlideAttackCo();
         }
         else if (distance <= stopdistance * transform.localScale.x)
         {
             //근접공격해줭
-            yield return StartCoroutine(AttackCo());
+            yield return AttackCo();
         }
         yield return new WaitForSeconds(delayTime);
     }
@@ -154,11 +158,11 @@ public class BossCantrol : MonoBehaviour
             case 0:
             case 1:
             case 2:
-                yield return StartCoroutine(NormalAttackCo());
+                yield return NormalAttackCo();
                 break;
 
             case 3:
-                yield return StartCoroutine(StrongAttackCo());
+                yield return StrongAttackCo();
                 break;
         }
     }
@@ -171,12 +175,12 @@ public class BossCantrol : MonoBehaviour
         if (AttackNum == 0)
         {
             Debug.Log("normal1");
-            yield return new WaitForSeconds(2.8f);
+            yield return new WaitForSeconds(1.4f);
         }
         else
         {
             Debug.Log("normal2");
-            yield return new WaitForSeconds(4.2f);
+            yield return new WaitForSeconds(2.1f);
         }
         HulkAnimator.ResetTrigger("NormalAttack");
     }
@@ -189,18 +193,16 @@ public class BossCantrol : MonoBehaviour
         if (AttackNum == 1)
         {
             Debug.Log("strong2");
-            yield return new WaitForSeconds(2.2f);
-            HulkAnimator.SetBool("HasTarget", false);
+            yield return new WaitForSeconds(1.1f);
         }
         else
         {
             Debug.Log("strong1");
-            yield return new WaitForSeconds(0.8f);
-            HulkAnimator.SetBool("HasTarget", false);
+            yield return new WaitForSeconds(0.4f);
         }
+        HulkAnimator.SetBool("HasTarget", false);
         HulkAnimator.ResetTrigger("StrongAttack");
         HulkAnimator.SetBool("HasTarget", isTarget);
-
     }
 
     private IEnumerator AngryAttackCo()
@@ -208,25 +210,26 @@ public class BossCantrol : MonoBehaviour
 
         Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
         Vector3 LandPoint = Target.position + targetTF.normalized * 5f;
+
         agent.enabled = false;
         HulkAnimator.SetTrigger("Angry");
 
-        yield return new WaitForSeconds(3.3f);
+        yield return new WaitForSeconds(.7f);
         agent.enabled = true;
         targetTF = new Vector3(Target.position.x, 0, Target.position.z);
         agent.enabled = false;
 
-        yield return new WaitForSeconds(3.3f);
+        yield return new WaitForSeconds(1.2f);
         agent.enabled = true;
         targetTF = new Vector3(Target.position.x, 0, Target.position.z);
         agent.enabled = false;
 
-        yield return new WaitForSeconds(3.3f);
+        yield return new WaitForSeconds(1.2f);
         agent.enabled = true;
         targetTF = new Vector3(Target.position.x, 0, Target.position.z);
         agent.enabled = false;
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
         agent.enabled = true;
     }
 
