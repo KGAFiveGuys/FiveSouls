@@ -22,8 +22,8 @@ public class AttackController : MonoBehaviour
     [field: SerializeField] public CombatLayerMask AttackLayer { get; set; } = CombatLayerMask.Enemy;
     [field: SerializeField] public CombatLayerMask BlockableLayer { get; set; } = CombatLayerMask.Shield;
     [field: SerializeField] public Collider AttackCollider { get; set; }
-    [field: SerializeField] public float WeakAttackBaseDamage { get; private set; } = 10f;
-    [field: SerializeField] public float StrongAttackBaseDamage { get; private set; } = 20f;
+    [field: SerializeField] public float WeakAttackBaseDamage { get; set; } = 10f;
+    [field: SerializeField] public float StrongAttackBaseDamage { get; set; } = 20f;
 
     private event Action OnAttackCast = null;
     private event Action OnAttackHit = null;

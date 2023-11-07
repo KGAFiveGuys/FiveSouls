@@ -221,6 +221,6 @@ MonoBehaviour:
   <CurrentAttackType>k__BackingField: 1
   <AttackLayer>k__BackingField: 9
   <BlockableLayer>k__BackingField: 11
-  attackCollider: {fileID: 1119446458}
+  <AttackCollider>k__BackingField: {fileID: 1119446458}
   <WeakAttackBaseDamage>k__BackingField: 10
   <StrongAttackBaseDamage>k__BackingField: 80
