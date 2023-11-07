@@ -9,6 +9,11 @@ using System.Linq;
 [RequireComponent(typeof(AttackController))]
 public class MutantController : MonoBehaviour
 {
+    //즉사패턴 타이머
+    [Header("뒤져라 ~")]
+    [SerializeField] public float timer = 10f;
+    private bool isCounting = false;
+    //=============
     public GameObject rockPrefab; // 돌 프리팹
     public Transform handPosition; // 손 위치
     public Transform throwPosition; // 던질 위치
@@ -48,12 +53,13 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float Swing_cool;
     [SerializeField] private float Smash_cool;
     [SerializeField] private float Rock_cool;
+    [SerializeField] private float Howing_cool;
 
     [Header("AttackCollider")]
     [SerializeField] private Collider dashAttackCollider;
     [SerializeField] private Collider smashAttackCollider;
     [SerializeField] private Collider swingAttackCollider;
-    [SerializeField] private Collider throwRockAttackCollider;
+    [SerializeField] private Collider howlingAttackCollider;
 
     //스킬쿨타임 관리용
     [Header("쿨돌아가나확인용")]
@@ -61,6 +67,7 @@ public class MutantController : MonoBehaviour
     public float cool_Swing;
     public float cool_Smash;
     public float cool_Rock;
+    public float cool_Howling;
 
     //쿨타임용 bool값 
     bool isDash = false;
@@ -68,6 +75,7 @@ public class MutantController : MonoBehaviour
     bool isSwing = false;
     bool _isRun = false;
     bool isRock = false;
+    bool isHowling = false;
 
     //거리계산
     private float distance;
@@ -75,8 +83,8 @@ public class MutantController : MonoBehaviour
     private bool isCursor = false;
 
     private AttackController attackController;
-    private Rigidbody playerRigidbody;
-    private Animator playerAnimator;
+    private Rigidbody mutantRigidbody;
+    private Animator mutantAnimator;
     #region AnimatorParameters
     private readonly int moveX_hash = Animator.StringToHash("moveX");
     private readonly int moveY_hash = Animator.StringToHash("moveY");
@@ -124,8 +132,8 @@ public class MutantController : MonoBehaviour
     private void Awake()
     {
         StartCoroutine(Swing_Cool_co());
-        TryGetComponent(out playerRigidbody);
-        TryGetComponent(out playerAnimator);
+        TryGetComponent(out mutantRigidbody);
+        TryGetComponent(out mutantAnimator);
         player = GameObject.FindGameObjectWithTag("Player");
         TryGetComponent(out agent);
         TryGetComponent(out attackController);
@@ -141,17 +149,36 @@ public class MutantController : MonoBehaviour
             }
         }
     }
+
+    float time = 0;
     private void Update()
     {
+        if(distance > 30f)
+        {
+            time += Time.deltaTime;
+        }
+        else
+        {
+            time = 0;
+        }
+
+        if(time >= Howing_cool && !isHowling)
+        {
+            isHowling = true;
+            Howilng_att();
+        }
+
+        print("time : " + time);
+
         player.transform.position = player.transform.position;
         print("isTarget : " + isTarget);
         Move_ToPlayer();
-        Move();
+       // Move();
         Rotate(); 
         Jugement_MonAction();
-        if(distance >= 0.5f)
+        if(distance >= 2.5f)
         {
-            playerAnimator.SetBool("isTarget", isTarget);
+            mutantAnimator.SetBool("isTarget", isTarget);
         }
 
         if (Input.GetKeyDown(KeyCode.F1))
@@ -161,6 +188,8 @@ public class MutantController : MonoBehaviour
         print("isSwing : " + isSwing);
         
         print("누구보고있니 : " + player.name);
+        print("약한공격 : "+attackController.WeakAttackBaseDamage);
+        print("강한공격 : "+attackController.StrongAttackBaseDamage);
     }
     
     public void Togle_Cursor()
@@ -192,8 +221,8 @@ public class MutantController : MonoBehaviour
         }
         
         
-        playerAnimator.SetFloat(moveX_hash, desiredMove.x);
-        playerAnimator.SetFloat(moveY_hash, desiredMove.y);
+        mutantAnimator.SetFloat(moveX_hash, desiredMove.x);
+        mutantAnimator.SetFloat(moveY_hash, desiredMove.y);
     }
 
     private void Rotate()
@@ -319,7 +348,7 @@ public class MutantController : MonoBehaviour
     //{
     //    var isJump = context.ReadValueAsButton();
     //    if (isJump)
-    //        playerAnimator.SetBool(isJump_hash, true);
+    //        mutantAnimator.SetBool(isJump_hash, true);
     //}
 
     private bool isJumping = false;
@@ -329,7 +358,7 @@ public class MutantController : MonoBehaviour
         var isJump = context.ReadValueAsButton();
         if (isJump && !isJumping)
         {
-            playerAnimator.SetBool(isJump_hash, true);
+            mutantAnimator.SetBool(isJump_hash, true);
             StartCoroutine(MoveForward());
         }
     }
@@ -358,7 +387,7 @@ public class MutantController : MonoBehaviour
         long time = stopwatch.ElapsedMilliseconds;
         print("대쉬 동작시간 : "+ time);
         isJumping = false;
-        playerAnimator.SetBool(isJump_hash, false);
+        mutantAnimator.SetBool(isJump_hash, false);
 
         // 대쉬 끝
         attackController.TurnOffAttackCollider();
@@ -366,7 +395,7 @@ public class MutantController : MonoBehaviour
 
     private void OnJumpCanceled(InputAction.CallbackContext context)
     {
-        playerAnimator.SetBool(isJump_hash, false);
+        mutantAnimator.SetBool(isJump_hash, false);
     }
     #endregion
     #region Standingg_Action
@@ -375,13 +404,13 @@ public class MutantController : MonoBehaviour
         var isStanding = context.ReadValueAsButton();
         if (isStanding)
         {
-            playerAnimator.SetBool(isStanding_hash, true);
+            mutantAnimator.SetBool(isStanding_hash, true);
         }
     }
 
     private void onStandingCanceled(InputAction.CallbackContext context)
     {
-        playerAnimator.SetBool(isStanding_hash, false);
+        mutantAnimator.SetBool(isStanding_hash, false);
     }
     #endregion
 
@@ -391,13 +420,13 @@ public class MutantController : MonoBehaviour
         var isKnockDown = context.ReadValueAsButton();
         if (isKnockDown)
         {
-            playerAnimator.SetBool(isKnockDown_hash, true);
+            mutantAnimator.SetBool(isKnockDown_hash, true);
         }
     }
 
     private void onisKnockDownCancled(InputAction.CallbackContext context)
     {
-        playerAnimator.SetBool(isKnockDown_hash, false);
+        mutantAnimator.SetBool(isKnockDown_hash, false);
     }
     #endregion
 
@@ -411,7 +440,7 @@ public class MutantController : MonoBehaviour
             _isRun = true;
 
             //ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isRun_hash, true);
+            mutantAnimator.SetBool(isRun_hash, true);
         }
     }
 
@@ -419,7 +448,7 @@ public class MutantController : MonoBehaviour
     {
         _isRun = false;
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isRun_hash, false);
+        mutantAnimator.SetBool(isRun_hash, false);
     }
     #endregion
     #region weakAttack_Action
@@ -429,13 +458,13 @@ public class MutantController : MonoBehaviour
         if (isWeakAttack)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetBool(isWeakAttack_hash, true);
+            mutantAnimator.SetBool(isWeakAttack_hash, true);
         }
     }
     private void OnWeakAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isWeakAttack_hash, false);
+        mutantAnimator.SetBool(isWeakAttack_hash, false);
     }
     #endregion
     #region strongAttack_Action
@@ -445,13 +474,13 @@ public class MutantController : MonoBehaviour
         if (isStrongAttack)
         {
             ControlState = ControlState.Uncontrollable;
-            playerAnimator.SetTrigger(isStrongAttack_hash);
+            mutantAnimator.SetTrigger(isStrongAttack_hash);
         }
     }
     private void OnStrongAttackCanceled(InputAction.CallbackContext context)
     {
         ControlState = ControlState.Controllable;
-        playerAnimator.SetBool(isStrongAttack_hash, false);
+        mutantAnimator.SetBool(isStrongAttack_hash, false);
     }
     #endregion
     #region ragdoll_Action
@@ -486,7 +515,7 @@ public class MutantController : MonoBehaviour
         #endregion
 
         // Toggle animation & control
-        playerAnimator.enabled = !isRagdoll;
+        mutantAnimator.enabled = !isRagdoll;
         ControlState = !isRagdoll ? ControlState.Controllable : ControlState.Uncontrollable;
     }
 
@@ -523,6 +552,7 @@ public class MutantController : MonoBehaviour
 
     private void Jugement_MonAction()
     {
+
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
 
         distance = Vector3.Distance(player.transform.position, transform.position);
@@ -531,15 +561,27 @@ public class MutantController : MonoBehaviour
             //강
             attackController.ChangeAttackType(AttackType.Strong);
             attackController.AttackCollider = dashAttackCollider;
-            Dash_Att();
+            attackController.StrongAttackBaseDamage = 50f;
+            if(!isSwing && !isSmash && !isRock)
+            {
+                Dash_Att();
+            }
             print("far");
         }
         else if (distance <= 20f && distance > 10f)
         {
-            if (!isDash)
+            
+            if (!isDash )
             {
-                transform.LookAt(player.transform);
                 agent.isStopped = true;
+                transform.LookAt(player.transform);
+                if (!isRock && !isSmash && !isSwing)
+                {
+                    if(cool_Rock == 0)
+                    {
+                        ThrowRock_anim();
+                    }
+                }
             }
             else
             {
@@ -547,18 +589,19 @@ public class MutantController : MonoBehaviour
             }
             print("middle");
         }
-        else if (distance <= 10f)
+        else if (distance < 10f)
         {
             if (cool_Swing == 0 || cool_Smash == 0)
             {
                 switch (UnityEngine.Random.Range(0, 2))
                 {
                     case 0:
-                        if(cool_Swing == 0)
+                        if(cool_Swing == 0 && !isDash && !isSmash)
                         {
                             //약
                             attackController.ChangeAttackType(AttackType.Weak);
                             attackController.AttackCollider = swingAttackCollider;
+                            attackController.WeakAttackBaseDamage = 20f;
                             Swing_att();
                         }
                         else
@@ -568,12 +611,16 @@ public class MutantController : MonoBehaviour
                         
                         break;
                     case 1:
-                        if(cool_Smash == 0)
+                        if(cool_Smash == 0 &&!isDash && !isSwing)
                         {
                             //강
                             attackController.ChangeAttackType(AttackType.Strong);
                             attackController.AttackCollider = smashAttackCollider;
+                            attackController.StrongAttackBaseDamage = 50f;
+                            print("Attcol이름 : " + attackController.name);
                             Smash_Att();
+                            StartCoroutine(Up_Smash_Strong_coll());
+                            
                         }
                         else
                         {
@@ -609,6 +656,34 @@ public class MutantController : MonoBehaviour
 
     }
 
+
+
+    private IEnumerator Up_Smash_Strong_coll()
+    {
+        AnimationClip SmashAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Smash_Strong");
+        Collider attackCollider = attackController.AttackCollider;
+
+        float Smashtime = SmashAnimation.length;
+        float elapsedTime = 0f;
+        var startPos = attackController.AttackCollider.transform.position;
+        var endPos = new Vector3
+        (
+            attackCollider.transform.position.x,
+            attackCollider.transform.position.y + 7,
+            attackCollider.transform.position.z
+        );
+
+        while (elapsedTime < Smashtime)
+        {
+            elapsedTime += Time.deltaTime;
+            attackCollider.transform.position = Vector3.Lerp(startPos, endPos, (elapsedTime / Smashtime)*1.3f);
+            yield return null;
+        }
+        attackCollider.transform.position = startPos;
+        attackController.TurnOffAttackCollider();
+
+    }
+
     //그로기상태 후 하울링 공격 > 광역기
 
     private IEnumerator Swing_Cool_co()
@@ -621,6 +696,13 @@ public class MutantController : MonoBehaviour
         isSwing = false;
         cool_Swing = 0;
     }
+    private void Howilng_att()
+    {
+        attackController.ChangeAttackType(AttackType.Strong);
+        attackController.AttackCollider = howlingAttackCollider;
+        attackController.StrongAttackBaseDamage = 1000000f;
+        mutantAnimator.SetTrigger("Howling");
+    }
     private void Swing_att()
     {
         if(cool_Swing != 0)
@@ -628,11 +710,12 @@ public class MutantController : MonoBehaviour
             isSwing = false;
         }
         isSwing = true;
-        //playerAnimator.SetBool(isSwing_hash, isSwing);
-        playerAnimator.SetTrigger("Swing");
+        //mutantAnimator.SetBool(isSwing_hash, isSwing);
+        mutantAnimator.SetTrigger("Swing");
         StartCoroutine(Swing_Cool_co());
     }
    
+    
 
     //대쉬 공격 (강공1)
     private void Dash_Att()
@@ -643,7 +726,7 @@ public class MutantController : MonoBehaviour
         }
         else if (!isDash)
         {
-            playerAnimator.SetBool(isJump_hash, true);
+            mutantAnimator.SetBool(isJump_hash, true);
             isDash = true;
             print(isDash);
             StartCoroutine(MoveForward());
@@ -662,6 +745,7 @@ public class MutantController : MonoBehaviour
         isSmash = false;
         cool_Smash = 0;
     }
+
     private void Smash_Att()
     {
         if (cool_Smash != 0)
@@ -669,14 +753,20 @@ public class MutantController : MonoBehaviour
             isSmash = false;
         }
         isSmash = true;
-        playerAnimator.SetTrigger("Smash");
+        mutantAnimator.SetTrigger("Smash");
         StartCoroutine(Smash_Cool_co());
-        //playerAnimator.SetBool(isStrongAttack_hash, true);
     }
 
 
     float count;
 
+
+    //돌던지기 애니메이션 출력
+    private void ThrowRock_anim()
+    {
+        isRock = true;
+        mutantAnimator.SetTrigger("ThrowRock");
+    }
 
     //돌주워 던지기 약한공격 2.
     private IEnumerator Rock_Cool_co()
@@ -697,15 +787,13 @@ public class MutantController : MonoBehaviour
             if (!isDash && currentRock == null)
             {
                 // 돌을 생성하고 손 위치에 놓기
-                Vector3 offset = new Vector3(1f, -1f, -.91f);
-                GameObject newRock = Instantiate(rockPrefab, handPosition.position+offset, Quaternion.identity);                
+                Vector3 offset = new Vector3(-1f, -1f, -0.71f);
+                GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);                
                 newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
 
-                AnimationClip throwAnimation = playerAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
+                AnimationClip throwAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
                 float waitTime = throwAnimation.length;
 
-                attackController.ChangeAttackType(AttackType.Weak);
-                attackController.AttackCollider = throwRockAttackCollider;
                 // 일정 시간 대기 후 돌을 부모에서 분리
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
 

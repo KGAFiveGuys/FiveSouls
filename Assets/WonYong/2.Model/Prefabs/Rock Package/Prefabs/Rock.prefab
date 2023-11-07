@@ -93,8 +93,8 @@ GameObject:
   - component: {fileID: 205000011883594630}
   - component: {fileID: -5920119742343889466}
   - component: {fileID: -1510770430417331445}
-  - component: {fileID: 3711856655735039703}
   - component: {fileID: -3601803194452295527}
+  - component: {fileID: 201434640032682895}
   m_Layer: 0
   m_Name: Rock
   m_TagString: Untagged
@@ -176,19 +176,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1.5
   m_Center: {x: 0.15, y: 0, z: 0}
---- !u!114 &3711856655735039703
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1000011949594382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0ecbfb1757b23d49bdf23b956ab6515, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _attackController: {fileID: 0}
 --- !u!114 &-3601803194452295527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +188,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ac3338b4c2b40242898485ba35c6094, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &201434640032682895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000011949594382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b10da30fdc772b4f959dab33895f7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <CurrentAttackType>k__BackingField: 0
+  <AttackLayer>k__BackingField: 9
+  <BlockableLayer>k__BackingField: 11
+  <AttackCollider>k__BackingField: {fileID: 1174215416621499714}
+  <WeakAttackBaseDamage>k__BackingField: 200
+  <StrongAttackBaseDamage>k__BackingField: 200
 --- !u!1 &1000012074862460
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,6 +378,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1384848704277768652}
   - component: {fileID: 1174215416621499714}
+  - component: {fileID: 7529948986670891480}
   m_Layer: 0
   m_Name: AttackCollider
   m_TagString: Untagged
@@ -407,3 +413,16 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1.5
   m_Center: {x: 0.15, y: 0, z: 0}
+--- !u!114 &7529948986670891480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4693819424627943293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ecbfb1757b23d49bdf23b956ab6515, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attackController: {fileID: 201434640032682895}
