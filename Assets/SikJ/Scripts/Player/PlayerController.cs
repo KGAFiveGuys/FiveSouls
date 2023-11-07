@@ -162,7 +162,18 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         AnimatePlayerMove();
     }
-    
+
+    private bool isCollidingWithEnemy = false;
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.layer == 1 << 8)
+            isCollidingWithEnemy = true;
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == 1 << 8)
+            isCollidingWithEnemy = false;
+    }
     private void CheckLockOnEnemyDistance()
     {
         // LockOn 상태에서 제한범위를 벗어나면 UnLock
@@ -214,12 +225,8 @@ public class PlayerController : MonoBehaviour
         if (ControlState.Equals(ControlState.Uncontrollable))
             return;
 
-        // LockOn일 때 후방으로 이동하면 달릴 수 없음
-        if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad))
-            IsRun = false;
-
-        // 스태미너가 0이면 달릴 수 없음
-        if (_stamina.CurrentStamina == 0)
+        if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad)    // LockOn일 때 후방으로 이동
+            || _stamina.CurrentStamina == 0)                                                    // 스태미너가 0이면 달릴 수 없음
             IsRun = false;
 
         float speed = IsRun ? runSpeed : walkSpeed;
@@ -229,6 +236,8 @@ public class PlayerController : MonoBehaviour
             transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
 
             // To-Do : Collision Check
+            if (isCollidingWithEnemy)
+                transform.Translate(5 * -moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -258,6 +267,8 @@ public class PlayerController : MonoBehaviour
             transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
 
             // To-Do : Collision Check
+            if (isCollidingWithEnemy)
+                transform.Translate(5 * -moveDirection * speed * Time.deltaTime, Space.World);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);

@@ -4319,22 +4319,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1000676100695774633, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: knockBackSpeed
-      value: 8
+    - target: {fileID: 2309525717887462794, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
-    - target: {fileID: 1000676100695774633, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
-      propertyPath: knockBackDurationPerDamage
-      value: 0.1
+    - target: {fileID: 2309525717887462794, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462794, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462794, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462796, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: runSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: VC_LockOn
       value: 
       objectReference: {fileID: 1503980713}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: walkSpeed
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: VC_Default
       value: 

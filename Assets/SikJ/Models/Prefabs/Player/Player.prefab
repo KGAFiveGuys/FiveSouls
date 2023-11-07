@@ -1523,8 +1523,8 @@ MonoBehaviour:
   blockCollider: {fileID: 4283848067946383281}
   blockParticle: {fileID: 8122134475056723478}
   <BlockDampRate>k__BackingField: 0.95
-  knockBackDurationPerDamage: 0.025
-  knockBackSpeed: 20
+  knockBackDurationPerDamage: 0.1
+  knockBackSpeed: 8
   knockBackTimeSlowDownIntensity:
     serializedVersion: 2
     m_Curve:
