@@ -6,6 +6,7 @@ using System.Diagnostics;
 using UnityEngine.AI;
 using System.Linq;
 
+[RequireComponent(typeof(AttackController))]
 public class MutantController : MonoBehaviour
 {
     public GameObject rockPrefab; // 돌 프리팹
@@ -15,7 +16,6 @@ public class MutantController : MonoBehaviour
     public float addForceDuration = .5f; // 던지는 힘을 누적할 시간
 
     private GameObject currentRock;
-
     private Health health;
 
     [field: Header("State")]
@@ -49,6 +49,11 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float Smash_cool;
     [SerializeField] private float Rock_cool;
 
+    [Header("AttackCollider")]
+    [SerializeField] private Collider dashAttackCollider;
+    [SerializeField] private Collider smashAttackCollider;
+    [SerializeField] private Collider swingAttackCollider;
+    [SerializeField] private Collider throwRockAttackCollider;
 
     //스킬쿨타임 관리용
     [Header("쿨돌아가나확인용")]
@@ -156,7 +161,6 @@ public class MutantController : MonoBehaviour
         print("isSwing : " + isSwing);
         
         print("누구보고있니 : " + player.name);
-
     }
     
     public void Togle_Cursor()
@@ -524,6 +528,9 @@ public class MutantController : MonoBehaviour
         distance = Vector3.Distance(player.transform.position, transform.position);
         if (distance <= 30f && distance > 20f)
         {
+            //강
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = dashAttackCollider;
             Dash_Att();
             print("far");
         }
@@ -549,6 +556,9 @@ public class MutantController : MonoBehaviour
                     case 0:
                         if(cool_Swing == 0)
                         {
+                            //약
+                            attackController.ChangeAttackType(AttackType.Weak);
+                            attackController.AttackCollider = swingAttackCollider;
                             Swing_att();
                         }
                         else
@@ -560,6 +570,9 @@ public class MutantController : MonoBehaviour
                     case 1:
                         if(cool_Smash == 0)
                         {
+                            //강
+                            attackController.ChangeAttackType(AttackType.Strong);
+                            attackController.AttackCollider = smashAttackCollider;
                             Smash_Att();
                         }
                         else
@@ -690,6 +703,9 @@ public class MutantController : MonoBehaviour
 
                 AnimationClip throwAnimation = playerAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
                 float waitTime = throwAnimation.length;
+
+                attackController.ChangeAttackType(AttackType.Weak);
+                attackController.AttackCollider = throwRockAttackCollider;
                 // 일정 시간 대기 후 돌을 부모에서 분리
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
 
