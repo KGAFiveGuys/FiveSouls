@@ -35,34 +35,44 @@ public class WizardControl : MonoBehaviour
     private Animator Wizard_anim;
     private float AttackTime = 0;
     [SerializeField] private float ThunderDelay = 0.5f;
-    [SerializeField]private ThunderBoltCircle thunderBoltCircle;
-
+    [SerializeField] private ThunderBoltCircle thunderBoltCircle;
+    [SerializeField] private ParticleSystem shadowburst;
+    [SerializeField] private GameObject Fireball_Spawner;
+    [SerializeField] private FireBallSpawner fireBallSpawner;
+    [SerializeField] private MegaPattern megapattern;
+    [SerializeField] private float BackwardForce = 100f;
+    [SerializeField] private Rigidbody Wizard_rb;
 
     [Header("이펙트")]
     [SerializeField] private AttackEffect[] Attack_effect;
+    [SerializeField] private GameObject[] FireBall;
     [SerializeField] private ParticleSystem CurrnetEffect;
     [SerializeField] private GameObject ReadyEffect;
 
+
     [Header("위자드 상태창")]
-    [SerializeField] private Wizardinfo wizardinfo;
+    [SerializeField] public Wizardinfo wizardinfo;
 
     private void Awake()
     {
         wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
+        fireBallSpawner = FindObjectOfType<FireBallSpawner>();
+        megapattern = FindObjectOfType<MegaPattern>();
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
+        TryGetComponent(out Wizard_rb);
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
     }
     private void Update()
     {
         CheckPlayerPosition();
-        if(wizardinfo.status.Equals(Status.Ready))
+
+        if (wizardinfo.status.Equals(Status.Ready))
         {
             AttackTime += Time.deltaTime;
-            Debug.Log(AttackTime);
             if (AttackTime >= 5f)
             {
-                Debug.Log("실행");
+               Debug.Log("실행");
                StartCoroutine(AttackReady(SelectPattern()));
             }
         }
@@ -92,10 +102,10 @@ public class WizardControl : MonoBehaviour
     {
         CurrnetEffect = Attack_effect[AttackPlayer].Effect_Particle;
         Attack_effect[AttackPlayer].Effect_Particle.Play();
+        SelectAnimation(AttackPlayer);
         AttackTime = 0;
-        yield return new WaitForSeconds(3f);
-        Wizard_anim.SetTrigger("Attack");
-        StartCoroutine(UseThunderbolt());
+        yield return new WaitForSeconds(2f);
+        SelectPattern(AttackPlayer);
         CurrnetEffect.Stop();
     }
     private IEnumerator UseThunderbolt()
@@ -116,5 +126,58 @@ public class WizardControl : MonoBehaviour
             }
             yield return null;
         }
+        
+    }
+    private void ClosePattern()
+    {
+        var collisionModule = shadowburst.collision;
+        collisionModule.enabled = true;
+        shadowburst.Play();
+        Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
+        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        {
+            Debug.Log("벽있음");
+        }
+        else
+        {
+            StartCoroutine(BackStep());
+        }
+    }
+    private void SelectAnimation(int pattern)
+    {
+      switch(pattern)
+        {
+            case 0:
+                Wizard_anim.SetTrigger("CloseBurst");
+                return;
+            case 1:
+                Wizard_anim.SetTrigger("FireBall");
+                return;
+            case 2:
+                Wizard_anim.SetTrigger("Lightning");
+                return;
+        }
+    }
+    private void SelectPattern(int pattern)
+    {
+        switch(pattern)
+        {
+            case 0:
+                ClosePattern();
+                return;
+            case 1:
+                StartCoroutine(fireBallSpawner.CreateFireBall());
+                return;
+            case 2:
+                //StartCoroutine(UseThunderbolt());
+                StartCoroutine(megapattern.MegaThunderPatternUse());
+                return;
+        }    
+    }
+    private IEnumerator BackStep()
+    {
+        Vector3 Backward_Movement = -transform.forward * BackwardForce;
+        Wizard_rb.AddForce(Backward_Movement);
+        yield return null;
     }
 }

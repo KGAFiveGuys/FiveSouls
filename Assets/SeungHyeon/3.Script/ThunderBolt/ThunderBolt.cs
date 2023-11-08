@@ -6,6 +6,7 @@ public class ThunderBolt : MonoBehaviour
 {
     [SerializeField] private float AttackDelay = 0.5f;
     [SerializeField] private GameObject LightningBolt;
+    [SerializeField] private ParticleSystem Thunderbolt;
     private void OnEnable()
     {
         StartCoroutine(Thunder());
@@ -13,6 +14,8 @@ public class ThunderBolt : MonoBehaviour
     private IEnumerator Thunder()
     {
         yield return new WaitForSeconds(AttackDelay);
+        var ThunderCollosion = Thunderbolt.collision;
+        ThunderCollosion.enabled = true;
         LightningBolt.SetActive(true);
     }        
 }
