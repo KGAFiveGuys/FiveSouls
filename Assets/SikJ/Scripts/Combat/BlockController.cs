@@ -27,21 +27,22 @@ public class BlockController : MonoBehaviour
 
     private void OnEnable()
     {
-        OnDeadWhileKnockBack = () =>
-        {
-            if (lastKnockBack != null)
-            {
-                StopCoroutine(lastKnockBack);
-                lastKnockBack = null;
-            }
-        };
+        //OnDeadWhileKnockBack = () =>
+        //{
+        //    if (lastKnockBack != null)
+        //    {
+        //        StopCoroutine(lastKnockBack);
+        //        lastKnockBack = null;
+        //    }
+        //};
 
-        _characterHealth.OnDead += OnDeadWhileKnockBack;
+        //_characterHealth.OnDead += OnDeadWhileKnockBack;
+        _characterHealth.OnDead += StopKnockBack;
     }
 
     private void OnDisable()
     {
-        _characterHealth.OnDead -= OnDeadWhileKnockBack;
+        _characterHealth.OnDead -= StopKnockBack;
     }
 
     // Animation Event
@@ -98,5 +99,15 @@ public class BlockController : MonoBehaviour
         }
         Time.timeScale = 1f;
         lastKnockBack = null;
+    }
+
+    private void StopKnockBack()
+    {
+        if (lastKnockBack != null)
+        {
+            StopCoroutine(lastKnockBack);
+            lastKnockBack = null;
+            Time.timeScale = 1f;
+        }
     }
 }
