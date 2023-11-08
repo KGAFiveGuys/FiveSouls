@@ -12,6 +12,8 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] Rigidbody rigidbody;
 
     // AttackCollider
+    [SerializeField] private Collider hookCollider;
+    [SerializeField] private Collider rightHookCollider;
     [SerializeField] private Collider screwAttackCollider;
     [SerializeField] private Collider projectileCollider;
     [SerializeField] private Collider advPunchCollider;
@@ -188,7 +190,7 @@ public class UnityChanAI : MonoBehaviour
                 if (near)
                 {
                     StopMovement();
-                    MiddlePatternGraceTime = 0f;
+                    //MiddlePatternGraceTime = 0f;
                     
                     while (NearPatternGraceTime < NearPatternTime && near)
                     {
@@ -203,7 +205,7 @@ public class UnityChanAI : MonoBehaviour
                         DecideNearPattern();
 
                         NearPatternGraceTime = 0f;
-                        NearPatternTime = Random.Range(1f, 2f);
+                        NearPatternTime = Random.Range(0.5f, 2f);
                     }
                 }
                 else
@@ -211,10 +213,9 @@ public class UnityChanAI : MonoBehaviour
                     RandomMovement();
                 }
 
-                if (middle || near)
+                if ((middle || near) && farPatternGraceTime > 2f)
                 {
-                    farPatternGraceTime = 0f;
-                    MustDieGraceTime = 0f;
+                    farPatternGraceTime = 2f;
                 }
                 if (middle)
                 {
@@ -248,12 +249,11 @@ public class UnityChanAI : MonoBehaviour
                             animator.SetTrigger("AdvancePunch");
                         }
                         MiddlePatternGraceTime = 0f;
-                        MiddlePatternTime = Random.Range(3, 5);
+                        MiddlePatternTime = Random.Range(2f, 4f);
                     }
                 }
                 if (far)
                 {
-                    MustDieGraceTime = 0f;
                     while (farPatternGraceTime < 6f && far)
                     {
                         if (!isMotion)
@@ -308,15 +308,29 @@ public class UnityChanAI : MonoBehaviour
 
     private void DecideNearPattern()
     {
-        int Ran = Random.Range(0, 7);
+        int Ran = Random.Range(0, 8);
         isMotion = true;
         ResetPos();
-        if (Ran == 0 || Ran == 1 || Ran == 2 || Ran == 3)
+        if (Ran == 0 || Ran == 7)
+        {
+            animator.SetTrigger("Hook");
+            attackController.ChangeAttackType(AttackType.Weak);
+            attackController.AttackCollider = hookCollider;
+            attackController.StrongAttackBaseDamage = 20;
+        }
+        else if (Ran == 1 || Ran == 2)
+        {
+            animator.SetTrigger("RightHook");
+            attackController.ChangeAttackType(AttackType.Weak);
+            attackController.AttackCollider = rightHookCollider;
+            attackController.StrongAttackBaseDamage = 20;
+        }
+        else if (Ran == 3)
         {
             animator.SetTrigger("Kick");
             attackController.ChangeAttackType(AttackType.Weak);
             attackController.AttackCollider = kickCollider;
-            attackController.StrongAttackBaseDamage = 20;
+            attackController.StrongAttackBaseDamage = 25;
         }
         else if (Ran == 4)
         {
@@ -363,7 +377,7 @@ public class UnityChanAI : MonoBehaviour
         isMove = true;
         yield return new WaitForSeconds(Motiondelay);
         isMove = false;
-        yield break;
+
     }
 
     private void RandomMovement()
