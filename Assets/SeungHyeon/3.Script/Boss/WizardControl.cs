@@ -39,6 +39,7 @@ public class WizardControl : MonoBehaviour
     [SerializeField] private ParticleSystem shadowburst;
     [SerializeField] private GameObject Fireball_Spawner;
     [SerializeField] private FireBallSpawner fireBallSpawner;
+    [SerializeField] private MegaPattern megapattern;
     [SerializeField] private float BackwardForce = 100f;
     [SerializeField] private Rigidbody Wizard_rb;
 
@@ -56,6 +57,7 @@ public class WizardControl : MonoBehaviour
     {
         wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
         fireBallSpawner = FindObjectOfType<FireBallSpawner>();
+        megapattern = FindObjectOfType<MegaPattern>();
         wizardinfo.status = Status.Idle;
         TryGetComponent(out Wizard_anim);
         TryGetComponent(out Wizard_rb);
@@ -167,7 +169,8 @@ public class WizardControl : MonoBehaviour
                 StartCoroutine(fireBallSpawner.CreateFireBall());
                 return;
             case 2:
-                StartCoroutine(UseThunderbolt());
+                //StartCoroutine(UseThunderbolt());
+                StartCoroutine(megapattern.MegaThunderPatternUse());
                 return;
         }    
     }

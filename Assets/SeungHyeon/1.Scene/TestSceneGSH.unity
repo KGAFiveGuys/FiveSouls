@@ -3629,6 +3629,7 @@ Transform:
   m_Children:
   - {fileID: 3392406907870089742}
   - {fileID: 490638788}
+  - {fileID: 1229741247}
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -23383,6 +23384,57 @@ MonoBehaviour:
   FireBall_count: 20
   FireBall_interval: 0.05
   m_shotCountEveryInterval: 1
+--- !u!1 &1229741246
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1229741247}
+  - component: {fileID: 1229741248}
+  m_Layer: 0
+  m_Name: MegaPatternPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1229741247
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229741246}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 466571810}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1229741248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229741246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a0dc9fe5fed3f64cbc04564b7d9be44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerTransform: {fileID: 0}
+  rowCount: 3
+  colCount: 8
+  ThunderToSpawn: {fileID: 1315135474636847053, guid: df7c3b81b4c521b4ea4f2c61bad936f3, type: 3}
+  FireToSpawn: {fileID: 3264291833971854787, guid: 5ecc92bc86a573145bef952912aa47b4, type: 3}
+  StormToSpawn: {fileID: 7047532960554073671, guid: b7a4b41ee0f45874f9dddc25ca0ef07f, type: 3}
+  spawnDirection: 10
+  StormObjectpool: []
 --- !u!1 &1234361735
 GameObject:
   m_ObjectHideFlags: 0
@@ -88968,6 +89020,7 @@ MonoBehaviour:
   shadowburst: {fileID: 3108938316591844623}
   Fireball_Spawner: {fileID: 1227583855}
   fireBallSpawner: {fileID: 1227583857}
+  megapattern: {fileID: 0}
   BackwardForce: 100
   Wizard_rb: {fileID: 0}
   Attack_effect:
@@ -89162,6 +89215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ps: {fileID: 0}
+  _attackController: {fileID: 0}
 --- !u!1 &3108938316576347351
 GameObject:
   m_ObjectHideFlags: 0
