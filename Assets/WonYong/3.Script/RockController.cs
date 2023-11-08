@@ -10,7 +10,7 @@ public class RockController : MonoBehaviour
         
         if (collision.gameObject.CompareTag("Player"))
         {
-            Destroy(gameObject, 1f);
+            Destroy(gameObject, 0.5f);
         }
     }
 }
