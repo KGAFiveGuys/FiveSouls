@@ -5,7 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 public class LockOnPointController : MonoBehaviour
 {
-    [field:SerializeField] public LockOnPoint StartPoint { get; set; }
     [SerializeField] private List<LockOnPoint> lockOnPointList = new List<LockOnPoint>();
     private Health _health;
 
