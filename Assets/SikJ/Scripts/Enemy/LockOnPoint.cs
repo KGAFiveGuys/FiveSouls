@@ -27,7 +27,6 @@ public class LockOnPoint : MonoBehaviour
     private IEnumerator transitionCheck;
     public void StartTransitionCheck()
     {
-        transitionThreshold = 0f;
         transitionCheck = CheckTransition();
         StartCoroutine(transitionCheck);
     }
@@ -37,17 +36,8 @@ public class LockOnPoint : MonoBehaviour
         StopCoroutine(transitionCheck);
     }
 
-    [SerializeField] private float transitionThreshold = 1f;
     private IEnumerator CheckTransition()
     {
-        // Delay after change
-        float elapsedTimeAfterChanged = transitionThreshold;
-        while (elapsedTimeAfterChanged > 0)
-        {
-            elapsedTimeAfterChanged -= Time.deltaTime;
-            yield return null;
-        }
-
         while (true)
         {
             var desiredX = _playerController.DesiredRotate.x;
@@ -58,28 +48,28 @@ public class LockOnPoint : MonoBehaviour
             // Up/Down
             if (upPoint != null && desiredDirection.y >= .5f)
             {
-                _playerController.ChangeLockOnPoint(this, upPoint);
-                break;
+                if(_playerController.TryChangeLockOnPoint(this, upPoint))
+                    break;
             }
             else if (downPoint != null && desiredDirection.y <= -.5f)
             {
-                _playerController.ChangeLockOnPoint(this, downPoint);
-                break;
+                if(_playerController.TryChangeLockOnPoint(this, downPoint))
+                    break;
             }
 
             // Right/Left
             if (rightPoint != null && desiredDirection.x >= .5f)
             {
-                _playerController.ChangeLockOnPoint(this, rightPoint);
-                break;
+                if(_playerController.TryChangeLockOnPoint(this, rightPoint))
+                    break;
             }
             else if (leftPoint != null && desiredDirection.x <= -.5f)
             {
-                _playerController.ChangeLockOnPoint(this, leftPoint);
-                break;
+                if(_playerController.TryChangeLockOnPoint(this, leftPoint))
+                    break;
             }
 
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 }

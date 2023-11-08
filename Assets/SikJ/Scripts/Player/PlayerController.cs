@@ -285,9 +285,13 @@ public class PlayerController : MonoBehaviour
         LockOnTargetPoint.IsLockedOn = true;
         target.StartTransitionCheck();
     }
-    public void ChangeLockOnPoint(LockOnPoint from, LockOnPoint to)
+    [SerializeField] private bool isLockOnPointChangable = false;
+    public bool TryChangeLockOnPoint(LockOnPoint from, LockOnPoint to)
     {
-        Debug.Log($"{from.gameObject.name}->{to.gameObject.name}");
+        if (!isLockOnPointChangable)
+            return false;
+
+        isLockOnPointChangable = false;
 
         TargetGroup.RemoveMember(LockOnTargetPoint.transform);
         LockOnTargetPoint = null;
@@ -300,6 +304,8 @@ public class PlayerController : MonoBehaviour
 
         LockOnTargetPoint = to;
         TargetGroup.AddMember(LockOnTargetPoint.transform, 1, 50f);
+
+        return true;
     }
     private void LookLockOnPoint()
     {
@@ -429,6 +435,7 @@ public class PlayerController : MonoBehaviour
     private void OnRotateCanceled(InputAction.CallbackContext context)
     {
         DesiredRotate = Vector2.zero;
+        isLockOnPointChangable = true;
     }
     #endregion
     #region run_Action
