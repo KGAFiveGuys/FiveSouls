@@ -6,12 +6,8 @@ using UnityEngine;
 public class Health : MonoBehaviour
 {
     [field:Header("Value")]
-    // Total Max Health = MaxHP * DigitScale
-    [field:SerializeField] public float MaxHP { get; private set; } = 1000f;
-    // Total Current Health = CurrentHP * DigitScale
-    [field: SerializeField] public float CurrentHP { get; private set; }
-    [SerializeField] private Collider lockOnCollider;
-    [SerializeField] private Collider attackCollider;
+    [field:SerializeField] public float MaxHP { get; private set; } = 100f;
+    public float CurrentHP { get; private set; }
 
     public event Action OnHealthChanged;
     public event Action OnDead;
@@ -25,17 +21,9 @@ public class Health : MonoBehaviour
     {
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
 
-        if(OnHealthChanged != null)
-            OnHealthChanged();
+        OnHealthChanged?.Invoke();
 
         if (CurrentHP <= 0)
-        {
-            if (lockOnCollider != null)
-                lockOnCollider.enabled = false;
-            if (attackCollider != null)
-                attackCollider.enabled = false;
-
-            OnDead();
-        }
+            OnDead?.Invoke();
     }
 }

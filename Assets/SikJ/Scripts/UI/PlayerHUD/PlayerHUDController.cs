@@ -257,7 +257,9 @@ public class PlayerHUDController : MonoBehaviour
     #region LockedOnEnemy
     private void ShowEnemyHealthNFury()
 	{
-        _lockedOnEnemyHealth = _playerController.LockedOnEnemy.GetComponent<Health>();
+        if (!_playerController.LockedOnEnemy.TryGetComponent(out _lockedOnEnemyHealth))
+            return;
+
         enemyForegroundHealth.value = _lockedOnEnemyHealth.CurrentHP / _lockedOnEnemyHealth.MaxHP;
         enemyBackgroundHealth.value = enemyForegroundHealth.value;
 
