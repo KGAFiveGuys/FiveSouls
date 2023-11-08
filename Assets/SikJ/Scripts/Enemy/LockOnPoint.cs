@@ -6,8 +6,10 @@ using UnityEngine;
 public class LockOnPoint : MonoBehaviour
 {
     [field:SerializeField] public bool IsLockedOn { get; set; } = false;
+    [field:Header("플레이어와 바라보고 있는지 확인.")]
+    [field:SerializeField] public bool IsFacingPlayer { get; set; } = false;
 
-    [Header("Linked LockOnPoint")]
+    [Header("Linked LockOnPoint. (플레이어와 forward가 일치할 때를 기준)")]
     [SerializeField] private LockOnPoint leftPoint;
     [SerializeField] private LockOnPoint rightPoint;
     [SerializeField] private LockOnPoint upPoint;
@@ -24,31 +26,33 @@ public class LockOnPoint : MonoBehaviour
         _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
-    private IEnumerator transitionCheck;
+    private IEnumerator checkTransition;
     public void StartTransitionCheck()
     {
-        transitionCheck = CheckTransition();
-        StartCoroutine(transitionCheck);
+        checkTransition = CheckTransition();
+        StartCoroutine(checkTransition);
     }
 
     public void StopTransitionCheck()
     {
-        StopCoroutine(transitionCheck);
+        StopCoroutine(checkTransition);
     }
 
     private IEnumerator CheckTransition()
     {
         while (true)
         {
-            var desiredX = _playerController.DesiredRotate.x;
-            var desiredY = _playerController.DesiredRotate.y;
+            IsFacingPlayer = CheckFacingWithPlayer();
+
+            float desiredX = _playerController.DesiredRotate.x;
+            float desiredY = _playerController.DesiredRotate.y;
             Vector2 desiredDirection = Mathf.Abs(desiredX) < Mathf.Abs(desiredY) ? Vector2.up * desiredY : Vector2.right * desiredX;
             desiredDirection = desiredDirection.normalized;
 
             // Up/Down
             if (upPoint != null && desiredDirection.y >= .5f)
             {
-                if(_playerController.TryChangeLockOnPoint(this, upPoint))
+                if (_playerController.TryChangeLockOnPoint(this, upPoint))
                     break;
             }
             else if (downPoint != null && desiredDirection.y <= -.5f)
@@ -60,16 +64,37 @@ public class LockOnPoint : MonoBehaviour
             // Right/Left
             if (rightPoint != null && desiredDirection.x >= .5f)
             {
-                if(_playerController.TryChangeLockOnPoint(this, rightPoint))
+                if (_playerController.TryChangeLockOnPoint(this, rightPoint))
                     break;
             }
             else if (leftPoint != null && desiredDirection.x <= -.5f)
             {
-                if(_playerController.TryChangeLockOnPoint(this, leftPoint))
+                if (_playerController.TryChangeLockOnPoint(this, leftPoint))
                     break;
             }
 
             yield return null;
         }
+    }
+
+    private bool isAlreadyFacing = false;
+    private bool CheckFacingWithPlayer()
+	{
+        var playerForward = _playerController.transform.forward;
+        var enemyForward = transform.forward;
+
+        bool isFacing = Vector3.Dot(playerForward, enemyForward) < 0;
+        if (!isAlreadyFacing && isFacing)
+		{
+            isAlreadyFacing = true;
+            (leftPoint, rightPoint) = (rightPoint, leftPoint);
+        }
+		else if (isAlreadyFacing && !isFacing)
+		{
+            isAlreadyFacing = false;
+            (leftPoint, rightPoint) = (rightPoint, leftPoint);
+        }
+
+        return isFacing;
     }
 }
