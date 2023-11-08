@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 1917315210}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4363,6 +4363,34 @@ PrefabInstance:
       propertyPath: UI_lockOnPoint
       value: 
       objectReference: {fileID: 1288531634}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[1].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[1].inSlope
+      value: -2.8123343
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[1].inWeight
+      value: 0.07176697
+      objectReference: {fileID: 0}
+    - target: {fileID: 2309525717887462799, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
+      propertyPath: jumpAirSpeedOverTime.m_Curve.Array.data[1].outSlope
+      value: -2.8123343
+      objectReference: {fileID: 0}
     - target: {fileID: 3118397271780095798, guid: 0420f2776c6e1e440862155d25e3de87, type: 3}
       propertyPath: m_RootOrder
       value: 9

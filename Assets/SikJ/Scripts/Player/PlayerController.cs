@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     [Header("PlayerMove")]
     [SerializeField] private float walkSpeed = 10f;
     [SerializeField] private float runSpeed = 20f;
+    [SerializeField] private AnimationCurve jumpAirSpeedOverTime;
     // 달리기로 간주할 이동벡터의 최소 크기
     private const float runThresholdScalar = 0.75f;
     [Tooltip("충분히 달리지 않는 경우 걷기로 전환하기 까지의 대기시간")]
@@ -149,13 +150,15 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {        
-        SetDefaultCameraPosition();
-
         CheckLockOnEnemyDistance();
         LookLockOnEnemy();
-        ShowLockOnPoint();
-        
         MovePlayer();
+    }
+
+    private void LateUpdate()
+    {
+        SetDefaultCameraPosition();
+        ShowLockOnPoint();
         AnimatePlayerMove();
     }
 
@@ -172,7 +175,6 @@ public class PlayerController : MonoBehaviour
     }
     private void CheckLockOnEnemyDistance()
     {
-        // LockOn 상태에서 제한범위를 벗어나면 UnLock
         if (IsLockOn && Vector3.Distance(transform.position, LockedOnEnemy.transform.position) > lockOnLimitDistance)
         {
             UnlockOnEnemy();
@@ -216,7 +218,6 @@ public class PlayerController : MonoBehaviour
     }
     
     Vector3 moveDirection;
-    //float moveMagnitude;
     private void MovePlayer()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
@@ -232,7 +233,6 @@ public class PlayerController : MonoBehaviour
             moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
             transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
 
-            // To-Do : Collision Check
             if (isCollidingWithEnemy)
                 transform.Translate(5 * -moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
 
@@ -263,7 +263,6 @@ public class PlayerController : MonoBehaviour
             transform.LookAt(transform.position + moveDirection * speed);
             transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
 
-            // To-Do : Collision Check
             if (isCollidingWithEnemy)
                 transform.Translate(5 * -moveDirection * speed * Time.deltaTime, Space.World);
 
@@ -275,7 +274,6 @@ public class PlayerController : MonoBehaviour
     private void AnimatePlayerMove()
     {
         // Move
-        //moveMagnitude = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
         _animator.SetFloat(moveMagnitude_hash, moveDirection.magnitude);
         if (IsLockOn)
         {
@@ -438,10 +436,9 @@ public class PlayerController : MonoBehaviour
         var isJump = context.ReadValueAsButton();
         if (isJump)
 		{
-            // 이동하던 방향으로 밀어준다
+            // 마지막 이동정보 저장
             float lastSpeed = IsRun ? runSpeed : walkSpeed;
-            lastSpeed *= 2f;
-            Vector3 lastMovement = moveDirection * (lastSpeed * moveDirection.magnitude);
+            Vector3 lastMovement = moveDirection * lastSpeed;
 
             isJumping = true;
             IsRun = false;
@@ -453,11 +450,17 @@ public class PlayerController : MonoBehaviour
     }
     private IEnumerator CancelJump(Vector3 lastMovement)
     {
+        var startSpeed = lastMovement * 5;
+        var endSpeed = startSpeed / 2;
+
+        float duration = .9f;
         float elapsedTime = 0f;
-		while (elapsedTime < .9f)
+		while (elapsedTime < duration)
 		{
             elapsedTime += Time.deltaTime;
-            transform.Translate(lastMovement * Time.deltaTime, Space.World);
+            var rateOverTime = jumpAirSpeedOverTime.Evaluate(elapsedTime / duration);
+            var currentMovement = Vector3.Lerp(startSpeed, endSpeed, rateOverTime);
+            transform.Translate(currentMovement * Time.deltaTime, Space.World);
             yield return null;
 		}
         isJumping = false;
@@ -470,6 +473,7 @@ public class PlayerController : MonoBehaviour
         var isBlock = context.ReadValueAsButton();
         if (isBlock)
         {
+            IsRun = false;
             ControlState = ControlState.Uncontrollable;
             _stamina.Consume(_stamina.BlockCost);
             _animator.SetBool(isBlock_hash, true);
@@ -479,7 +483,6 @@ public class PlayerController : MonoBehaviour
     {
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
-        IsRun = false;
         _blockController.TurnOffBlockCollider();
     }
     #endregion
@@ -487,7 +490,8 @@ public class PlayerController : MonoBehaviour
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
         if (ControlState == ControlState.Uncontrollable
-            || _stamina.CurrentStamina < _stamina.RollThreshold)
+            || _stamina.CurrentStamina < _stamina.RollThreshold
+            || moveDirection.magnitude < .25f)
             return;
 
         var isRoll = context.ReadValueAsButton();

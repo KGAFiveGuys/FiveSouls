@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VibrationSO_PlayerDead
   m_EditorClassIdentifier: 
   <Priority>k__BackingField: 20
-  <Duration>k__BackingField: 1.1
+  <Duration>k__BackingField: 0.8
   <LowMoterIntensity>k__BackingField:
     serializedVersion: 2
     m_Curve:
