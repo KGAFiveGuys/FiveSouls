@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(AttackController))]
 public class BossCantrol : MonoBehaviour
 {
     [Header("랙돌 필수품")]
@@ -14,10 +17,15 @@ public class BossCantrol : MonoBehaviour
     [SerializeField] private LayerMask TargetMask;
     [SerializeField] private float detectRange = 30f;
     [SerializeField] private float stopdistance = 1.25f;//근접공격거리 & 보스멈출거리
+    [SerializeField] private Collider[] AttackCollider;
     private Transform Target;
     private Animator HulkAnimator;
     private NavMeshAgent agent;
     private Health bossHealth;
+    private AttackController attackController;
+
+    [Header("파티클 이펙트")]
+    [SerializeField] private GameObject JumpLandingEffect;
 
     //공격범위
     private float distance = 50f;
@@ -25,7 +33,7 @@ public class BossCantrol : MonoBehaviour
 
     //보스상태
     private bool isDead = false;
-    private bool isGroggyHit = false;
+    private bool isGroggyHit = false;//공격받았는지 아닌지로 트루 펄스 리턴하는 거로 수정필요
     private bool OnlyOne = true;
     private bool isTarget
     {
@@ -68,20 +76,32 @@ public class BossCantrol : MonoBehaviour
         TryGetComponent(out agent);
         TryGetComponent(out HulkAnimator);
         TryGetComponent(out bossHealth);
+        TryGetComponent(out attackController);
     }
 
     private void Update()
     {
+        //if (bossHealth.CurrentHP <= 0)
+        //{
+        //    isDead = true;
+        //}
+        //ToggleRagdoll(!isDead);
         CalcDistance();
         HulkAnimator.SetBool("HasTarget", isTarget);
-        NaviTarget();
+        if (agent.enabled != false)
+        {
+            NaviTarget();
+        }
         StartCoroutine(SelectPatternCo(distance));
         if (groggyStat >= 100)
         {
             groggyStat = 0;
             StartCoroutine(GroggyCo());
         }
-
+        if (Input.GetKey(KeyCode.Alpha1))
+        {
+            transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>().materials[1] = null;
+        }
     }
 
     private void CalcDistance()
@@ -98,70 +118,109 @@ public class BossCantrol : MonoBehaviour
 
     private void NaviTarget()
     {
-        if (agent.enabled != false)
+        if (isTarget)
         {
-            if (isTarget)
-            {
-                agent.stoppingDistance = stopdistance * transform.localScale.x;
-                Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-                agent.SetDestination(targetTF);
-                transform.LookAt(Target.position + targetTF.normalized * 5f);
-                agent.isStopped = false;
-            }
-            else
-            {
-                agent.isStopped = true;
-            }
-
+            agent.stoppingDistance = stopdistance * transform.localScale.x;
+            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            agent.SetDestination(targetTF);
+            transform.LookAt(targetTF);
+            agent.isStopped = false;
         }
-
+        else
+        {
+            agent.isStopped = true;
+        }
     }
 
     private IEnumerator SelectPatternCo(float distance)
     {
-        delayTime = Random.Range(3, 8);
-        // 체력이 반 이하면 점프공격해줭
+        delayTime = Random.Range(0.5f, 3);
+        yield return new WaitForSeconds(delayTime);
+        //광폭화 공격(체력 반이하시 1회성)
         if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && OnlyOne)
         {
             OnlyOne = false;
             yield return AngryAttackCo();
         }
-
+        //일반공격
         if (distance > stopdistance * transform.localScale.x * 2 && distance <= AdDistance * transform.localScale.x)
         {
             //슬라이딩해줭
             yield return SlideAttackCo();
+        }
+        else if (distance > stopdistance * transform.localScale.x && distance <= stopdistance * transform.localScale.x*2)
+        {
+            //근접공격해줭
+            yield return RightAttackCo();
         }
         else if (distance <= stopdistance * transform.localScale.x)
         {
             //근접공격해줭
             yield return AttackCo();
         }
-        yield return new WaitForSeconds(delayTime);
+    }
+
+    private IEnumerator AngryAttackCo()
+    {
+        attackController.ChangeAttackType(AttackType.Strong);
+        attackController.AttackCollider = AttackCollider[3];
+        attackController.WeakAttackBaseDamage = 50f;
+
+        Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        Vector3 LandPoint = Target.position + targetTF.normalized * 5f;
+        agent.SetDestination(LandPoint);
+        HulkAnimator.SetTrigger("Angry");
+
+        //agent.enabled = false;
+
+        //yield return new WaitForSeconds(.7f);
+        //agent.enabled = true;
+        //targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        //agent.enabled = false;
+
+        //yield return new WaitForSeconds(1.2f);
+        //agent.enabled = true;
+        //targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        //agent.enabled = false;
+
+        //yield return new WaitForSeconds(1.2f);
+        //agent.enabled = true;
+        //targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        //agent.enabled = false;
+
+        //yield return new WaitForSeconds(1f);
+        //agent.enabled = true;
+
+        yield return new WaitForSeconds(9f);
+        agent.SetDestination(targetTF + targetTF.normalized*5f);
+        JumpEffectOff();
     }
 
     private IEnumerator SlideAttackCo()
     {
-        Debug.Log("slide");
+
+        attackController.ChangeAttackType(AttackType.Weak);
+        attackController.AttackCollider = AttackCollider[2];
+        attackController.WeakAttackBaseDamage = 25f;
+
         HulkAnimator.SetTrigger("Sliding");
-        yield return new WaitForSeconds(1.5f);
+
+        yield return new WaitForSeconds(1.1f);
         HulkAnimator.ResetTrigger("Sliding");
     }
 
     private IEnumerator AttackCo()
-    {
-        
-        int SelectType = Random.Range(0, 4);
+    {        
+        int SelectType = Random.Range(0, 3);
         AttackNum = Random.Range(0, 2);
         switch (SelectType)
         {
             case 0:
             case 1:
-            case 2:
                 yield return NormalAttackCo();
                 break;
 
-            case 3:
+            case 2:
                 yield return StrongAttackCo();
                 break;
         }
@@ -169,68 +228,48 @@ public class BossCantrol : MonoBehaviour
 
     private IEnumerator NormalAttackCo()
     {
+        attackController.ChangeAttackType(AttackType.Weak);
+        attackController.AttackCollider = AttackCollider[0];
+        attackController.WeakAttackBaseDamage = 10f;
+
         HulkAnimator.SetInteger("AttackNum", AttackNum);
-        HulkAnimator.SetTrigger("NormalAttack");
+        HulkAnimator.SetTrigger("NormalAttack"); 
 
         if (AttackNum == 0)
         {
-            Debug.Log("normal1");
-            yield return new WaitForSeconds(1.4f);
+            yield return new WaitForSeconds(2.3f);
         }
         else
         {
-            Debug.Log("normal2");
-            yield return new WaitForSeconds(2.1f);
+            yield return new WaitForSeconds(3.75f);
         }
         HulkAnimator.ResetTrigger("NormalAttack");
     }
 
     private IEnumerator StrongAttackCo()
     {
-        HulkAnimator.SetInteger("AttackNum", AttackNum);
+        attackController.ChangeAttackType(AttackType.Strong);
+        attackController.AttackCollider = AttackCollider[0];
+        attackController.WeakAttackBaseDamage = 30f;
+
+        HulkAnimator.SetInteger("AttackNum", 1);
         HulkAnimator.SetTrigger("StrongAttack");
 
-        if (AttackNum == 1)
-        {
-            Debug.Log("strong2");
-            yield return new WaitForSeconds(1.1f);
-        }
-        else
-        {
-            Debug.Log("strong1");
-            yield return new WaitForSeconds(0.4f);
-        }
-        HulkAnimator.SetBool("HasTarget", false);
+        yield return new WaitForSeconds(2f);
         HulkAnimator.ResetTrigger("StrongAttack");
-        HulkAnimator.SetBool("HasTarget", isTarget);
     }
 
-    private IEnumerator AngryAttackCo()
+    private IEnumerator RightAttackCo()
     {
+        attackController.ChangeAttackType(AttackType.Strong);
+        attackController.AttackCollider = AttackCollider[1];
+        attackController.WeakAttackBaseDamage = 30f;
 
-        Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-        Vector3 LandPoint = Target.position + targetTF.normalized * 5f;
+        HulkAnimator.SetInteger("AttackNum", 0);
+        HulkAnimator.SetTrigger("StrongAttack");
 
-        agent.enabled = false;
-        HulkAnimator.SetTrigger("Angry");
-
-        yield return new WaitForSeconds(.7f);
-        agent.enabled = true;
-        targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-        agent.enabled = false;
-
-        yield return new WaitForSeconds(1.2f);
-        agent.enabled = true;
-        targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-        agent.enabled = false;
-
-        yield return new WaitForSeconds(1.2f);
-        agent.enabled = true;
-        targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-        agent.enabled = false;
-
-        yield return new WaitForSeconds(1f);
-        agent.enabled = true;
+        yield return new WaitForSeconds(1.5f);
+        HulkAnimator.ResetTrigger("StrongAttack");
     }
 
     private IEnumerator GroggyCo()
@@ -239,18 +278,68 @@ public class BossCantrol : MonoBehaviour
         if (isGroggyHit)
         {
             HulkAnimator.SetBool("isGroggyHit", isGroggyHit);
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(5f);//플레이어 그로기 어택시간만큼!!!!
             isGroggyHit = false;
             HulkAnimator.SetBool("isGroggyHit", isGroggyHit);
-
+            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            agent.SetDestination(targetTF);
         }
         yield return new WaitForSeconds(7.5f);
         HulkAnimator.ResetTrigger("Groggy");
-
     }
 
-    private void Die()
+    public void ToggleRagdoll(bool isRagdoll)
     {
-        isDead = true;
+        foreach (var c in ragdollColliders)
+        {
+            c.enabled = isRagdoll;
+        }
+        foreach (var rb in ragdollRigidbodies)
+        {
+            rb.useGravity = isRagdoll;
+            rb.isKinematic = !isRagdoll;
+        }
     }
+
+    #region 애니메이션 이벤트함수
+    private void StopChase()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = true;
+        }
+    }
+
+    private void StopLook()
+    {
+        if (agent != null)
+        {
+            agent.updateRotation = false;
+        }
+    }
+
+    private void RestartChase()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = false;
+        }
+    }
+    private void RestartLook()
+    {
+        if (agent != null)
+        {
+            agent.updateRotation = true;
+        }
+    }
+    private void JumpEffectOn()
+    {
+        JumpLandingEffect.SetActive(true);
+    }
+    private void JumpEffectOff()
+    {
+        JumpLandingEffect.SetActive(false);
+    }
+    #endregion
+
 }
