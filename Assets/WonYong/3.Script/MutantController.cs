@@ -672,7 +672,7 @@ public class MutantController : MonoBehaviour
         var endPos = new Vector3
         (
             attackCollider.transform.position.x,
-            attackCollider.transform.position.y + 7,
+            attackCollider.transform.position.y + 15,
             attackCollider.transform.position.z
         );
 
