@@ -15,6 +15,13 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private Collider screwAttackCollider;
     [SerializeField] private Collider projectileCollider;
     [SerializeField] private Collider advPunchCollider;
+    [SerializeField] private Collider kickCollider;
+    [SerializeField] private Collider sweepCollider;
+    [SerializeField] private Collider dropKickCollider;
+
+    [SerializeField] private Collider slideCollider;
+    [SerializeField] private Collider backFlipCollider;
+    [SerializeField] private Collider crossPunchCollider;
     
     [SerializeField] private bool isIdle = false;
     [SerializeField] private bool isWalk = false;
@@ -304,33 +311,28 @@ public class UnityChanAI : MonoBehaviour
         int Ran = Random.Range(0, 7);
         isMotion = true;
         ResetPos();
-        if (Ran == 0)
+        if (Ran == 0 || Ran == 1 || Ran == 2 || Ran == 3)
         {
             animator.SetTrigger("Kick");
-
-        }
-        else if (Ran == 1)
-        {
-            animator.SetTrigger("LegSweep");
-
-        }
-        else if (Ran == 2)
-        {
-            animator.SetTrigger("DropKick");
-
-        }
-        else if (Ran == 3)
-        {
-            animator.SetTrigger("Kick");
+            attackController.ChangeAttackType(AttackType.Weak);
+            attackController.AttackCollider = kickCollider;
+            attackController.StrongAttackBaseDamage = 20;
         }
         else if (Ran == 4)
         {
             animator.SetTrigger("LegSweep");
+            attackController.ChangeAttackType(AttackType.Weak);
+            attackController.AttackCollider = sweepCollider;
+            attackController.StrongAttackBaseDamage = 25;
         }
-        else if(Ran == 5)
+        else if (Ran == 5)
         {
             animator.SetTrigger("DropKick");
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = dropKickCollider;
+            attackController.StrongAttackBaseDamage = 70;
         }
+        
         else if (Ran == 6)
         {
             animator.SetTrigger("CartWheel");
@@ -338,7 +340,7 @@ public class UnityChanAI : MonoBehaviour
 
     }
 
-    private void Off_isMotion()
+    private void Off_isMotion() //Animator용
     {
         isMotion = false;
     }
@@ -490,11 +492,15 @@ public class UnityChanAI : MonoBehaviour
             if (!animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1") && farP_Next)
             {
                 animator.SetTrigger("MD_Slide");
+                attackController.ChangeAttackType(AttackType.Strong);
+                attackController.AttackCollider = slideCollider;
+                attackController.StrongAttackBaseDamage = 50;
             }
         }
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1")) // 슬라이드
         {
-            if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.7f)
+            
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.7f)
             {
                 transform.position += transform.TransformDirection(Vector3.forward) * MDSpeed * Time.deltaTime;
             }
@@ -514,11 +520,27 @@ public class UnityChanAI : MonoBehaviour
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && near)
         {
             animator.SetTrigger("MD_Near");
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = backFlipCollider;
+            attackController.StrongAttackBaseDamage = 50;
         }
         else if(animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie2")) //백플립
         {
+            
             LookAt_Rotation_Y(Target.transform);
         }
+        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie3")) //크로스펀치
+        {
+            attackController.ChangeAttackType(AttackType.Strong);
+            attackController.AttackCollider = crossPunchCollider;
+            attackController.StrongAttackBaseDamage = 10000;
+            LookAt_Rotation_Y(Target.transform);
+        }
+    }
+
+    private void SetTimeScale(float scale)
+    {
+        Time.timeScale = scale;
     }
 
     //--------------------------------------------middlepattern
