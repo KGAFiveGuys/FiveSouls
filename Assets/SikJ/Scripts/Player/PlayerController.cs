@@ -181,8 +181,11 @@ public class PlayerController : MonoBehaviour
 
     private void RecoverAfterKnockBack()
     {
-        ControlState = ControlState.Controllable;
-        _animator.SetBool(isBlock_hash, false);
+        if (!_attackController.IsCounterAttack)
+        {
+            _animator.SetBool(isBlock_hash, false);
+            ControlState = ControlState.Controllable;
+        }
     }
 
     private void OnDisable()
@@ -660,10 +663,11 @@ public class PlayerController : MonoBehaviour
         if (!_attackController.IsCounterAttack
             || _stamina.CurrentStamina <= _stamina.CounterAttackThreshold)
             return false;
-        
+
         ControlState = ControlState.Uncontrollable;
         _attackController.ChangeAttackType(AttackType.Counter);
         _stamina.Consume(_stamina.CounterAttackCost);
+        _blockController.StopKnockBack();
         _animator.SetBool(isCounterAttack_hash, true);
         StartCoroutine(CancelCounterAttack());
         return true;

@@ -32,14 +32,12 @@ public class BlockController : MonoBehaviour
     {
         OnBlockSucceed += ReadyCounterAttack;
         _characterHealth.OnDead += StopKnockBack;
-        _attackController.OnCounterAttackCast += StopKnockBack;
     }
 
     private void OnDisable()
     {
         OnBlockSucceed -= ReadyCounterAttack;
         _characterHealth.OnDead -= StopKnockBack;
-        _attackController.OnCounterAttackCast -= StopKnockBack;
     }
 
     // Animation Event
@@ -108,7 +106,7 @@ public class BlockController : MonoBehaviour
         OnKnockBackFinished();
     }
 
-    private void StopKnockBack()
+    public void StopKnockBack()
     {
         if (lastKnockBack != null)
         {

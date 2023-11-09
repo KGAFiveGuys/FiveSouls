@@ -90,6 +90,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayWhole(SoundEffectSO sfx)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
@@ -102,6 +105,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayPartial(SoundEffectSO sfx, float duration)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
