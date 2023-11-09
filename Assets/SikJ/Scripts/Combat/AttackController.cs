@@ -8,6 +8,7 @@ public enum CombatLayerMask
     Enemy = 8,
     Player = 9,
     Shield = 11,
+    Ghost = 13,
 }
 
 public enum AttackType

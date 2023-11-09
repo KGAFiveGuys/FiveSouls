@@ -592,6 +592,11 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(CancelRoll());
         }
     }
+    // Animation Event
+    public void ChangePlayerLayer(CombatLayerMask layer)
+    {
+        gameObject.layer = (int)layer;
+    }
     private IEnumerator CancelRoll()
     {
         yield return new WaitForSeconds(.9f);
