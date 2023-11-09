@@ -16,7 +16,7 @@ public class Fury : MonoBehaviour
     private float FuryGauge = 100f;
     [SerializeField] public float CurrentFuryGauge = 0f;
     [SerializeField] private float RecoveryGauge = 0.5f;
-    private float DecreaseFuryValue; //피격 시 줄어들 게이지량 
+    [SerializeField] private float DecreaseFuryValue; //피격 시 줄어들 게이지량 
 
     private Coroutine StopRecovery_co; // 게이지 자연회복 멈추는 코루틴 중복실행 방지
     [SerializeField] private float StopRecoveryTime = 1f;
@@ -57,7 +57,7 @@ public class Fury : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (StopRecovery_co == null && CurrentFuryGauge <= FuryGauge && p_health.CurrentHP >= 0f)
+        if (StopRecovery_co == null && CurrentFuryGauge <= FuryGauge && p_health.CurrentHP > 0f)
         {
             CurrentFuryGauge += RecoveryGauge * Time.deltaTime;
         }
@@ -84,11 +84,11 @@ public class Fury : MonoBehaviour
     {
         if (attackType == AttackType.Weak)
         {
-            DecreaseFuryValue = 1f;
+            DecreaseFuryValue = 5f;
         }
         else if (attackType == AttackType.Strong)
         {
-            DecreaseFuryValue = 2f;
+            DecreaseFuryValue = 10f;
         }
         else
         {
