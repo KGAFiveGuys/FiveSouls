@@ -20,6 +20,7 @@ public class BlockController : MonoBehaviour
 
     public event Action OnBlockCast;
     public event Action OnBlockSucceed;
+    public event Action OnKnockBackFinished;
 
     private void Awake()
     {
@@ -35,6 +36,7 @@ public class BlockController : MonoBehaviour
 
     private void OnDisable()
     {
+        OnBlockSucceed -= NotifyBlockSucceed;
         _characterHealth.OnDead -= StopKnockBack;
     }
 
@@ -97,6 +99,8 @@ public class BlockController : MonoBehaviour
         }
         Time.timeScale = 1f;
         lastKnockBack = null;
+
+        OnKnockBackFinished();
     }
 
     private void StopKnockBack()
@@ -104,8 +108,10 @@ public class BlockController : MonoBehaviour
         if (lastKnockBack != null)
         {
             StopCoroutine(lastKnockBack);
-            lastKnockBack = null;
             Time.timeScale = 1f;
+            lastKnockBack = null;
         }
+
+        OnKnockBackFinished();
     }
 }

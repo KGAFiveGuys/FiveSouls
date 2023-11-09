@@ -38,12 +38,8 @@ public class PlayerController : MonoBehaviour
     public InputAction jump;
     public InputAction lockOn;
 
-    public event Action OnRoll;
-    public event Action OnJump;
-    public event Action OnLockOn;
-    public event Action OnLockOff;
-
     [Header("PlayerMove")]
+    #region PlayerMove
     [SerializeField] private float walkSpeed = 10f;
     [SerializeField] private float runSpeed = 20f;
     [SerializeField] private AnimationCurve jumpAirSpeedOverTime;
@@ -53,8 +49,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float runThresholdTime = 0.5f;
     [Tooltip("LockOn 시 후방으로 달릴 수 있는 각도")]
     [SerializeField] [Range(0f, 90f)] private float runBehindAngle = 50f;
+    #endregion
 
     [Header("LockOnEnemy")]
+    #region LockOnEnemy
     [SerializeField] private GameObject UI_lockOnPoint;
     [SerializeField] private GameObject VC_Default;
     [SerializeField] private GameObject VC_LockOn;
@@ -76,12 +74,14 @@ public class PlayerController : MonoBehaviour
             return null;
         }
     }
+    #endregion
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
 
-    [Header("Drop Equiment")]
+    [Header("Drop Equiments")]
+    #region Drop Equiments
     [SerializeField] private float dropDelay = .5f;
 
     [SerializeField] private Transform swordParent;
@@ -98,6 +98,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private List<Rigidbody> weaponRigidbodies = new List<Rigidbody>();
     [SerializeField] private List<Collider> shieldColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> shieldRigidbodies = new List<Rigidbody>();
+    #endregion
 
     private Rigidbody _rigidbody;
     private AttackController _attackController;
@@ -117,6 +118,11 @@ public class PlayerController : MonoBehaviour
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
+
+    public event Action OnRoll;
+    public event Action OnJump;
+    public event Action OnLockOn;
+    public event Action OnLockOff;
 
     private void Awake()
     {
@@ -162,10 +168,21 @@ public class PlayerController : MonoBehaviour
         lockOn.Enable();
         #endregion
         _health.OnDead += Die;
+        _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
+        #region SFX
         _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
         _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
         _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
+        _attackController.OnCounterAttackCast += SFXManager.Instance.OnPlayerCounterAttackCast;
+        _attackController.OnCounterAttackHit += SFXManager.Instance.OnPlayerCounterAttackHit;
+        #endregion
+    }
+
+    private void RecoverAfterKnockBack()
+    {
+        ControlState = ControlState.Controllable;
+        _animator.SetBool(isBlock_hash, false);
     }
 
     private void OnDisable()
@@ -202,16 +219,19 @@ public class PlayerController : MonoBehaviour
         lockOn.Disable();
         #endregion
         _health.OnDead -= Die;
+        _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
+        #region SFX
         _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
         _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
         _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
+        _attackController.OnCounterAttackCast -= SFXManager.Instance.OnPlayerCounterAttackCast;
+        _attackController.OnCounterAttackHit -= SFXManager.Instance.OnPlayerCounterAttackHit;
+        #endregion
     }
 
     private void Start()
     {
-        _health.OnDead += () => { IsDead = true; };
-
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
         #region Set weapon colliders & rigidbodies
@@ -634,7 +654,7 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool(isStrongAttack_hash, false);
     }
     #endregion
-
+    #region Counter Attack
     private bool TryCounterAttack()
     {
         if (!_attackController.IsCounterAttack
@@ -659,7 +679,7 @@ public class PlayerController : MonoBehaviour
 
         _attackController.StopCounterAttackTime();
     }
-
+    #endregion
     #region lockOn_Action
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
@@ -800,12 +820,31 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
+    private IEnumerator ResetDefaultVCRotation()
+    {
+        // 더 가까운 방향으로 회전하도록 수정 필요
 
-	#region Die
-	public void Die()
+        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+        var endRotation = transform.localEulerAngles.y;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < resetRotationTime)
+        {
+            elapsedTime += Time.deltaTime;
+            var progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
+            yield return null;
+        }
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
+    }
+
+    #region Die
+    public void Die()
     {
         if (IsDead)
             return;
+
+        IsDead = true;
 
         LockOnTargetPoint = null;
         UI_lockOnPoint.SetActive(false);
@@ -931,23 +970,5 @@ public class PlayerController : MonoBehaviour
             Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
             Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
         }
-    }
-
-    private IEnumerator ResetDefaultVCRotation()
-    {
-        // 더 가까운 방향으로 회전하도록 수정 필요
-
-        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
-        var endRotation = transform.localEulerAngles.y;
-
-        float elapsedTime = 0f;
-        while (elapsedTime < resetRotationTime)
-        {
-            elapsedTime += Time.deltaTime;
-            var progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
-            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
-            yield return null;
-        }
-        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
 }
