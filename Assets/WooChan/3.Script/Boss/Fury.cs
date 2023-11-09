@@ -1,48 +1,92 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(Health))]
 public class Fury : MonoBehaviour
 {
-    //    - 분노 관리
-    //   분노는 자동으로 서서히 차올라야함.
-    //   맞으면 분노가 줄어들고 잠시 차오르는 게 멈춰야 함.
-    //   분노가 가득 차면 Flag 값을 true로 변경해야 함.
+    [SerializeField] private Slider slider;
+    [SerializeField] private Image fill_Image;
+    private Health _health;
+    [SerializeField] private Health p_health;
 
-    //- 분노가 가득 찼음을 알리는 Flag (Bool Property) 만들기
-
-    public bool Flag { get; private set; }
+    public bool Flag { get; private set; } = false;
 
     private float FuryGauge = 100f;
-    private float CurrentFuryGauge = 0f;
-    private float RecoveryGauge = 0.1f;
-    private float DecreaseFuryValue;
+    [SerializeField] public float CurrentFuryGauge = 0f;
+    [SerializeField] private float RecoveryGauge = 0.5f;
+    private float DecreaseFuryValue; //피격 시 줄어들 게이지량 
+
+    private Coroutine StopRecovery_co; // 게이지 자연회복 멈추는 코루틴 중복실행 방지
+    [SerializeField] private float StopRecoveryTime = 1f;
 
     private void Awake()
     {
-        Flag = false;
+        TryGetComponent(out _health);
+    }
+
+    private void OnEnable()
+    {
+        _health.OnHealthChanged += CheckAttackType;
+    }
+
+    private void OnDisable()
+    {
+        _health.OnHealthChanged -= CheckAttackType;
+    }
+
+    private void CheckAttackType()
+    {
+        if (FuryGauge >= CurrentFuryGauge)
+        {
+            AttackType attackType = _health.LastHitType;
+            HitType(attackType);
+            DecreaseGauge();
+            if (StopRecovery_co == null)
+            {
+                StopRecovery_co = StartCoroutine(StopRecovery());
+            }
+            else
+            {
+                StopRecovery_co = null;
+                StopRecovery_co = StartCoroutine(StopRecovery());
+            }
+        }
     }
 
     private void FixedUpdate()
     {
-        CurrentFuryGauge += RecoveryGauge * Time.deltaTime;
+        if (StopRecovery_co == null && CurrentFuryGauge <= FuryGauge && p_health.CurrentHP >= 0f)
+        {
+            CurrentFuryGauge += RecoveryGauge * Time.deltaTime;
+        }
     }
 
+    private void Update()
+    {
+        if (FuryGauge <= CurrentFuryGauge && Flag == false)
+        {
+            Flag = true;
+        }
+        slider.value = CurrentFuryGauge;
+
+    }
 
     private IEnumerator StopRecovery()
     {
-        float WaitTime = 1.5f;
-        yield return new WaitForSeconds(WaitTime);
+        yield return new WaitForSeconds(StopRecoveryTime);
+        StopRecovery_co = null;
         yield break;
     }
 
-    private void HitType(string type)
+    private void HitType(AttackType attackType)
     {
-        if (type == "HitWeak")
+        if (attackType == AttackType.Weak)
         {
             DecreaseFuryValue = 1f;
         }
-        else if (type == "HitStrong")
+        else if (attackType == AttackType.Strong)
         {
             DecreaseFuryValue = 2f;
         }
@@ -54,7 +98,7 @@ public class Fury : MonoBehaviour
 
     private void DecreaseGauge()
     {
-        if(CurrentFuryGauge < DecreaseFuryValue)
+        if (CurrentFuryGauge < DecreaseFuryValue)
         {
             CurrentFuryGauge = 0f;
         }
@@ -64,5 +108,15 @@ public class Fury : MonoBehaviour
         }
     }
 
+    public void OnSliderValueChanged()
+    {
+        float minPercentage = 0.2f; 
+        float maxPercentage = 0.9f;
+        float normalizedValue = Mathf.Clamp((CurrentFuryGauge - minPercentage) / (FuryGauge * maxPercentage), 0f, 1f); //최대치1f를 넘지 않게하고 20퍼센트부터 변하고 90퍼센트에서 최대치
+        float RedValue = Mathf.Lerp(100f, 255f, normalizedValue);
+        float GreenValue = Mathf.Lerp(255f, 0f, normalizedValue);
+        Color newColor = new Color(RedValue / 255f, GreenValue / 255f, 0f);
+        slider.fillRect.GetComponent<Image>().color = newColor;
+    }
 
 }
