@@ -112,6 +112,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isSprint_hash = Animator.StringToHash("isSprint");
     private readonly int isWeakAttack_hash = Animator.StringToHash("isWeakAttack");
     private readonly int isStrongAttack_hash = Animator.StringToHash("isStrongAttack");
+    private readonly int isCounterAttack_hash = Animator.StringToHash("isCounterAttack");
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
@@ -532,17 +533,19 @@ public class PlayerController : MonoBehaviour
     #region block_Action
     private void OnBlockPerformed(InputAction.CallbackContext context)
     {
-        var isBlock = context.ReadValueAsButton();
-        if (isBlock)
-        {
-            IsRun = false;
-            ControlState = ControlState.Uncontrollable;
-            _stamina.Consume(_stamina.BlockCost);
-            _animator.SetBool(isBlock_hash, true);
-        }
+        if (_attackController.IsCounterAttack)
+            return;
+        
+        IsRun = false;
+        ControlState = ControlState.Uncontrollable;
+        _stamina.Consume(_stamina.BlockCost);
+        _animator.SetBool(isBlock_hash, true);
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
+        if (_attackController.IsCounterAttack)
+            return;
+        
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         _blockController.TurnOffBlockCollider();
@@ -577,55 +580,88 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
+        var isPressed = context.ReadValueAsButton();
+        if (!isPressed)
+            return;
+
+        if (TryCounterAttack())
+            return;
+        
         if (ControlState == ControlState.Uncontrollable
             || _stamina.CurrentStamina < _stamina.WeakAttackThreshold)
             return;
 
-        var isWeakAttack = context.ReadValueAsButton();
-        if (isWeakAttack)
-        {
-            ControlState = ControlState.Uncontrollable;
-            _attackController.ChangeAttackType(AttackType.Weak);
-            _stamina.Consume(_stamina.WeakAttackCost);
-            _animator.SetBool(isWeakAttack_hash, true);
-            StartCoroutine(CancelWeakAttack());
-        }
+        IsRun = false;
+        ControlState = ControlState.Uncontrollable;
+        _attackController.ChangeAttackType(AttackType.Weak);
+        _stamina.Consume(_stamina.WeakAttackCost);
+        _animator.SetBool(isWeakAttack_hash, true);
+        StartCoroutine(CancelWeakAttack());
     }
     private IEnumerator CancelWeakAttack()
     {
         yield return new WaitForSeconds(1f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isWeakAttack_hash, false);
-        IsRun = false;
     }
     #endregion
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
+        var isPressed = context.ReadValueAsButton();
+        if (!isPressed)
+            return;
+
+        if (TryCounterAttack())
+            return;
+
         if (ControlState == ControlState.Uncontrollable
             || _stamina.CurrentStamina < _stamina.StrongAttackThreshold)
             return;
 
-        var isStrongAttack = context.ReadValueAsButton();
-        if (isStrongAttack)
-        {
-            ControlState = ControlState.Uncontrollable;
-            _attackController.ChangeAttackType(AttackType.Strong);
-            _stamina.Consume(_stamina.StrongAttackCost);
-            _animator.SetBool(isStrongAttack_hash, true);
-            StartCoroutine(CancelStrongAttack());
-        }
+        IsRun = false;
+        ControlState = ControlState.Uncontrollable;
+        _attackController.ChangeAttackType(AttackType.Strong);
+        _stamina.Consume(_stamina.StrongAttackCost);
+        _animator.SetBool(isStrongAttack_hash, true);
+        StartCoroutine(CancelStrongAttack());
+        
     }
     private IEnumerator CancelStrongAttack()
     {
         yield return new WaitForSeconds(.9f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isStrongAttack_hash, false);
-        IsRun = false;
     }
     #endregion
-	#region lockOn_Action
-	private void OnLockOnPerformed(InputAction.CallbackContext context)
+
+    private bool TryCounterAttack()
+    {
+        if (!_attackController.IsCounterAttack
+            || _stamina.CurrentStamina <= _stamina.CounterAttackThreshold)
+            return false;
+        
+        ControlState = ControlState.Uncontrollable;
+        _attackController.ChangeAttackType(AttackType.Counter);
+        _stamina.Consume(_stamina.CounterAttackCost);
+        _animator.SetBool(isCounterAttack_hash, true);
+        StartCoroutine(CancelCounterAttack());
+        return true;
+    }
+
+    private IEnumerator CancelCounterAttack()
+    {
+        yield return new WaitForSeconds(.5f);
+        ControlState = ControlState.Controllable;
+        _animator.SetBool(isBlock_hash, false);
+        _animator.SetBool(isCounterAttack_hash, false);
+        IsRun = false;
+
+        _attackController.StopCounterAttackTime();
+    }
+
+    #region lockOn_Action
+    private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
         if (IsDead)
             return;

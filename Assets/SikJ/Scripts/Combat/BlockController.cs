@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(AttackController))]
 public class BlockController : MonoBehaviour
 {
     [SerializeField] private Collider blockCollider;
@@ -14,7 +15,8 @@ public class BlockController : MonoBehaviour
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
 
-    [SerializeField] private Health _characterHealth;
+    private Health _characterHealth;
+    private AttackController _attackController;
 
     public event Action OnBlockCast;
     public event Action OnBlockSucceed;
@@ -22,10 +24,12 @@ public class BlockController : MonoBehaviour
     private void Awake()
     {
         TryGetComponent(out _characterHealth);
+        TryGetComponent(out _attackController);
     }
 
     private void OnEnable()
     {
+        OnBlockSucceed += NotifyBlockSucceed;
         _characterHealth.OnDead += StopKnockBack;
     }
 
@@ -69,6 +73,11 @@ public class BlockController : MonoBehaviour
         blockParticle.Play();
         SFXManager.Instance.OnTimeSlowDown(duration);
         SFXManager.Instance.OnPlayerBlock(duration);
+    }
+
+    private void NotifyBlockSucceed()
+    {
+        _attackController.StartCounterAttackTime();
     }
 
     private IEnumerator lastKnockBack;
