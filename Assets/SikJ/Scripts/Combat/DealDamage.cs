@@ -24,14 +24,15 @@ public class DealDamage : MonoBehaviour
             {
                 case AttackType.Weak:
                     damage = _attackController.WeakAttackBaseDamage;
-                    damage *= (1 - targetBlockController.BlockDampRate);
                     break;
                 case AttackType.Strong:
                     damage = _attackController.StrongAttackBaseDamage;
-                    damage *= (1 - targetBlockController.BlockDampRate);
+                    break;
+                case AttackType.Counter:
+                    damage = _attackController.CounterAttackBaseDamage;
                     break;
             }
-
+            damage *= (1 - targetBlockController.BlockDampRate);
             targetBlockController.Block(damage);
             _attackController.Attack(targetHealth, damage, true);
         }
@@ -47,6 +48,9 @@ public class DealDamage : MonoBehaviour
                     break;
                 case AttackType.Strong:
                     damage = _attackController.StrongAttackBaseDamage;
+                    break;
+                case AttackType.Counter:
+                    damage = _attackController.CounterAttackBaseDamage;
                     break;
             }
 
