@@ -87,7 +87,7 @@ public class AttackController : MonoBehaviour
             OnAttackHit?.Invoke();
         }
 
-        targetHealth.GetDamage(damage);
+        targetHealth.GetDamage(CurrentAttackType, damage);
         TurnOffAttackCollider();
     }
 }
