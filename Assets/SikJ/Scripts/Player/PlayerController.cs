@@ -303,7 +303,7 @@ public class PlayerController : MonoBehaviour
     private void LockOnPoint(LockOnPoint target)
     {
         UI_lockOnPoint.SetActive(true);
-        ToggleTargetGroupCamera(true);
+        ToggleTargetGroupCamera(true, target.gameObject);
         LockOnTargetPoint = target;
         LockOnTargetPoint.IsLockedOn = true;
         target.StartTransitionCheck();
