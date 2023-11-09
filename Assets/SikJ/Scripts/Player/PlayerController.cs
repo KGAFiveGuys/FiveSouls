@@ -675,7 +675,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator CancelCounterAttack()
     {
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(1f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         _animator.SetBool(isCounterAttack_hash, false);

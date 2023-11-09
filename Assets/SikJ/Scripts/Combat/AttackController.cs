@@ -27,6 +27,7 @@ public class AttackController : MonoBehaviour
     [field:SerializeField] public Collider AttackCollider { get; set; }
     [field:SerializeField] public float WeakAttackBaseDamage { get; set; } = 10f;
     [field:SerializeField] public float StrongAttackBaseDamage { get; set; } = 20f;
+    [field: SerializeField] public float CounterAttackBaseDamage { get; set; } = 40f;
 
     private event Action _OnAttackCast = null;
     private event Action _OnAttackHit = null;

@@ -87,6 +87,8 @@ public class GamePadVibrationManager : MonoBehaviour
         _playerAttackController.OnWeakAttackHit += PlayerWeakAttackHitVibration;
         _playerAttackController.OnStrongAttackCast += PlayerStrongAttackCastVibration;
         _playerAttackController.OnStrongAttackHit += PlayerStrongAttackHitVibration;
+        _playerAttackController.OnCounterAttackCast += PlayerCounterAttackCastVibration;
+        _playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitVibration;
         _playerBlockController.OnBlockCast += PlayerBlockCastVibration;
         _playerBlockController.OnBlockSucceed += PlayerBlockSucceedVibration;
         _playerHealth.OnDead += PlayerDeadVibration;
@@ -100,6 +102,8 @@ public class GamePadVibrationManager : MonoBehaviour
         _playerAttackController.OnWeakAttackHit -= PlayerWeakAttackHitVibration;
         _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastVibration;
         _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitVibration;
+        _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastVibration;
+        _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitVibration;
         _playerBlockController.OnBlockCast -= PlayerBlockCastVibration;
         _playerBlockController.OnBlockSucceed -= PlayerBlockSucceedVibration;
         _playerHealth.OnDead -= PlayerDeadVibration;
