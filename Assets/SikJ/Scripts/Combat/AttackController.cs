@@ -27,10 +27,10 @@ public class AttackController : MonoBehaviour
 
     private event Action OnAttackCast = null;
     private event Action OnAttackHit = null;
-    public event Action OnWeakAttackCast;
-    public event Action OnWeakAttackHit;
-    public event Action OnStrongAttackCast;
-    public event Action OnStrongAttackHit;
+    public event Action OnWeakAttackCast = null;
+    public event Action OnWeakAttackHit = null;
+    public event Action OnStrongAttackCast = null;
+    public event Action OnStrongAttackHit = null;
 
     // Animation Event
     public void TurnOnAttackCollider()
@@ -57,10 +57,12 @@ public class AttackController : MonoBehaviour
         switch (CurrentAttackType)
         {
             case AttackType.Weak:
-                OnAttackCast = OnWeakAttackCast;
+                OnAttackCast = null;
+                OnAttackCast += OnWeakAttackCast;
                 break;
             case AttackType.Strong:
-                OnAttackCast = OnStrongAttackCast;
+                OnAttackCast = null;
+                OnAttackCast += OnStrongAttackCast;
                 break;
             default:
                 break;
@@ -74,9 +76,11 @@ public class AttackController : MonoBehaviour
             switch (CurrentAttackType)
             {
                 case AttackType.Weak:
-                    OnAttackHit = OnWeakAttackHit;
+                    OnAttackHit = null;
+                    OnAttackHit += OnWeakAttackHit;
                     break;
                 case AttackType.Strong:
+                    OnAttackHit = null;
                     OnAttackHit = OnStrongAttackHit;
                     break;
             }
