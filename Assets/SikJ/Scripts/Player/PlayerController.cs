@@ -169,6 +169,7 @@ public class PlayerController : MonoBehaviour
         #endregion
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
+        _blockController.OnBlockFailed += RevertToDefault;
         #region SFX
         _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
@@ -176,16 +177,8 @@ public class PlayerController : MonoBehaviour
         _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
         _attackController.OnCounterAttackCast += SFXManager.Instance.OnPlayerCounterAttackCast;
         _attackController.OnCounterAttackHit += SFXManager.Instance.OnPlayerCounterAttackHit;
+        _blockController.OnBlockCast += SFXManager.Instance.OnPlayerBlockCast;
         #endregion
-    }
-
-    private void RecoverAfterKnockBack()
-    {
-        if (!_attackController.IsCounterAttack)
-        {
-            _animator.SetBool(isBlock_hash, false);
-            ControlState = ControlState.Controllable;
-        }
     }
 
     private void OnDisable()
@@ -223,6 +216,7 @@ public class PlayerController : MonoBehaviour
         #endregion
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
+        _blockController.OnBlockFailed -= RevertToDefault;
         #region SFX
         _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
@@ -230,6 +224,7 @@ public class PlayerController : MonoBehaviour
         _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
         _attackController.OnCounterAttackCast -= SFXManager.Instance.OnPlayerCounterAttackCast;
         _attackController.OnCounterAttackHit -= SFXManager.Instance.OnPlayerCounterAttackHit;
+        _blockController.OnBlockCast -= SFXManager.Instance.OnPlayerBlockCast;
         #endregion
     }
 
@@ -561,7 +556,7 @@ public class PlayerController : MonoBehaviour
         
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
-        _stamina.Consume(_stamina.BlockCost);
+        _stamina.Consume(_stamina.BlockCastCost);
         _animator.SetBool(isBlock_hash, true);
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
@@ -574,6 +569,19 @@ public class PlayerController : MonoBehaviour
         _blockController.TurnOffBlockCollider();
     }
     #endregion
+    private void RecoverAfterKnockBack()
+    {
+        if (!_attackController.IsCounterAttack)
+        {
+            _animator.SetBool(isBlock_hash, false);
+            ControlState = ControlState.Controllable;
+        }
+    }
+    private void RevertToDefault()
+    {
+        _animator.SetBool(isBlock_hash, false);
+        ControlState = ControlState.Controllable;
+    }
     #region roll_Action
     private void OnRollPerformed(InputAction.CallbackContext context)
     {

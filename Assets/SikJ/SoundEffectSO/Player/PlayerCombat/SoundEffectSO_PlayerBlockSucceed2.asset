@@ -10,30 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
-  m_Name: SoundEffectSO_PlayerBlock1
+  m_Name: SoundEffectSO_PlayerBlockSucceed2
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: dddccbd5538fa694e947d66fab12f1bf, type: 3}
-  delay: 0
+  clip: {fileID: 8300000, guid: d1c74aa93190684459be9b6fd3f2c6c9, type: 3}
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.4
-      inSlope: -0.08116762
-      outSlope: -0.08116762
+      value: 1
+      inSlope: -0.28844583
+      outSlope: -0.28844583
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.22083333
+      outWeight: 0.26404196
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -0.9579099
-      outSlope: -0.9579099
+      inSlope: -2.2500849
+      outSlope: -2.2500849
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.10833335
+      inWeight: 0.0727824
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

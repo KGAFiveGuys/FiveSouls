@@ -32,7 +32,8 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float CounterAttackCost { get; private set; } = 30f;
     [field: SerializeField] public float CounterAttackThreshold { get; private set; } = 15f;
     [field: Header("Block Cost")]
-    [field: SerializeField] public float BlockCost { get; private set; } = 10f;
+    [field: SerializeField] public float BlockCastCost { get; private set; } = 1f;
+    [field: SerializeField] public float BlockSuccessCost { get; private set; } = 10f;
 
 
     private PlayerController playerController;
