@@ -115,6 +115,7 @@ public class BlockController : MonoBehaviour
             lastKnockBack = null;
         }
 
-        OnKnockBackFinished();
+        if(!_attackController.IsCounterAttack)
+            OnKnockBackFinished();
     }
 }
