@@ -35,8 +35,6 @@ public class AttackController : MonoBehaviour
     public event Action OnWeakAttackHit = null;
     public event Action OnStrongAttackCast = null;
     public event Action OnStrongAttackHit = null;
-
-    // Test
     public event Action OnCounterAttackCast = null;
     public event Action OnCounterAttackHit = null;
 
@@ -72,7 +70,6 @@ public class AttackController : MonoBehaviour
             case AttackType.Strong:
                 _OnAttackCast += OnStrongAttackCast;
                 break;
-            // Test
             case AttackType.Counter:
                 _OnAttackCast += OnCounterAttackCast;
                 break;
@@ -127,14 +124,14 @@ public class AttackController : MonoBehaviour
         IsCounterAttack = false;
     }
 
-    [Header("카운터 공격 유지시간")]
-    [SerializeField] private float counterAttackThreshold = 1.5f;
+    [field:Header("카운터 공격 유지시간")]
+    [field:SerializeField] public float CounterAttackThreshold { get; set; } = 1.5f;
     private IEnumerator CounterAttackTimer()
     {
         IsCounterAttack = true;
 
         float elapsedTime = 0f;
-        while (elapsedTime < counterAttackThreshold)
+        while (elapsedTime < CounterAttackThreshold)
         {
             elapsedTime += Time.deltaTime;
             yield return null;

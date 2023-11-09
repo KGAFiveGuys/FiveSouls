@@ -20,9 +20,11 @@ public class GamePadVibrationManager : MonoBehaviour
     // Attack Cast
     [SerializeField] private VibrationSO playerWeakAttackCast;
     [SerializeField] private VibrationSO playerStrongAttackCast;
+    [SerializeField] private VibrationSO playerCounterAttackCast;
     // Attack Hit
     [SerializeField] private VibrationSO playerWeakAttackHit;
     [SerializeField] private VibrationSO playerStrongAttackHit;
+    [SerializeField] private VibrationSO playerCounterAttackHit;
     // Dead
     [SerializeField] private VibrationSO playerDead;
 
@@ -36,12 +38,14 @@ public class GamePadVibrationManager : MonoBehaviour
 
     private event Action PlayerWeakAttackCastVibration = null;
     private event Action PlayerStrongAttackCastVibration = null;
+    private event Action PlayerCounterAttackCastVibration = null;
     private event Action PlayerBlockCastVibration = null;
     private event Action PlayerBlockSucceedVibration = null;
     private event Action PlayerRollVibration = null;
     private event Action PlayerJumpVibration = null;
     private event Action PlayerWeakAttackHitVibration = null;
     private event Action PlayerStrongAttackHitVibration = null;
+    private event Action PlayerCounterAttackHitVibration = null;
     private event Action PlayerDeadVibration = null;
 
     private void Awake()
@@ -71,6 +75,8 @@ public class GamePadVibrationManager : MonoBehaviour
         PlayerWeakAttackHitVibration = () => { Vibrate(playerWeakAttackHit); };
         PlayerStrongAttackCastVibration = () => { Vibrate(playerStrongAttackCast); };
         PlayerStrongAttackHitVibration = () => { Vibrate(playerStrongAttackHit); };
+        PlayerCounterAttackCastVibration = () => { Vibrate(playerCounterAttackCast); };
+        PlayerCounterAttackHitVibration = () => { Vibrate(playerCounterAttackHit); };
         PlayerBlockCastVibration = () => { Vibrate(playerBlockCast); };
         PlayerBlockSucceedVibration = () => { Vibrate(playerBlockSucceed); };
         PlayerDeadVibration = () => { Vibrate(playerDead); };
