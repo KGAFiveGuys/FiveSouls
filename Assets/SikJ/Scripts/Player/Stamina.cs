@@ -29,6 +29,8 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float WeakAttackThreshold { get; private set; } = 5f;
     [field: SerializeField] public float StrongAttackCost { get; private set; } = 20f;
     [field: SerializeField] public float StrongAttackThreshold { get; private set; } = 10f;
+    [field: SerializeField] public float CounterAttackCost { get; private set; } = 30f;
+    [field: SerializeField] public float CounterAttackThreshold { get; private set; } = 15f;
     [field: Header("Block Cost")]
     [field: SerializeField] public float BlockCost { get; private set; } = 10f;
 

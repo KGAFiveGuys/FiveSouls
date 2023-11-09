@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(AttackController))]
 public class BlockController : MonoBehaviour
 {
     [SerializeField] private Collider blockCollider;
@@ -14,23 +15,28 @@ public class BlockController : MonoBehaviour
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
 
-    [SerializeField] private Health _characterHealth;
+    private Health _characterHealth;
+    private AttackController _attackController;
 
     public event Action OnBlockCast;
     public event Action OnBlockSucceed;
+    public event Action OnKnockBackFinished;
 
     private void Awake()
     {
         TryGetComponent(out _characterHealth);
+        TryGetComponent(out _attackController);
     }
 
     private void OnEnable()
     {
+        OnBlockSucceed += ReadyCounterAttack;
         _characterHealth.OnDead += StopKnockBack;
     }
 
     private void OnDisable()
     {
+        OnBlockSucceed -= ReadyCounterAttack;
         _characterHealth.OnDead -= StopKnockBack;
     }
 
@@ -51,6 +57,8 @@ public class BlockController : MonoBehaviour
         if (_characterHealth.CurrentHP == 0)
             return;
 
+        var duration = damage * knockBackDurationPerDamage;
+        knockBackDuration = duration;
         OnBlockSucceed?.Invoke();
 
         TurnOffBlockCollider();
@@ -62,41 +70,51 @@ public class BlockController : MonoBehaviour
             StopCoroutine(lastKnockBack);
             lastKnockBack = null;
         }
-
-        var duration = damage * knockBackDurationPerDamage;
-        lastKnockBack = KnockBack(duration);
+        lastKnockBack = KnockBack();
         StartCoroutine(lastKnockBack);
+
         blockParticle.Play();
         SFXManager.Instance.OnTimeSlowDown(duration);
         SFXManager.Instance.OnPlayerBlock(duration);
     }
 
+    private void ReadyCounterAttack()
+    {
+        _attackController.CounterAttackThreshold = knockBackDuration;
+        _attackController.StartCounterAttackTime();
+    }
+
     private IEnumerator lastKnockBack;
-    private IEnumerator KnockBack(float duration)
+    [SerializeField] private float knockBackDuration;
+    private IEnumerator KnockBack()
     {
         float elapsedTime = 0f;
-        while (elapsedTime < duration)
+        while (elapsedTime < knockBackDuration)
         {
             elapsedTime += Time.deltaTime;
             transform.Translate(-transform.forward * knockBackSpeed * Time.deltaTime, Space.World);
             Debug.DrawLine(transform.position, transform.position + -transform.forward * knockBackSpeed, Color.red);
             
             // TimeSlowDown
-            Time.timeScale = knockBackTimeSlowDownIntensity.Evaluate(elapsedTime / duration);
+            Time.timeScale = knockBackTimeSlowDownIntensity.Evaluate(elapsedTime / knockBackDuration);
 
             yield return null;
         }
         Time.timeScale = 1f;
         lastKnockBack = null;
+
+        OnKnockBackFinished();
     }
 
-    private void StopKnockBack()
+    public void StopKnockBack()
     {
         if (lastKnockBack != null)
         {
             StopCoroutine(lastKnockBack);
-            lastKnockBack = null;
             Time.timeScale = 1f;
+            lastKnockBack = null;
         }
+
+        OnKnockBackFinished();
     }
 }

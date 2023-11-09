@@ -22,10 +22,12 @@ public class SFXManager : MonoBehaviour
     // Attack Cast
     [SerializeField] private SoundEffectSO SFX_playerWeakAttackCast;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackCast;
+    [SerializeField] private SoundEffectSO SFX_playerCounterAttackCast;
     // Attack Hit
     [SerializeField] private SoundEffectSO SFX_playerWeakAttackHit;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit1;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit2;
+    [SerializeField] private SoundEffectSO SFX_playerCounterAttackHit;
     // Dead
     [SerializeField] private SoundEffectSO SFX_playerDead1;
     [SerializeField] private SoundEffectSO SFX_playerDead2;
@@ -70,12 +72,14 @@ public class SFXManager : MonoBehaviour
     }
     public void OnPlayerWeakAttackCast() => SFXPlayWhole(SFX_playerWeakAttackCast);
     public void OnPlayerStrongAttackCast() => SFXPlayWhole(SFX_playerStrongAttackCast);
+    public void OnPlayerCounterAttackCast() => SFXPlayWhole(SFX_playerCounterAttackCast);
     public void OnPlayerWeakAttackHit() => SFXPlayWhole(SFX_playerWeakAttackHit);
     public void OnPlayerStrongAttackHit()
     {
         SFXPlayWhole(SFX_playerStrongAttackHit1);
         SFXPlayWhole(SFX_playerStrongAttackHit2);
     }
+    public void OnPlayerCounterAttackHit() => SFXPlayWhole(SFX_playerCounterAttackHit);
     public void OnPlayerJump() => SFXPlayWhole(SFX_playerJump);
     public void OnPlayerDead()
     {
@@ -86,6 +90,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayWhole(SoundEffectSO sfx)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
@@ -98,6 +105,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayPartial(SoundEffectSO sfx, float duration)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
