@@ -22,7 +22,8 @@ public class PlayerController : MonoBehaviour
 {
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
-    [field: SerializeField] public bool IsLockOn { get; set; } = false;
+    [SerializeField] public bool IsLockOn => LockOnTargetPoint != null;
+    [field: SerializeField] public LockOnPoint LockOnTargetPoint { get; set; }
     [field: SerializeField] public bool IsRun { get; set; } = false;
     [field: SerializeField] public bool IsDead { get; set; } = false;
 
@@ -65,7 +66,17 @@ public class PlayerController : MonoBehaviour
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
-    [field:SerializeField] public GameObject LockedOnEnemy { get; private set; }
+    [SerializeField]
+    public GameObject LockedOnEnemy
+    {
+        get
+        {
+            if (LockOnTargetPoint != null)
+                return LockOnTargetPoint.EnemyObject;
+
+            return null;
+        }
+    }
 
     [Header("Ragdoll")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
@@ -115,181 +126,6 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
-
-        swordOriginPos = sword.localPosition;
-        swordOriginRot = sword.localRotation;
-        shieldOriginPos = shield.localPosition;
-        shieldOriginRot = shield.localRotation;
-    }
-
-    private void Start()
-    {
-        _health.OnDead += () => { IsDead = true; };
-
-        #region Set weapon colliders & rigidbodies
-        foreach (Collider c in weaponColliders)
-        {
-            c.enabled = false;
-        }
-        foreach (Rigidbody rb in weaponRigidbodies)
-        {
-            rb.isKinematic = true;
-        }
-        #endregion
-        #region Set shield colliders & rigidbodies
-        foreach (Collider c in shieldColliders)
-        {
-            c.enabled = false;
-        }
-        foreach (Rigidbody rb in shieldRigidbodies)
-        {
-            rb.isKinematic = true;
-        }
-        #endregion
-    }
-
-    private void Update()
-    {        
-        CheckLockOnEnemyDistance();
-        LookLockOnEnemy();
-        MovePlayer();
-    }
-
-    private void LateUpdate()
-    {
-        SetDefaultCameraPosition();
-        ShowLockOnPoint();
-        AnimatePlayerMove();
-    }
-
-    private bool isCollidingWithEnemy = false;
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = true;
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = false;
-    }
-    private void CheckLockOnEnemyDistance()
-    {
-        if (IsLockOn && Vector3.Distance(transform.position, LockedOnEnemy.transform.position) > lockOnLimitDistance)
-        {
-            UnlockOnEnemy();
-        }
-    }
-    public void UnlockOnEnemy()
-	{
-        UI_lockOnPoint.SetActive(false);
-        ToggleTargetGroupCamera(false);
-        IsLockOn = false;
-        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Camera.main.transform.localEulerAngles.y;
-    }
-    private void LookLockOnEnemy()
-    {
-        if (!IsLockOn)
-            return;
-
-        var lookAtPos = new Vector3(LockedOnEnemy.transform.position.x, 0, LockedOnEnemy.transform.position.z);
-        transform.LookAt(lookAtPos);
-    }
-    private void ShowLockOnPoint()
-    {
-        if (!IsLockOn)
-            return;
-
-        var pos = Camera.main.WorldToScreenPoint(LockedOnEnemy.transform.position);
-        var rectTransform = UI_lockOnPoint.GetComponent<RectTransform>();
-        var scale = rectTransform.localScale;
-        var width = rectTransform.rect.width;
-        var height = rectTransform.rect.height;
-
-        var xOffset = scale.x * (width / 2);
-        var yOffset = scale.y * (height / 2);
-
-        UI_lockOnPoint.transform.position = new Vector3(pos.x - xOffset, pos.y + yOffset, pos.z);
-    }
-    private void SetDefaultCameraPosition()
-    {
-        if (IsLockOn && !Camera.main.GetComponent<CinemachineBrain>().IsBlending)
-            VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
-    }
-    
-    Vector3 moveDirection;
-    private void MovePlayer()
-    {
-        if (ControlState.Equals(ControlState.Uncontrollable))
-            return;
-
-        if (IsLockOn && desiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad)    // LockOn일 때 후방으로 이동
-            || _stamina.CurrentStamina == 0)                                                    // 스태미너가 0이면 달릴 수 없음
-            IsRun = false;
-
-        float speed = IsRun ? runSpeed : walkSpeed;
-        if (IsLockOn)
-        {
-            moveDirection = new Vector3(desiredMove.x, 0, desiredMove.y);
-            transform.Translate(moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
-
-            if (isCollidingWithEnemy)
-                transform.Translate(5 * -moveDirection * (speed * moveDirection.magnitude) * Time.deltaTime);
-
-            if (IsRun)
-                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
-
-            Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
-        }
-        // FreeLook이면 desiredMove로 moveDirection을 조정
-        else
-        {
-            var playerGroundPos = new Vector3(
-                transform.position.x,
-                0,
-                transform.position.z
-            );
-            var cameraGroundPos = new Vector3(
-                Camera.main.transform.position.x,
-                0,
-                Camera.main.transform.position.z
-            );
-            Vector3 cameraToPlayer = (playerGroundPos - cameraGroundPos);
-            var forward = cameraToPlayer.normalized;
-            var right = Vector3.Cross(Vector3.up, forward);
-            moveDirection = forward * desiredMove.y;
-            moveDirection += right * desiredMove.x;
-
-            transform.LookAt(transform.position + moveDirection * speed);
-            transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
-
-            if (isCollidingWithEnemy)
-                transform.Translate(5 * -moveDirection * speed * Time.deltaTime, Space.World);
-
-            if (IsRun)
-                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
-        }
-        Debug.DrawLine(transform.position, transform.position + moveDirection * speed, Color.green);
-    }
-    private void AnimatePlayerMove()
-    {
-        // Move
-        _animator.SetFloat(moveMagnitude_hash, moveDirection.magnitude);
-        if (IsLockOn)
-        {
-            _animator.SetFloat(moveX_hash, moveDirection.x);
-            _animator.SetFloat(moveY_hash, moveDirection.z);
-        }
-        else
-        {
-            _animator.SetFloat(moveX_hash, 0);
-            _animator.SetFloat(moveY_hash, moveDirection.magnitude);
-        }
-
-        // Run
-        _animator.SetBool(isSprint_hash, IsRun);
-
-        // To-Do : Rotate
     }
 
     private void OnEnable()
@@ -298,6 +134,10 @@ public class PlayerController : MonoBehaviour
         move.performed += OnMovePerformed;
         move.canceled += OnMoveCanceled;
         move.Enable();
+
+        rotate.performed += OnRotatePerformed;
+        rotate.canceled += OnRotateCanceled;
+        rotate.Enable();
 
         run.performed += OnRunPerformed;
         run.Enable();
@@ -335,6 +175,10 @@ public class PlayerController : MonoBehaviour
         move.performed -= OnMoveCanceled;
         move.Disable();
 
+        rotate.performed -= OnRotatePerformed;
+        rotate.canceled -= OnRotateCanceled;
+        rotate.Disable();
+
         run.performed -= OnRunPerformed;
         run.Disable();
 
@@ -364,15 +208,234 @@ public class PlayerController : MonoBehaviour
         _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
     }
 
-    private Vector2 desiredMove;
+    private void Start()
+    {
+        _health.OnDead += () => { IsDead = true; };
+
+        swordOriginPos = sword.localPosition;
+        swordOriginRot = sword.localRotation;
+        #region Set weapon colliders & rigidbodies
+        foreach (Collider c in weaponColliders)
+        {
+            c.enabled = false;
+        }
+        foreach (Rigidbody rb in weaponRigidbodies)
+        {
+            rb.isKinematic = true;
+        }
+        #endregion
+        shieldOriginPos = shield.localPosition;
+        shieldOriginRot = shield.localRotation;
+        #region Set shield colliders & rigidbodies
+        foreach (Collider c in shieldColliders)
+        {
+            c.enabled = false;
+        }
+        foreach (Rigidbody rb in shieldRigidbodies)
+        {
+            rb.isKinematic = true;
+        }
+        #endregion
+    }
+
+    private void Update()
+    {
+        SetDefaultCameraPosition();
+        CheckLockOnPointDistance();
+        ShowLockOnPoint();
+        LookLockOnPoint();
+        
+        Move();
+        Animate();
+    }
+
+    private bool isCollidingWithEnemy = false;
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.layer == 1 << 8)
+            isCollidingWithEnemy = true;
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == 1 << 8)
+            isCollidingWithEnemy = false;
+    }
+    private void CheckLockOnPointDistance()
+    {
+        if (!IsLockOn)
+            return;
+
+        var distance = Vector3.Distance(transform.position, LockOnTargetPoint.transform.position);
+        if (distance > lockOnLimitDistance)
+            UnlockOnPoint();
+    }
+    public void UnlockOnPoint()
+    {
+        UI_lockOnPoint.SetActive(false);
+        ToggleTargetGroupCamera(false);
+        LockOnTargetPoint.IsLockedOn = false;
+        LockOnTargetPoint.StopTransitionCheck();
+        LockOnTargetPoint = null;
+    }
+    private void LockOnPoint(LockOnPoint target)
+    {
+        UI_lockOnPoint.SetActive(true);
+        ToggleTargetGroupCamera(true);
+        LockOnTargetPoint = target;
+        LockOnTargetPoint.IsLockedOn = true;
+        target.StartTransitionCheck();
+    }
+    [SerializeField] private bool isLockOnPointChangable = false;
+    public bool TryChangeLockOnPoint(LockOnPoint from, LockOnPoint to)
+    {
+        if (!isLockOnPointChangable)
+            return false;
+
+        isLockOnPointChangable = false;
+
+        TargetGroup.RemoveMember(LockOnTargetPoint.transform);
+        LockOnTargetPoint = null;
+
+        from.StopTransitionCheck();
+        from.IsLockedOn = false;
+        
+        to.StartTransitionCheck();
+        to.IsLockedOn = true;
+
+        LockOnTargetPoint = to;
+        TargetGroup.AddMember(LockOnTargetPoint.transform, 1, 50f);
+
+        return true;
+    }
+    private void LookLockOnPoint()
+    {
+        if (!IsLockOn)
+            return;
+
+        var lockOnPointGroundPos = new Vector3(LockOnTargetPoint.transform.position.x, 0, LockedOnEnemy.transform.position.z);
+        transform.LookAt(lockOnPointGroundPos);
+    }
+    private void ShowLockOnPoint()
+    {
+        if (!IsLockOn)
+            return;
+
+        var pos = Camera.main.WorldToScreenPoint(LockOnTargetPoint.transform.position);
+        var rectTransform = UI_lockOnPoint.GetComponent<RectTransform>();
+        var scale = rectTransform.localScale;
+        var width = rectTransform.rect.width;
+        var height = rectTransform.rect.height;
+
+        var xOffset = scale.x * (width / 2);
+        var yOffset = scale.y * (height / 2);
+
+        UI_lockOnPoint.transform.position = new Vector3(pos.x - xOffset, pos.y + yOffset, pos.z);
+    }
+    private void SetDefaultCameraPosition()
+    {
+        if (!IsLockOn)
+            return;
+
+        if (!Camera.main.GetComponent<CinemachineBrain>().IsBlending)
+            VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
+    }
+    
+    Vector3 moveDirection;
+    private void Move()
+    {
+        if (ControlState.Equals(ControlState.Uncontrollable))
+            return;
+
+        var isBackward = DesiredMove.y < Mathf.Sin(Mathf.PI + runBehindAngle * Mathf.Deg2Rad);
+        if ((IsLockOn && isBackward)            // LockOn일 때 후방으로 이동하는 경우
+            || _stamina.CurrentStamina == 0)    // 스태미너가 0인 경우
+            IsRun = false;
+
+        float currentSpeed = IsRun ? runSpeed : walkSpeed;
+        if (IsLockOn)
+        {
+            moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
+            transform.Translate(moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+
+            if (isCollidingWithEnemy)
+                transform.Translate(5 * -moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
+
+            Debug.DrawLine(transform.position, transform.position + moveDirection * currentSpeed, Color.green);
+        }
+        // FreeLook이면 desiredMove로 moveDirection을 조정
+        else
+        {
+            var playerGroundPos = new Vector3(
+                transform.position.x,
+                0,
+                transform.position.z
+            );
+            var cameraGroundPos = new Vector3(
+                Camera.main.transform.position.x,
+                0,
+                Camera.main.transform.position.z
+            );
+            Vector3 cameraToPlayer = (playerGroundPos - cameraGroundPos);
+            var forward = cameraToPlayer.normalized;
+            var right = Vector3.Cross(Vector3.up, forward);
+            moveDirection = forward * DesiredMove.y;
+            moveDirection += right * DesiredMove.x;
+
+            transform.LookAt(transform.position + moveDirection * currentSpeed);
+            transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World);
+
+            if (isCollidingWithEnemy)
+                transform.Translate(5 * -moveDirection * currentSpeed * Time.deltaTime, Space.World);
+
+            if (IsRun)
+                _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
+        }
+        Debug.DrawLine(transform.position, transform.position + moveDirection * currentSpeed, Color.green);
+    }
+    private void Animate()
+    {
+        // Move
+        _animator.SetFloat(moveMagnitude_hash, moveDirection.magnitude);
+        if (IsLockOn)
+        {
+            _animator.SetFloat(moveX_hash, moveDirection.x);
+            _animator.SetFloat(moveY_hash, moveDirection.z);
+        }
+        else
+        {
+            _animator.SetFloat(moveX_hash, 0);
+            _animator.SetFloat(moveY_hash, moveDirection.magnitude);
+        }
+
+        // Run
+        _animator.SetBool(isSprint_hash, IsRun);
+
+        // To-Do : Rotate
+    }
+    public Vector2 DesiredMove { get; private set; }
     #region move_Action
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
-        desiredMove = context.ReadValue<Vector2>();
+        DesiredMove = context.ReadValue<Vector2>();
     }
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
-        desiredMove = Vector2.zero;
+        DesiredMove = Vector2.zero;
+    }
+    #endregion
+    public Vector2 DesiredRotate { get; private set; }
+    #region rotate_Action
+    private void OnRotatePerformed(InputAction.CallbackContext context)
+    {
+        DesiredRotate = context.ReadValue<Vector2>();
+    }
+    private void OnRotateCanceled(InputAction.CallbackContext context)
+    {
+        DesiredRotate = Vector2.zero;
+        isLockOnPointChangable = true;
     }
     #endregion
     #region run_Action
@@ -409,11 +472,11 @@ public class PlayerController : MonoBehaviour
             if (elapsedTimeAfterStopRunning > runThresholdTime)
                 break;
 
-            if (IsRun && desiredMove.magnitude < runThresholdScalar)
+            if (IsRun && DesiredMove.magnitude < runThresholdScalar)
 			{
                 elapsedTimeAfterStopRunning += Time.deltaTime;
 			}
-			else if (IsRun && desiredMove.magnitude >= runThresholdScalar)
+			else if (IsRun && DesiredMove.magnitude >= runThresholdScalar)
 			{
                 elapsedTimeAfterStopRunning = 0f;
 			}
@@ -568,97 +631,72 @@ public class PlayerController : MonoBehaviour
         if (IsDead)
             return;
 
-        var isLockOn = context.ReadValueAsButton();
-        var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
-        var isEnemyDetected = CheckEnemyInRange();
-        if (isLockOn && !isBlending)
-		{
-			if (isEnemyDetected)
-			{
-                IsLockOn = !IsLockOn;
-
-                if (IsLockOn == true)
-                {
-                    OnLockOn();
-                }
-                else
-                {
-                    OnLockOff();
-                    UnlockOnEnemy();
-                }
-            }
-            // 적이 없는 경우 카메라를 플레이어 정면방향으로 회전
-			else
-			{
-                StartCoroutine(ResetDefaultVCRotation());
-            }
-        }
-    }
-
-    private IEnumerator ResetDefaultVCRotation()
-    {
-        // 더 가까운 방향으로 회전하도록 수정 필요
-
-        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
-        var endRotation = transform.localEulerAngles.y;
-
-        float elapsedTime = 0f;
-        var progress = 0f;
-        while (elapsedTime < resetRotationTime)
-        {
-            elapsedTime += Time.deltaTime;
-            progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
-            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
-            yield return null;
-        }
-        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
-    }
-
-    private bool CheckEnemyInRange()
-    {
         if (IsLockOn)
-            return true;
+        {
+            UnlockOnPoint();
+            OnLockOff();
+            return;
+        }
 
-        LockedOnEnemy = null;
+        var isPressed = context.ReadValueAsButton();
+        var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
+        if (!(isPressed && !isBlending))
+            return;
+        
+        if (TryFindLockOnPointInRange(out LockOnPoint target))
+		{
+            LockOnPoint(target);
+            OnLockOn();
+        }
+        else
+        {
+            StartCoroutine(ResetDefaultVCRotation());
+        }
+    }
+
+    private bool TryFindLockOnPointInRange(out LockOnPoint targetPoint)
+    {
+        targetPoint = null;
 
         float maxDotValue = float.MinValue;
         float minDistance = float.MaxValue;
 
-        Collider[] enemyColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 8);
-        foreach (var enemyCollider in enemyColliders)
+        Collider[] lockOnPointColliders = Physics.OverlapSphere(transform.position, enemyDetectDistance, 1 << 12);
+        foreach (var lockOnPointCollider in lockOnPointColliders)
         {
+            if (!lockOnPointCollider.TryGetComponent(out LockOnPoint lockOnPoint))
+                continue;
+
             var playerGroundPos = new Vector3(transform.position.x, 0, transform.position.z);
             var cameraGroundPos = new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z);
-            var enemyGroundPos = new Vector3(enemyCollider.transform.position.x, 0, enemyCollider.transform.position.z);
+            var lockOnPointGroundPos = new Vector3(lockOnPoint.transform.position.x, 0, lockOnPoint.transform.position.z);
 
-            // 카메라 시야에 있는지 확인
+            // 카메라 시야에 들어왔는지 확인
             Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
-            Vector3 cameraToEnemy = enemyGroundPos - cameraGroundPos;
-            if (Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized) < 0    // 후방
-                || Vector3.Angle(cameraToPlayer, cameraToEnemy) > enemyDetectAngle)     // 감지 범위 초과
+            Vector3 cameraToEnemy = lockOnPointGroundPos - cameraGroundPos;
+            var isBehind = Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized) < 0;
+            var isOutOfDetectAngle = Vector3.Angle(cameraToPlayer, cameraToEnemy) > enemyDetectAngle;
+            if (isBehind || isOutOfDetectAngle)
                 continue;
 
             // 플레이어 위치 기준 가장 가까운 적인지 확인
-            float distance = Vector3.Distance(playerGroundPos, enemyGroundPos);
+            float distance = Vector3.Distance(playerGroundPos, lockOnPointGroundPos);
             if (minDistance > distance)
             {
                 minDistance = distance;
-                LockedOnEnemy = enemyCollider.gameObject;
+                targetPoint = lockOnPoint;
+                continue;
             }
-            
+
             // 카메라 시점 기준 가장 중앙의 적인지 확인
             float dot = Vector3.Dot(cameraToPlayer.normalized, cameraToEnemy.normalized);
             if (maxDotValue < dot)
             {
                 maxDotValue = dot;
-                LockedOnEnemy = enemyCollider.gameObject;
-                continue;
+                targetPoint = lockOnPoint;
             }
         }
-
-        UI_lockOnPoint.SetActive(LockedOnEnemy != null);
-        ToggleTargetGroupCamera(LockedOnEnemy != null, LockedOnEnemy);
-        return LockedOnEnemy != null;
+        return targetPoint != null;
     }
 
     private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
@@ -672,9 +710,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (LockedOnEnemy != null)
+            if (IsLockOn)
             {
-                TargetGroup.RemoveMember(LockedOnEnemy.transform);
+                TargetGroup.RemoveMember(LockOnTargetPoint.transform);
 				StartCoroutine(LerpDefaultCameraFollowPosition());
 				StartCoroutine(LerpDefaultCameraLookAtPosition());
 			}
@@ -688,7 +726,7 @@ public class PlayerController : MonoBehaviour
         var lastCameraPos = Camera.main.transform.position;
         
         float elapsedTime = 0f;
-        while (LockedOnEnemy != null && elapsedTime < blendTime)
+        while (IsLockOn && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
@@ -707,11 +745,11 @@ public class PlayerController : MonoBehaviour
     private IEnumerator LerpDefaultCameraLookAtPosition()
     {
         float elapsedTime = 0f;
-        while (LockedOnEnemy != null && elapsedTime < blendTime)
+        while (IsLockOn && elapsedTime < blendTime)
         {
             elapsedTime += Time.deltaTime;
 
-            var lastEnemyPos = LockedOnEnemy.transform.position;
+            var lastEnemyPos = LockOnTargetPoint.transform.position;
             var playerPos = transform.position;
 
             VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = Vector3.Lerp(
@@ -734,7 +772,7 @@ public class PlayerController : MonoBehaviour
         if (IsDead)
             return;
 
-        IsLockOn = false;
+        LockOnTargetPoint = null;
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
@@ -858,5 +896,23 @@ public class PlayerController : MonoBehaviour
             Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
             Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
         }
+    }
+
+    private IEnumerator ResetDefaultVCRotation()
+    {
+        // 더 가까운 방향으로 회전하도록 수정 필요
+
+        var startRotation = VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+        var endRotation = transform.localEulerAngles.y;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < resetRotationTime)
+        {
+            elapsedTime += Time.deltaTime;
+            var progress = resetRotationIntensity.Evaluate(elapsedTime / resetRotationTime);
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = Mathf.Lerp(startRotation, endRotation, progress);
+            yield return null;
+        }
+        VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
 }

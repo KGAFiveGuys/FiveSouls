@@ -265,7 +265,7 @@ public class PlayerHUDController : MonoBehaviour
 
         // lockedOnEnemy의 Event 구독
         _lockedOnEnemyHealth.OnHealthChanged += ChangeEnemyHealth;
-        _lockedOnEnemyHealth.OnDead += _playerController.UnlockOnEnemy;
+        _lockedOnEnemyHealth.OnDead += _playerController.UnlockOnPoint;
         _lockedOnEnemyHealth.OnDead += HideEnemyHealthNFury;
 
         enemyIndicator.SetActive(true);
@@ -278,7 +278,7 @@ public class PlayerHUDController : MonoBehaviour
 
         // lockedOnEnemy의 Event 구독 취소
         _lockedOnEnemyHealth.OnHealthChanged -= ChangeEnemyHealth;
-        _lockedOnEnemyHealth.OnDead -= _playerController.UnlockOnEnemy;
+        _lockedOnEnemyHealth.OnDead -= _playerController.UnlockOnPoint;
         _lockedOnEnemyHealth.OnDead -= HideEnemyHealthNFury;
         _lockedOnEnemyHealth = null;
 
