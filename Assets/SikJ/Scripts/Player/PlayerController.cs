@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 {
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
-    [SerializeField] public bool IsLockOn => LockOnTargetPoint != null;
+    public bool IsLockOn => LockOnTargetPoint != null;
     [field: SerializeField] public LockOnPoint LockOnTargetPoint { get; set; }
     [field: SerializeField] public bool IsRun { get; set; } = false;
     [field: SerializeField] public bool IsDead { get; set; } = false;
@@ -66,7 +66,6 @@ public class PlayerController : MonoBehaviour
     [Tooltip("시야각의 절반")]
     [SerializeField] [Range(10f, 90f)] private float enemyDetectAngle = 15f;
     [SerializeField] private float blendTime = 1f;
-    [SerializeField]
     public GameObject LockedOnEnemy
     {
         get
