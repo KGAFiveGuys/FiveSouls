@@ -249,7 +249,7 @@ public class PlayerController : MonoBehaviour
         Animate();
     }
 
-    private bool isCollidingWithEnemy = false;
+    private bool isCollidingWithEnemy = false;  
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.layer == 1 << 8)
