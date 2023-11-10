@@ -128,7 +128,7 @@ public class MutantController : MonoBehaviour
     {
         get
         {
-            if (distance >= 20f)
+            if (distance >= 20f && distance <=100f)
             {
                 return true;
             }
@@ -171,12 +171,18 @@ public class MutantController : MonoBehaviour
 
     private void Update()
     {
+        if(health_m.CurrentHP <= 0)
+        {
+            agent.enabled = false;
+        }
         Timer();
         Dance();
 
         Groggy();
         Die();
         Howilng_att();
+
+        print(distance);
 
         player.transform.position = player.transform.position;
         Move_ToPlayer();
@@ -564,7 +570,12 @@ public class MutantController : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
 
         distance = Vector3.Distance(player.transform.position, transform.position);
-        if(distance > 30f)
+        if(distance > 100f)
+        {
+            agent.enabled = false;
+        }
+
+         if(distance > 30f && distance <=100f)
         {
             if(isSmash && isDash)
             {
