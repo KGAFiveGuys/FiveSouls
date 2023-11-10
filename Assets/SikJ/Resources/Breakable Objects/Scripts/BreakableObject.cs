@@ -21,11 +21,14 @@ public class BreakableObject:MonoBehaviour{
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
 
-	public void OnCollisionEnter(Collision collision) {
-	    if (collision.relativeVelocity.magnitude > durability) {
-	        triggerBreak();
-	    }
-	}
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.layer == LayerMask.NameToLayer("Weapon")
+		   || other.gameObject.layer == LayerMask.NameToLayer("Ragdoll"))
+        {
+			triggerBreak();
+		}
+    }
 	
 	public void OnMouseDown() {
 		if(mouseClickDestroy){
@@ -37,6 +40,7 @@ public class BreakableObject:MonoBehaviour{
 	    Destroy(transform.FindChild("object").gameObject);
 	    Destroy(transform.GetComponent<Collider>());
 	    Destroy(transform.GetComponent<Rigidbody>());
+		SFXManager.Instance.OnWoodenCrateBreaked();
 	    StartCoroutine(breakObject());
 	}
 

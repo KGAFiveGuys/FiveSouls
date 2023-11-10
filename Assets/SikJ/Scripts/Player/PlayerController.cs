@@ -171,13 +171,9 @@ public class PlayerController : MonoBehaviour
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
         #region SFX
-        _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
         _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackCast += SFXManager.Instance.OnPlayerCounterAttackCast;
         _attackController.OnCounterAttackHit += SFXManager.Instance.OnPlayerCounterAttackHit;
-        _blockController.OnBlockCast += SFXManager.Instance.OnPlayerBlockCast;
         #endregion
     }
 
@@ -218,13 +214,9 @@ public class PlayerController : MonoBehaviour
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
         #region SFX
-        _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
         _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
         _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackCast -= SFXManager.Instance.OnPlayerCounterAttackCast;
         _attackController.OnCounterAttackHit -= SFXManager.Instance.OnPlayerCounterAttackHit;
-        _blockController.OnBlockCast -= SFXManager.Instance.OnPlayerBlockCast;
         #endregion
     }
 
@@ -266,18 +258,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Animate();
     }
-
-    private bool isCollidingWithEnemy = false;
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = true;
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = false;
-    }
+    
     private void CheckLockOnPointDistance()
     {
         if (!IsLockOn)
@@ -591,6 +572,7 @@ public class PlayerController : MonoBehaviour
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
             OnJump?.Invoke();
+            SFXManager.Instance.OnPlayerJump();
             StartCoroutine(CancelJump(lastMovement));
         }
     }
@@ -622,6 +604,7 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
         _stamina.Consume(_stamina.BlockCastCost);
+        SFXManager.Instance.OnPlayerBlockCast();
         _animator.SetBool(isBlock_hash, true);
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
@@ -662,6 +645,7 @@ public class PlayerController : MonoBehaviour
             _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
             OnRoll?.Invoke();
+            SFXManager.Instance.OnPlayerRoll();
             StartCoroutine(CancelRoll());
         }
     }
@@ -697,6 +681,7 @@ public class PlayerController : MonoBehaviour
         _attackController.ChangeAttackType(AttackType.Weak);
         _stamina.Consume(_stamina.WeakAttackCost);
         _animator.SetBool(isWeakAttack_hash, true);
+        SFXManager.Instance.OnPlayerWeakAttackCast();
         StartCoroutine(CancelWeakAttack());
     }
     private IEnumerator CancelWeakAttack()
@@ -725,6 +710,7 @@ public class PlayerController : MonoBehaviour
         _attackController.ChangeAttackType(AttackType.Strong);
         _stamina.Consume(_stamina.StrongAttackCost);
         _animator.SetBool(isStrongAttack_hash, true);
+        SFXManager.Instance.OnPlayerStrongAttackCast();
         StartCoroutine(CancelStrongAttack());
         
     }
@@ -747,6 +733,7 @@ public class PlayerController : MonoBehaviour
         _stamina.Consume(_stamina.CounterAttackCost);
         _blockController.StopKnockBack();
         _animator.SetBool(isCounterAttack_hash, true);
+        SFXManager.Instance.OnPlayerCounterAttackCast();
         StartCoroutine(CancelCounterAttack());
         return true;
     }
