@@ -9,6 +9,12 @@ using System.Linq;
 [RequireComponent(typeof(AttackController))]
 public class MutantController : MonoBehaviour
 {
+    [SerializeField] private float Rock_dmg;
+    [SerializeField] private float Smash_dmg;
+    [SerializeField] private float Swing_dmg;
+    [SerializeField] private float Dash_dmg;
+    [SerializeField] private float Howing_dmg;
+
     //뮤턴트 포지션 체크용
     private GameObject Mutant;
     //하울링후 즉사 파티클 프리팹
@@ -182,7 +188,7 @@ public class MutantController : MonoBehaviour
         Die();
         Howilng_att();
 
-        print(distance);
+        
 
         player.transform.position = player.transform.position;
         Move_ToPlayer();
@@ -199,9 +205,7 @@ public class MutantController : MonoBehaviour
 
         Judgement_MonAction();
 
-        print("isSmash : " + isSmash);
-        print("isSwing : " + isSwing);
-        print("isRock : " + isRock);
+        
     }
     private void Timer()
     {
@@ -594,7 +598,7 @@ public class MutantController : MonoBehaviour
                 agent.enabled = true;
                 attackController.ChangeAttackType(AttackType.Strong);
                 attackController.AttackCollider = dashAttackCollider;
-                attackController.StrongAttackBaseDamage = 50f;
+                attackController.StrongAttackBaseDamage = Dash_dmg;
                 Dash_Att();
             }
         }
@@ -625,7 +629,7 @@ public class MutantController : MonoBehaviour
                             //약
                             attackController.ChangeAttackType(AttackType.Weak);
                             attackController.AttackCollider = swingAttackCollider;
-                            attackController.WeakAttackBaseDamage = 20f;
+                            attackController.WeakAttackBaseDamage = Swing_dmg;
                             Swing_att();
                         }
                         else
@@ -639,7 +643,7 @@ public class MutantController : MonoBehaviour
                             //강
                             attackController.ChangeAttackType(AttackType.Strong);
                             attackController.AttackCollider = smashAttackCollider;
-                            attackController.StrongAttackBaseDamage = 50f;
+                            attackController.StrongAttackBaseDamage = Smash_dmg;
                             Smash_Att();
                             StartCoroutine(Up_Smash_Strong_coll());
                             
@@ -718,7 +722,7 @@ public class MutantController : MonoBehaviour
             isHowling = true;
             attackController.ChangeAttackType(AttackType.Strong);
             attackController.AttackCollider = howlingAttackCollider;
-            attackController.StrongAttackBaseDamage = 1000000f;
+            attackController.StrongAttackBaseDamage = Howing_dmg;
             mutantAnimator.SetTrigger("Howling");
             Particale_Position.SetActive(true);
         }
