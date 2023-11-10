@@ -17,26 +17,39 @@ public class DealDamage : MonoBehaviour
         // 방어된 경우
         if (layerMask == (int)_attackController.BlockableLayer)
         {
-            var targetBlockController = other.gameObject.GetComponent<BlockDamage>().BlockController;
+			BlockController targetBlockController = other.gameObject.GetComponent<BlockDamage>().BlockController;
             Health targetHealth = targetBlockController.gameObject.GetComponent<Health>();
+            Stamina targetStamina = targetBlockController.gameObject.GetComponent<Stamina>();
             float damage = 0f;
             switch (_attackController.CurrentAttackType)
             {
                 case AttackType.Weak:
                     damage = _attackController.WeakAttackBaseDamage;
-                    damage *= (1 - targetBlockController.BlockDampRate);
                     break;
                 case AttackType.Strong:
                     damage = _attackController.StrongAttackBaseDamage;
-                    damage *= (1 - targetBlockController.BlockDampRate);
+                    break;
+                case AttackType.Counter:
+                    damage = _attackController.CounterAttackBaseDamage;
                     break;
             }
 
-            targetBlockController.Block(damage);
-            _attackController.Attack(targetHealth, damage, true);
+            var isStaminaEnough = targetStamina.CurrentStamina >= targetStamina.BlockSuccessCost;
+            if (isStaminaEnough)
+            {
+                damage *= (1 - targetBlockController.BlockDampRate);
+                targetBlockController.BlockSucceed(damage);
+                _attackController.Attack(targetHealth, damage, true);
+            }
+            // 실패 - 스태미나 불충분
+            else
+            {
+                targetBlockController.BlockFailed();
+                _attackController.Attack(targetHealth, damage, false);
+            }
         }
-        // 적중된 경우
-        else if (layerMask == (int)_attackController.AttackLayer)
+		// 적중된 경우
+		else if (layerMask == (int)_attackController.AttackLayer)
         {
             Health targetHealth = other.gameObject.GetComponent<Health>();
             float damage = 0f;
@@ -47,6 +60,9 @@ public class DealDamage : MonoBehaviour
                     break;
                 case AttackType.Strong:
                     damage = _attackController.StrongAttackBaseDamage;
+                    break;
+                case AttackType.Counter:
+                    damage = _attackController.CounterAttackBaseDamage;
                     break;
             }
 

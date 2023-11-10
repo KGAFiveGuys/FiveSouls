@@ -27,14 +27,17 @@ public class BossCantrol : MonoBehaviour
     [Header("파티클 이펙트")]
     [SerializeField] private GameObject JumpLandingEffect;
 
+    private RedAlarm alarm;
+
     //공격범위
     private float distance = 50f;
     private float AdDistance = 5f;
 
     //보스상태
+    private bool PatternOn = false; //패턴 공격중인지
     private bool isDead = false;
+    private bool isAngry = true; // 광폭화
     private bool isGroggyHit = false;//공격받았는지 아닌지로 트루 펄스 리턴하는 거로 수정필요
-    private bool OnlyOne = true;
     private bool isTarget
     {
         get
@@ -77,30 +80,31 @@ public class BossCantrol : MonoBehaviour
         TryGetComponent(out HulkAnimator);
         TryGetComponent(out bossHealth);
         TryGetComponent(out attackController);
+        alarm = FindObjectOfType<RedAlarm>();
     }
 
     private void Update()
     {
-        //if (bossHealth.CurrentHP <= 0)
-        //{
-        //    isDead = true;
-        //}
-        //ToggleRagdoll(!isDead);
-        CalcDistance();
-        HulkAnimator.SetBool("HasTarget", isTarget);
-        if (agent.enabled != false)
+        if (bossHealth.CurrentHP <= 0)
         {
-            NaviTarget();
+            isDead = true;
+            ToggleRagdoll(isDead);
         }
-        StartCoroutine(SelectPatternCo(distance));
-        if (groggyStat >= 100)
+        else
         {
-            groggyStat = 0;
-            StartCoroutine(GroggyCo());
-        }
-        if (Input.GetKey(KeyCode.Alpha1))
-        {
-            transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>().materials[1] = null;
+            CalcDistance();
+            HulkAnimator.SetBool("HasTarget", isTarget);
+            if (agent.enabled != false)
+            {
+                NaviTarget();
+            }
+            StartCoroutine(SelectPatternCo(distance));
+            if (groggyStat >= 100)
+            {
+                groggyStat = 0;
+                StartCoroutine(GroggyCo());
+            }
+            
         }
     }
 
@@ -133,35 +137,40 @@ public class BossCantrol : MonoBehaviour
     }
 
     private IEnumerator SelectPatternCo(float distance)
-    {
-        delayTime = Random.Range(0.5f, 3);
-        yield return new WaitForSeconds(delayTime);
-        //광폭화 공격(체력 반이하시 1회성)
-        if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && OnlyOne)
+    {                
+        if (!PatternOn)
         {
-            OnlyOne = false;
-            yield return AngryAttackCo();
-        }
-        //일반공격
-        if (distance > stopdistance * transform.localScale.x * 2 && distance <= AdDistance * transform.localScale.x)
-        {
-            //슬라이딩해줭
-            yield return SlideAttackCo();
-        }
-        else if (distance > stopdistance * transform.localScale.x && distance <= stopdistance * transform.localScale.x*2)
-        {
-            //근접공격해줭
-            yield return RightAttackCo();
-        }
-        else if (distance <= stopdistance * transform.localScale.x)
-        {
-            //근접공격해줭
-            yield return AttackCo();
+            PatternOn = true;
+            if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && isAngry)
+            {
+                isAngry = false;
+                yield return AngryAttackCo();
+            }
+            delayTime = Random.Range(0.5f, 2);
+            yield return new WaitForSeconds(delayTime);
+            //일반공격
+            if (distance > stopdistance * transform.localScale.x * 2 && distance <= AdDistance * transform.localScale.x)
+            {
+                //슬라이딩해줭
+                yield return SlideAttackCo();
+            }
+            else if (distance > stopdistance * transform.localScale.x && distance <= stopdistance * transform.localScale.x * 2)
+            {
+                //근접공격해줭
+                yield return RightAttackCo();
+            }
+            else if (distance <= stopdistance * transform.localScale.x)
+            {
+                //근접공격해줭
+                yield return AttackCo();
+            }
+            PatternOn = false;
         }
     }
 
     private IEnumerator AngryAttackCo()
     {
+        StartCoroutine(alarm.StorngAlarm());
         attackController.ChangeAttackType(AttackType.Strong);
         attackController.AttackCollider = AttackCollider[3];
         attackController.WeakAttackBaseDamage = 50f;
@@ -192,13 +201,14 @@ public class BossCantrol : MonoBehaviour
         //agent.enabled = true;
 
         yield return new WaitForSeconds(9f);
+        //attackController.AttackCollider.enabled = false;
         agent.SetDestination(targetTF + targetTF.normalized*5f);
         JumpEffectOff();
     }
 
     private IEnumerator SlideAttackCo()
     {
-
+        StartCoroutine(alarm.WeakAlarm());
         attackController.ChangeAttackType(AttackType.Weak);
         attackController.AttackCollider = AttackCollider[2];
         attackController.WeakAttackBaseDamage = 25f;
@@ -207,6 +217,7 @@ public class BossCantrol : MonoBehaviour
 
         yield return new WaitForSeconds(1.1f);
         HulkAnimator.ResetTrigger("Sliding");
+        //attackController.AttackCollider.enabled = false;
     }
 
     private IEnumerator AttackCo()
@@ -228,26 +239,83 @@ public class BossCantrol : MonoBehaviour
 
     private IEnumerator NormalAttackCo()
     {
+        StartCoroutine(alarm.WeakAlarm());
         attackController.ChangeAttackType(AttackType.Weak);
         attackController.AttackCollider = AttackCollider[0];
         attackController.WeakAttackBaseDamage = 10f;
 
         HulkAnimator.SetInteger("AttackNum", AttackNum);
-        HulkAnimator.SetTrigger("NormalAttack"); 
+        HulkAnimator.SetTrigger("NormalAttack");
+        agent.isStopped = true;
 
         if (AttackNum == 0)
         {
-            yield return new WaitForSeconds(2.3f);
+            Debug.Log("어택1");
+            //yield return new WaitForSeconds(0.8f);
+            //agent.updateRotation = false;
+            //attackController.AttackCollider.gameObject.SetActive(true);
+
+            //yield return new WaitForSeconds(0.3f);
+            //agent.updateRotation = true;
+            //attackController.AttackCollider.gameObject.SetActive(false);
+
+            //yield return new WaitForSeconds(0.4f);
+            //agent.updateRotation = false;
+            //attackController.AttackCollider.gameObject.SetActive(true);
+
+            //yield return new WaitForSeconds(0.25f);
+            //agent.updateRotation = true;
+            //attackController.AttackCollider.gameObject.SetActive(false);
+
+            //yield return new WaitForSeconds(0.75f);
+            //agent.isStopped = false;
+            yield return new WaitForSeconds(2f);
+            HulkAnimator.ResetTrigger("NormalAttack");
         }
         else
         {
-            yield return new WaitForSeconds(3.75f);
+            Debug.Log("어택2");
+            //yield return new WaitForSeconds(0.8f);
+            //agent.updateRotation = false;
+            //attackController.AttackCollider.gameObject.SetActive(true);
+
+            //yield return new WaitForSeconds(0.3f);
+            //agent.updateRotation = true;
+            //attackController.AttackCollider.gameObject.SetActive(false);
+
+            //yield return new WaitForSeconds(0.3f);
+            //agent.updateRotation = false;
+            //attackController.AttackCollider.gameObject.SetActive(true);
+
+            //yield return new WaitForSeconds(0.4f);
+            //agent.updateRotation = true;
+            //attackController.AttackCollider.gameObject.SetActive(false);
+
+            //yield return new WaitForSeconds(0.2f);
+            //HulkAnimator.SetFloat("AniSpeed", 0.5f);
+
+            //yield return new WaitForSeconds(0.5f);
+            //HulkAnimator.SetFloat("AniSpeed", 1.5f);
+
+            //yield return new WaitForSeconds(0.1f);
+            //agent.updateRotation = false;
+            //attackController.AttackCollider.gameObject.SetActive(true);
+
+            //yield return new WaitForSeconds(0.2f);
+            //agent.updateRotation = true;
+            //attackController.AttackCollider.gameObject.SetActive(false);
+
+            //yield return new WaitForSeconds(0.7f);
+            //agent.isStopped = false;
+            yield return new WaitForSeconds(3.25f);
+            HulkAnimator.ResetTrigger("NormalAttack");
+            HulkAnimator.SetFloat("AniSpeed", 1f);
         }
-        HulkAnimator.ResetTrigger("NormalAttack");
     }
 
     private IEnumerator StrongAttackCo()
     {
+        StartCoroutine(alarm.StorngAlarm());
         attackController.ChangeAttackType(AttackType.Strong);
         attackController.AttackCollider = AttackCollider[0];
         attackController.WeakAttackBaseDamage = 30f;
@@ -257,10 +325,12 @@ public class BossCantrol : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         HulkAnimator.ResetTrigger("StrongAttack");
+        //attackController.AttackCollider.enabled = false;
     }
 
     private IEnumerator RightAttackCo()
     {
+        StartCoroutine(alarm.StorngAlarm());
         attackController.ChangeAttackType(AttackType.Strong);
         attackController.AttackCollider = AttackCollider[1];
         attackController.WeakAttackBaseDamage = 30f;
@@ -270,6 +340,7 @@ public class BossCantrol : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f);
         HulkAnimator.ResetTrigger("StrongAttack");
+        //attackController.AttackCollider.enabled = false;
     }
 
     private IEnumerator GroggyCo()
@@ -301,8 +372,8 @@ public class BossCantrol : MonoBehaviour
         }
     }
 
-    #region 애니메이션 이벤트함수
-    private void StopChase()
+        #region 애니메이션 이벤트함수
+        private void StopChase()
     {
         if (agent != null)
         {
@@ -340,6 +411,21 @@ public class BossCantrol : MonoBehaviour
     {
         JumpLandingEffect.SetActive(false);
     }
+    private void AniSpeed(float speed)
+    {
+        HulkAnimator.SetFloat("AniSpeed", speed);
+    }
+    private void RedAlarmOn()
+    {
+        Material hulkMt = transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>().material;
+        hulkMt.color = new Color32(255, 0, 0, 80);
+    }
+    private void RedAlarmOff()
+    {
+        Material hulkMt = transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>().material;
+        hulkMt.color = new Color32(204, 204, 204, 255);
+    }
+
     #endregion
 
 }

@@ -17,15 +17,19 @@ public class SFXManager : MonoBehaviour
 
     [Header("Player Combat")]
     // Block
-    [SerializeField] private SoundEffectSO SFX_playerBlock1;
-    [SerializeField] private SoundEffectSO SFX_playerBlock2;
+    [SerializeField] private SoundEffectSO SFX_playerBlockCast;
+    [SerializeField] private SoundEffectSO SFX_playerBlockSucceed1;
+    [SerializeField] private SoundEffectSO SFX_playerBlockSucceed2;
+    [SerializeField] private SoundEffectSO SFX_playerBlockFailed;
     // Attack Cast
     [SerializeField] private SoundEffectSO SFX_playerWeakAttackCast;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackCast;
+    [SerializeField] private SoundEffectSO SFX_playerCounterAttackCast;
     // Attack Hit
     [SerializeField] private SoundEffectSO SFX_playerWeakAttackHit;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit1;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit2;
+    [SerializeField] private SoundEffectSO SFX_playerCounterAttackHit;
     // Dead
     [SerializeField] private SoundEffectSO SFX_playerDead1;
     [SerializeField] private SoundEffectSO SFX_playerDead2;
@@ -63,19 +67,29 @@ public class SFXManager : MonoBehaviour
     }
 
     public void OnTimeSlowDown(float duration) => SFXPlayPartial(SFX_timeSlowDown, duration);
-    public void OnPlayerBlock(float duration)
+    public void OnPlayerBlockCast()
     {
-        SFXPlayWhole(SFX_playerBlock1);
-        SFXPlayPartial(SFX_playerBlock2, duration);
+        Debug.Log("SFX_OnPlayerBlockCast");
     }
+    public void OnPlayerBlockSucceed(float duration)
+    {
+        SFXPlayWhole(SFX_playerBlockSucceed1);
+        SFXPlayPartial(SFX_playerBlockSucceed2, duration);
+    }
+    public void OnPlayerBlockFailed()
+	{
+        Debug.Log("SFX_OnPlayerBlockFailed");
+	}
     public void OnPlayerWeakAttackCast() => SFXPlayWhole(SFX_playerWeakAttackCast);
     public void OnPlayerStrongAttackCast() => SFXPlayWhole(SFX_playerStrongAttackCast);
+    public void OnPlayerCounterAttackCast() => SFXPlayWhole(SFX_playerCounterAttackCast);
     public void OnPlayerWeakAttackHit() => SFXPlayWhole(SFX_playerWeakAttackHit);
     public void OnPlayerStrongAttackHit()
     {
         SFXPlayWhole(SFX_playerStrongAttackHit1);
         SFXPlayWhole(SFX_playerStrongAttackHit2);
     }
+    public void OnPlayerCounterAttackHit() => SFXPlayWhole(SFX_playerCounterAttackHit);
     public void OnPlayerJump() => SFXPlayWhole(SFX_playerJump);
     public void OnPlayerDead()
     {
@@ -86,6 +100,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayWhole(SoundEffectSO sfx)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)
@@ -98,6 +115,9 @@ public class SFXManager : MonoBehaviour
 
     private void SFXPlayPartial(SoundEffectSO sfx, float duration)
     {
+        if (sfx == null)
+            return;
+
         foreach (var audioSource in AudioSources)
         {
             if (!audioSource.isPlaying)

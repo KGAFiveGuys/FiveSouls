@@ -116,7 +116,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void SearchPlayer()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 50f, P_layer);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 100f, P_layer);
         foreach (Collider collider in hitColliders)
         {
             Target = collider.gameObject;
@@ -527,7 +527,7 @@ public class UnityChanAI : MonoBehaviour
         }
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MustDie1_5") && !near) // 달리는 중이고 플레이어가 5f안에 없을때
         {
-            
+            LookAt_Rotation_Y(Target.transform);
             transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
             
         }
