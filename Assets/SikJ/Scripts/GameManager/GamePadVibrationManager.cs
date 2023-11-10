@@ -17,6 +17,7 @@ public class GamePadVibrationManager : MonoBehaviour
     // Block
     [SerializeField] private VibrationSO playerBlockCast;
     [SerializeField] private VibrationSO playerBlockSucceed;
+    [SerializeField] private VibrationSO playerBlockFailed;
     // Attack Cast
     [SerializeField] private VibrationSO playerWeakAttackCast;
     [SerializeField] private VibrationSO playerStrongAttackCast;
@@ -41,6 +42,7 @@ public class GamePadVibrationManager : MonoBehaviour
     private event Action PlayerCounterAttackCastVibration = null;
     private event Action PlayerBlockCastVibration = null;
     private event Action PlayerBlockSucceedVibration = null;
+    private event Action PlayerBlockFailedVibration = null;
     private event Action PlayerRollVibration = null;
     private event Action PlayerJumpVibration = null;
     private event Action PlayerWeakAttackHitVibration = null;
@@ -79,6 +81,7 @@ public class GamePadVibrationManager : MonoBehaviour
         PlayerCounterAttackHitVibration = () => { Vibrate(playerCounterAttackHit); };
         PlayerBlockCastVibration = () => { Vibrate(playerBlockCast); };
         PlayerBlockSucceedVibration = () => { Vibrate(playerBlockSucceed); };
+        PlayerBlockFailedVibration = () => { Vibrate(playerBlockFailed); };
         PlayerDeadVibration = () => { Vibrate(playerDead); };
 
         _playerController.OnRoll += PlayerRollVibration;
@@ -91,6 +94,7 @@ public class GamePadVibrationManager : MonoBehaviour
         _playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitVibration;
         _playerBlockController.OnBlockCast += PlayerBlockCastVibration;
         _playerBlockController.OnBlockSucceed += PlayerBlockSucceedVibration;
+        _playerBlockController.OnBlockFailed += PlayerBlockFailedVibration;
         _playerHealth.OnDead += PlayerDeadVibration;
     }
 
@@ -106,6 +110,7 @@ public class GamePadVibrationManager : MonoBehaviour
         _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitVibration;
         _playerBlockController.OnBlockCast -= PlayerBlockCastVibration;
         _playerBlockController.OnBlockSucceed -= PlayerBlockSucceedVibration;
+        _playerBlockController.OnBlockFailed -= PlayerBlockFailedVibration;
         _playerHealth.OnDead -= PlayerDeadVibration;
     }
 
