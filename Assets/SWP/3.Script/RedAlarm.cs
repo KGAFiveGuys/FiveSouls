@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class RedAlarm : MonoBehaviour
 {
     [SerializeField] private GameObject AlarmUI;
-    [SerializeField] private float Timer;
-    [SerializeField] private int MuliNum;
     [SerializeField] private Image AlarmColor;
+    [SerializeField] private float Timer;
+    [SerializeField] private int MultiNum;
     private float flowTime;
     private PlayerController playerController;
 
@@ -49,12 +49,13 @@ public class RedAlarm : MonoBehaviour
             AlarmColor.color = Color.red;
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var startScale = Vector3.one;
-            var endScale = Vector3.one * MuliNum;
-            flowTime = 0;
+            var endScale = Vector3.one * MultiNum;
+            flowTime = 0;            
             while (Timer > flowTime)
             {
                 flowTime += Time.deltaTime;
                 rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+                
                 yield return null;
             }
             yield return null;
@@ -69,7 +70,7 @@ public class RedAlarm : MonoBehaviour
             AlarmColor.color = Color.yellow;
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var startScale = Vector3.one;
-            var endScale = Vector3.one * MuliNum;
+            var endScale = Vector3.one * MultiNum;
             flowTime = 0;
             while (Timer > flowTime)
             {
