@@ -93,7 +93,6 @@ public class AttackController : MonoBehaviour
                 case AttackType.Strong:
                     _OnAttackHit = OnStrongAttackHit;
                     break;
-                // Test
                 case AttackType.Counter:
                     _OnAttackHit += OnCounterAttackHit;
                     break;

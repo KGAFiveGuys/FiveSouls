@@ -170,11 +170,6 @@ public class PlayerController : MonoBehaviour
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
-        #region SFX
-        _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackHit += SFXManager.Instance.OnPlayerCounterAttackHit;
-        #endregion
     }
 
     private void OnDisable()
@@ -213,11 +208,6 @@ public class PlayerController : MonoBehaviour
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
-        #region SFX
-        _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackHit -= SFXManager.Instance.OnPlayerCounterAttackHit;
-        #endregion
     }
 
     private void Start()
@@ -355,7 +345,7 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
-            if (IsGoingToStair(moveDirection, currentSpeed))
+            if (IsGoingToStair(moveDirection))
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
 
             _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
@@ -394,7 +384,7 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
 
-            if (IsGoingToStair(moveDirection, currentSpeed))
+            if (IsGoingToStair(moveDirection))
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
 
             _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
@@ -413,7 +403,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stairDetectionDistance = 20f;
     [SerializeField] private float stairDetectionOffsetUp = 2f;
     [SerializeField] private float stairDetectionOffsetForward = -.5f;
-    private bool IsGoingToStair(Vector3 currentDirection, float currentSpeed)
+    private bool IsGoingToStair(Vector3 currentDirection)
     {
         if (DesiredMove == Vector2.zero)
             return false;
@@ -491,17 +481,6 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     public Vector2 DesiredRotate { get; private set; }
-    #region rotate_Action
-    private void OnRotatePerformed(InputAction.CallbackContext context)
-    {
-        DesiredRotate = context.ReadValue<Vector2>();
-    }
-    private void OnRotateCanceled(InputAction.CallbackContext context)
-    {
-        DesiredRotate = Vector2.zero;
-        isLockOnPointChangable = true;
-    }
-    #endregion
     #region run_Action
     private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
@@ -572,7 +551,6 @@ public class PlayerController : MonoBehaviour
             _stamina.Consume(_stamina.JumpCost);
             _animator.SetBool(isJump_hash, true);
             OnJump?.Invoke();
-            SFXManager.Instance.OnPlayerJump();
             StartCoroutine(CancelJump(lastMovement));
         }
     }
@@ -603,9 +581,8 @@ public class PlayerController : MonoBehaviour
         
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
-        _stamina.Consume(_stamina.BlockCastCost);
-        SFXManager.Instance.OnPlayerBlockCast();
         _animator.SetBool(isBlock_hash, true);
+        _stamina.Consume(_stamina.BlockCastCost);
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
@@ -642,10 +619,10 @@ public class PlayerController : MonoBehaviour
         if (isRoll)
         {
             ControlState = ControlState.Uncontrollable;
-            _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
+
             OnRoll?.Invoke();
-            SFXManager.Instance.OnPlayerRoll();
+            _stamina.Consume(_stamina.RollCost);
             StartCoroutine(CancelRoll());
         }
     }
@@ -678,10 +655,9 @@ public class PlayerController : MonoBehaviour
 
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isWeakAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Weak);
         _stamina.Consume(_stamina.WeakAttackCost);
-        _animator.SetBool(isWeakAttack_hash, true);
-        SFXManager.Instance.OnPlayerWeakAttackCast();
         StartCoroutine(CancelWeakAttack());
     }
     private IEnumerator CancelWeakAttack()
@@ -707,10 +683,9 @@ public class PlayerController : MonoBehaviour
 
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isStrongAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Strong);
         _stamina.Consume(_stamina.StrongAttackCost);
-        _animator.SetBool(isStrongAttack_hash, true);
-        SFXManager.Instance.OnPlayerStrongAttackCast();
         StartCoroutine(CancelStrongAttack());
         
     }
@@ -729,11 +704,10 @@ public class PlayerController : MonoBehaviour
             return false;
 
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isCounterAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Counter);
         _stamina.Consume(_stamina.CounterAttackCost);
         _blockController.StopKnockBack();
-        _animator.SetBool(isCounterAttack_hash, true);
-        SFXManager.Instance.OnPlayerCounterAttackCast();
         StartCoroutine(CancelCounterAttack());
         return true;
     }
@@ -906,6 +880,17 @@ public class PlayerController : MonoBehaviour
         }
         VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
+    #region rotate_Action
+    private void OnRotatePerformed(InputAction.CallbackContext context)
+    {
+        DesiredRotate = context.ReadValue<Vector2>();
+    }
+    private void OnRotateCanceled(InputAction.CallbackContext context)
+    {
+        DesiredRotate = Vector2.zero;
+        isLockOnPointChangable = true;
+    }
+    #endregion
 
     #region Die
     public void Die()
@@ -919,7 +904,6 @@ public class PlayerController : MonoBehaviour
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
-        SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
         StartCoroutine(DropEquipments(true));
     }

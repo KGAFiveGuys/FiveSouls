@@ -8,5 +8,4 @@ public class SoundEffectSO : ScriptableObject
     [SerializeField] public AudioClip clip;
     [SerializeField] public float delay = 0f;
     [SerializeField] public AnimationCurve volumeOverTime;
-    [SerializeField] public float startInMiddle = 0f;
 }
