@@ -43,36 +43,42 @@ public class RedAlarm : MonoBehaviour
 
     public IEnumerator StorngAlarm()
     {
-        AlarmUI.SetActive(true);
-        AlarmColor.color = Color.red;
-        var rectTransform = AlarmUI.GetComponent<RectTransform>();
-        var startScale = Vector3.one;
-        var endScale = Vector3.one * MuliNum;
-        flowTime = 0;
-        while (Timer > flowTime)
+        if (playerController.LockedOnEnemy != null)
         {
-            flowTime += Time.deltaTime;
-            rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+            AlarmUI.SetActive(true);
+            AlarmColor.color = Color.red;
+            var rectTransform = AlarmUI.GetComponent<RectTransform>();
+            var startScale = Vector3.one;
+            var endScale = Vector3.one * MuliNum;
+            flowTime = 0;
+            while (Timer > flowTime)
+            {
+                flowTime += Time.deltaTime;
+                rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+                yield return null;
+            }
             yield return null;
+            AlarmUI.SetActive(false);
         }
-        yield return null;
-        AlarmUI.SetActive(false);
     }
     public IEnumerator WeakAlarm()
     {
-        AlarmUI.SetActive(true);
-        AlarmColor.color = Color.yellow;
-        var rectTransform = AlarmUI.GetComponent<RectTransform>();
-        var startScale = Vector3.one;
-        var endScale = Vector3.one * MuliNum;
-        flowTime = 0;
-        while (Timer > flowTime)
+        if (playerController.LockedOnEnemy != null)
         {
-            flowTime += Time.deltaTime;
-            rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+            AlarmUI.SetActive(true);
+            AlarmColor.color = Color.yellow;
+            var rectTransform = AlarmUI.GetComponent<RectTransform>();
+            var startScale = Vector3.one;
+            var endScale = Vector3.one * MuliNum;
+            flowTime = 0;
+            while (Timer > flowTime)
+            {
+                flowTime += Time.deltaTime;
+                rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+                yield return null;
+            }
             yield return null;
+            AlarmUI.SetActive(false);
         }
-        yield return null;
-        AlarmUI.SetActive(false);
     }
 }

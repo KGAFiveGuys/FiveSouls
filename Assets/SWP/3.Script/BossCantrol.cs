@@ -251,65 +251,65 @@ public class BossCantrol : MonoBehaviour
         if (AttackNum == 0)
         {
             Debug.Log("어택1");
-            //yield return new WaitForSeconds(0.8f);
-            //agent.updateRotation = false;
-            //attackController.AttackCollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.8f);
+            agent.updateRotation = false;
+            attackController.AttackCollider.gameObject.SetActive(true);
 
-            //yield return new WaitForSeconds(0.3f);
-            //agent.updateRotation = true;
-            //attackController.AttackCollider.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.3f);
+            agent.updateRotation = true;
+            attackController.AttackCollider.gameObject.SetActive(false);
 
-            //yield return new WaitForSeconds(0.4f);
-            //agent.updateRotation = false;
-            //attackController.AttackCollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.4f);
+            agent.updateRotation = false;
+            attackController.AttackCollider.gameObject.SetActive(true);
 
-            //yield return new WaitForSeconds(0.25f);
-            //agent.updateRotation = true;
-            //attackController.AttackCollider.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.25f);
+            agent.updateRotation = true;
+            attackController.AttackCollider.gameObject.SetActive(false);
 
-            //yield return new WaitForSeconds(0.75f);
-            //agent.isStopped = false;
-            yield return new WaitForSeconds(2f);
-            HulkAnimator.ResetTrigger("NormalAttack");
+            yield return new WaitForSeconds(0.75f);
+            agent.isStopped = false;
+            //yield return new WaitForSeconds(2f);
+            //HulkAnimator.ResetTrigger("NormalAttack");
         }
         else
         {
             Debug.Log("어택2");
-            //yield return new WaitForSeconds(0.8f);
-            //agent.updateRotation = false;
-            //attackController.AttackCollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.8f);
+            agent.updateRotation = false;
+            attackController.AttackCollider.gameObject.SetActive(true);
 
-            //yield return new WaitForSeconds(0.3f);
-            //agent.updateRotation = true;
-            //attackController.AttackCollider.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.3f);
+            agent.updateRotation = true;
+            attackController.AttackCollider.gameObject.SetActive(false);
 
-            //yield return new WaitForSeconds(0.3f);
-            //agent.updateRotation = false;
-            //attackController.AttackCollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.3f);
+            agent.updateRotation = false;
+            attackController.AttackCollider.gameObject.SetActive(true);
 
-            //yield return new WaitForSeconds(0.4f);
-            //agent.updateRotation = true;
-            //attackController.AttackCollider.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.4f);
+            agent.updateRotation = true;
+            attackController.AttackCollider.gameObject.SetActive(false);
 
-            //yield return new WaitForSeconds(0.2f);
-            //HulkAnimator.SetFloat("AniSpeed", 0.5f);
+            yield return new WaitForSeconds(0.2f);
+            HulkAnimator.SetFloat("AniSpeed", 0.5f);
 
-            //yield return new WaitForSeconds(0.5f);
-            //HulkAnimator.SetFloat("AniSpeed", 1.5f);
+            yield return new WaitForSeconds(0.5f);
+            HulkAnimator.SetFloat("AniSpeed", 1.5f);
 
-            //yield return new WaitForSeconds(0.1f);
-            //agent.updateRotation = false;
-            //attackController.AttackCollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.1f);
+            agent.updateRotation = false;
+            attackController.AttackCollider.gameObject.SetActive(true);
 
-            //yield return new WaitForSeconds(0.2f);
-            //agent.updateRotation = true;
-            //attackController.AttackCollider.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.2f);
+            agent.updateRotation = true;
+            attackController.AttackCollider.gameObject.SetActive(false);
 
-            //yield return new WaitForSeconds(0.7f);
-            //agent.isStopped = false;
-            yield return new WaitForSeconds(3.25f);
-            HulkAnimator.ResetTrigger("NormalAttack");
-            HulkAnimator.SetFloat("AniSpeed", 1f);
+            yield return new WaitForSeconds(0.7f);
+            agent.isStopped = false;
+            //yield return new WaitForSeconds(3.25f);
+            //HulkAnimator.ResetTrigger("NormalAttack");
+            //HulkAnimator.SetFloat("AniSpeed", 1f);
         }
     }
 
