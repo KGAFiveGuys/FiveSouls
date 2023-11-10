@@ -358,10 +358,10 @@ public class PlayerController : MonoBehaviour
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
 
-    [SerializeField] private float defualtUpForce = 3f;
-    [SerializeField] private float stairDetectionDistance = 3f;
+    [SerializeField] private float defualtUpForce = 6f;
+    [SerializeField] private float stairDetectionDistance = 20f;
     [SerializeField] private float stairDetectionOffsetUp = 2f;
-    [SerializeField] private float stairDetectionOffsetForward = 2f;
+    [SerializeField] private float stairDetectionOffsetForward = -.5f;
     Vector3 moveDirection;
     private void Move()
     {
