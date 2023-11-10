@@ -137,8 +137,8 @@ public class SFXManager : MonoBehaviour
         _playerAttackController.OnStrongAttackCast += PlayerStrongAttackCastSFX;
         _playerAttackController.OnStrongAttackHit += PlayerStrongAttackHitSFX;
         _playerAttackController.OnCounterAttackCast += PlayerCounterAttackCastSFX;
-        _playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitSFX;
-        _playerHealth.OnDead += PlayerDeadSFX;
+		_playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitSFX;
+		_playerHealth.OnDead += PlayerDeadSFX;
     }
 
 	private void OnDisable()
@@ -152,8 +152,8 @@ public class SFXManager : MonoBehaviour
         _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastSFX;
         _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitSFX;
         _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastSFX;
-        _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitSFX;
-        _playerHealth.OnDead += PlayerDeadSFX;
+		_playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitSFX;
+		_playerHealth.OnDead += PlayerDeadSFX;
     }
 
 	private void Start()
@@ -176,18 +176,18 @@ public class SFXManager : MonoBehaviour
         }
     }
 
+    private static int BGMCounter = 0;
+    private static int SFXCounter = 0;
     private void PlayLoop(SoundEffectSO bgm)
     {
         if (bgm == null)
             return;
 
-        foreach (var audioSource in BGM_AudioSources)
-        {
-            if (!audioSource.isPlaying)
-            {
-                StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
-                break;
-            }
+        var audioSource = BGM_AudioSources[BGMCounter];
+        if (!audioSource.isPlaying)
+		{
+            StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
+            BGMCounter = (BGMCounter + 1) % BGM_AudioSourceCount;
         }
     }
 
@@ -196,14 +196,11 @@ public class SFXManager : MonoBehaviour
         if (sfx == null)
             return;
 
-        foreach (var audioSource in SFX_AudioSources)
+        var audioSource = SFX_AudioSources[SFXCounter];
+        if (!audioSource.isPlaying)
         {
-            if (!audioSource.isPlaying)
-            {
-                StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
-                Debug.Log(sfx.clip.name);
-                break;
-            }
+            StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
+            SFXCounter = (SFXCounter + 1) % SFX_AudioSourceCount;
         }
     }
 
@@ -212,13 +209,11 @@ public class SFXManager : MonoBehaviour
         if (sfx == null)
             return;
 
-        foreach (var audioSource in SFX_AudioSources)
+        var audioSource = SFX_AudioSources[SFXCounter];
+        if (!audioSource.isPlaying)
         {
-            if (!audioSource.isPlaying)
-            {
-                StartCoroutine(StartPlay(audioSource, sfx, duration));
-                break;
-            }
+            StartCoroutine(StartPlay(audioSource, sfx, duration));
+            SFXCounter = (SFXCounter + 1) % SFX_AudioSourceCount;
         }
     }
 
@@ -236,6 +231,7 @@ public class SFXManager : MonoBehaviour
         source.clip = sfx.clip;
         source.volume = sfx.volumeOverTime.Evaluate(0);
         source.loop = isLoop ? true : false;
+        Debug.Log($"{source.name} Play - {sfx.clip.name}");
         source.Play();
 
         // Lerp Volumne
@@ -250,6 +246,7 @@ public class SFXManager : MonoBehaviour
 
         // Stop Play
         source.Stop();
+        Debug.Log($"{source.name} Stop - {sfx.clip.name}");
         StartCoroutine(RestoreVolume(source));
     }
 
