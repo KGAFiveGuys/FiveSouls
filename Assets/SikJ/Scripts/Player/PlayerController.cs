@@ -267,7 +267,7 @@ public class PlayerController : MonoBehaviour
         Animate();
     }
 
-    private bool isCollidingWithEnemy = false;  
+    private bool isCollidingWithEnemy = false;
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.layer == 1 << 8)
@@ -330,7 +330,7 @@ public class PlayerController : MonoBehaviour
         if (!IsLockOn)
             return;
 
-        var lockOnPointGroundPos = new Vector3(LockOnTargetPoint.transform.position.x, 0, LockedOnEnemy.transform.position.z);
+        var lockOnPointGroundPos = new Vector3(LockOnTargetPoint.transform.position.x, transform.position.y, LockedOnEnemy.transform.position.z);
         transform.LookAt(lockOnPointGroundPos);
     }
     private void ShowLockOnPoint()
@@ -358,7 +358,10 @@ public class PlayerController : MonoBehaviour
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
 
-    [SerializeField] private float defualtUpForce = 1f;
+    [SerializeField] private float defualtUpForce = 3f;
+    [SerializeField] private float stairDetectionDistance = 3f;
+    [SerializeField] private float stairDetectionOffsetUp = 2f;
+    [SerializeField] private float stairDetectionOffsetForward = 2f;
     Vector3 moveDirection;
     private void Move()
     {
@@ -371,33 +374,40 @@ public class PlayerController : MonoBehaviour
             IsRun = false;
 
         float currentSpeed = IsRun ? runSpeed : walkSpeed;
+
         if (IsLockOn)
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
-            //transform.Translate(moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
-            if (DesiredMove != Vector2.zero)
-                moveDirection += Vector3.up * defualtUpForce;
-            _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
 
-            //if (isCollidingWithEnemy)
-            //    transform.Translate(5 * -moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            if (IsGoingToStair(moveDirection, currentSpeed))
+                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+
+            _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
 
-            Debug.DrawLine(transform.position, transform.position + moveDirection * currentSpeed, Color.green);
+            var forward = transform.forward * DesiredMove.y;
+            var right = transform.right * DesiredMove.x;
+            var desiredMove = forward + right;
+
+            Debug.DrawLine(
+                transform.position,                                                             // start
+                transform.position + desiredMove * (currentSpeed * desiredMove.magnitude),      // end
+                Color.green                                                                     // color
+            );
         }
         // FreeLook이면 desiredMove로 moveDirection을 조정
         else
         {
             var playerGroundPos = new Vector3(
                 transform.position.x,
-                0,
+                transform.position.y,
                 transform.position.z
             );
             var cameraGroundPos = new Vector3(
                 Camera.main.transform.position.x,
-                0,
+                transform.position.y,
                 Camera.main.transform.position.z
             );
             Vector3 cameraToPlayer = (playerGroundPos - cameraGroundPos);
@@ -407,19 +417,99 @@ public class PlayerController : MonoBehaviour
             moveDirection += right * DesiredMove.x;
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
-            //transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World);
-            if(DesiredMove != Vector2.zero)
-                moveDirection += Vector3.up * defualtUpForce;
-            _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
 
-            //if (isCollidingWithEnemy)
-            //    transform.Translate(5 * -moveDirection * currentSpeed * Time.deltaTime, Space.World);
+            if (IsGoingToStair(moveDirection, currentSpeed))
+                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+
+            _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
+
+            Debug.DrawLine(
+                transform.position,                                 // start
+                transform.position + moveDirection * currentSpeed,  // end
+                Color.green                                         // color
+            );
         }
-        Debug.DrawLine(transform.position, transform.position + moveDirection * currentSpeed, Color.green);
     }
+    private bool IsGoingToStair(Vector3 currentDirection, float currentSpeed)
+    {
+        if (DesiredMove == Vector2.zero)
+            return false;
+
+        bool isStairDetected = false;
+        if (IsLockOn)
+        {
+            var forward = transform.forward * currentDirection.z;
+            var right = transform.right * currentDirection.x;
+            var moveDirection = forward + right;
+            var offset = Vector3.up * stairDetectionOffsetUp + forward * stairDetectionOffsetForward;
+
+            //Debug.DrawLine(
+            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude),
+            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude) + Vector3.down * stairDetectionDistance,
+            //    Color.red);
+            Debug.DrawLine(
+                transform.position + offset + moveDirection * moveDirection.magnitude,
+                transform.position + offset + moveDirection * moveDirection.magnitude + Vector3.down * stairDetectionDistance,
+                Color.red);
+
+            //isStairDetected = Physics.Raycast(
+            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude),  // Origin
+            //    Vector3.down,                                                                   // Direction
+            //    out RaycastHit hit,                                                             // HitInfo
+            //    stairDetectionDistance,                                                         // MaxDistance
+            //    1 << 14                                                                         // Layer (Stair = 14)
+            //);
+            isStairDetected = Physics.Raycast(
+                transform.position + offset + moveDirection * moveDirection.magnitude,  // Origin
+                Vector3.down,                                                                   // Direction
+                out RaycastHit hit,                                                             // HitInfo
+                stairDetectionDistance,                                                         // MaxDistance
+                1 << 14                                                                         // Layer (Stair = 14)
+            );
+
+            if (isStairDetected)
+                Debug.Log($"Stair Detected {hit.collider.gameObject.name}");
+        }
+        else
+        {
+            var offset = Vector3.up * stairDetectionOffsetUp + transform.forward * stairDetectionOffsetForward;
+
+            //Debug.DrawLine(
+            //    transform.position + offset + currentDirection * currentSpeed,
+            //    transform.position + offset + currentDirection * currentSpeed + Vector3.down * stairDetectionDistance,
+            //    Color.red);
+
+            Debug.DrawLine(
+                transform.position + offset + currentDirection,
+                transform.position + offset + currentDirection + Vector3.down * stairDetectionDistance,
+                Color.red);
+
+            //isStairDetected = Physics.Raycast(
+            //    transform.position + offset + currentDirection * currentSpeed,  // Origin
+            //    Vector3.down,                                       // Direction
+            //    out RaycastHit hit,                                 // HitInfo
+            //    stairDetectionDistance,                             // MaxDistance
+            //    1 << 14                                             // Layer (Stair = 14)
+            //);
+
+            isStairDetected = Physics.Raycast(
+                transform.position + offset + currentDirection,  // Origin
+                Vector3.down,                                       // Direction
+                out RaycastHit hit,                                 // HitInfo
+                stairDetectionDistance,                             // MaxDistance
+                1 << 14                                             // Layer (Stair = 14)
+            );
+
+            if (isStairDetected)
+                Debug.Log($"Stair Detected {hit.collider.gameObject.name}");
+        }
+        
+        return isStairDetected;
+    }
+
     private void Animate()
     {
         // Move

@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField] private Collider hitCollider;
-
     [field:Header("Value")]
     [field:SerializeField] public float MaxHP { get; private set; } = 100f;
     public float CurrentHP { get; private set; }
@@ -18,13 +16,11 @@ public class Health : MonoBehaviour
     private void Awake()
     {
         CurrentHP = MaxHP;
-        TryGetComponent(out hitCollider);
     }
 
     private void OnEnable()
     {
-        if (hitCollider != null)
-            OnDead += () => hitCollider.enabled = false;
+        OnDead += () => gameObject.layer = LayerMask.NameToLayer("Ghost");
     }
 
     public void GetDamage(AttackType type, float damage)
