@@ -446,22 +446,11 @@ public class PlayerController : MonoBehaviour
             var moveDirection = forward + right;
             var offset = Vector3.up * stairDetectionOffsetUp + forward * stairDetectionOffsetForward;
 
-            //Debug.DrawLine(
-            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude),
-            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude) + Vector3.down * stairDetectionDistance,
-            //    Color.red);
             Debug.DrawLine(
                 transform.position + offset + moveDirection * moveDirection.magnitude,
                 transform.position + offset + moveDirection * moveDirection.magnitude + Vector3.down * stairDetectionDistance,
                 Color.red);
 
-            //isStairDetected = Physics.Raycast(
-            //    transform.position + offset + moveDirection * (currentSpeed * moveDirection.magnitude),  // Origin
-            //    Vector3.down,                                                                   // Direction
-            //    out RaycastHit hit,                                                             // HitInfo
-            //    stairDetectionDistance,                                                         // MaxDistance
-            //    1 << 14                                                                         // Layer (Stair = 14)
-            //);
             isStairDetected = Physics.Raycast(
                 transform.position + offset + moveDirection * moveDirection.magnitude,  // Origin
                 Vector3.down,                                                                   // Direction
@@ -469,31 +458,15 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                                                         // MaxDistance
                 1 << 14                                                                         // Layer (Stair = 14)
             );
-
-            if (isStairDetected)
-                Debug.Log($"Stair Detected {hit.collider.gameObject.name}");
         }
         else
         {
             var offset = Vector3.up * stairDetectionOffsetUp + transform.forward * stairDetectionOffsetForward;
 
-            //Debug.DrawLine(
-            //    transform.position + offset + currentDirection * currentSpeed,
-            //    transform.position + offset + currentDirection * currentSpeed + Vector3.down * stairDetectionDistance,
-            //    Color.red);
-
             Debug.DrawLine(
                 transform.position + offset + currentDirection,
                 transform.position + offset + currentDirection + Vector3.down * stairDetectionDistance,
                 Color.red);
-
-            //isStairDetected = Physics.Raycast(
-            //    transform.position + offset + currentDirection * currentSpeed,  // Origin
-            //    Vector3.down,                                       // Direction
-            //    out RaycastHit hit,                                 // HitInfo
-            //    stairDetectionDistance,                             // MaxDistance
-            //    1 << 14                                             // Layer (Stair = 14)
-            //);
 
             isStairDetected = Physics.Raycast(
                 transform.position + offset + currentDirection,  // Origin
@@ -502,9 +475,6 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                             // MaxDistance
                 1 << 14                                             // Layer (Stair = 14)
             );
-
-            if (isStairDetected)
-                Debug.Log($"Stair Detected {hit.collider.gameObject.name}");
         }
         
         return isStairDetected;
@@ -638,7 +608,7 @@ public class PlayerController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             var rateOverTime = jumpAirSpeedOverTime.Evaluate(elapsedTime / duration);
             var currentMovement = Vector3.Lerp(startSpeed, endSpeed, rateOverTime);
-            transform.Translate(currentMovement * Time.deltaTime, Space.World);
+            _rigidbody.MovePosition(currentMovement * Time.deltaTime);
             yield return null;
 		}
         isJumping = false;
