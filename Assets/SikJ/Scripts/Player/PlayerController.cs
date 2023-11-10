@@ -357,7 +357,8 @@ public class PlayerController : MonoBehaviour
         if (!Camera.main.GetComponent<CinemachineBrain>().IsBlending)
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
-    
+
+    [SerializeField] private float defualtUpForce = 1f;
     Vector3 moveDirection;
     private void Move()
     {
@@ -373,10 +374,13 @@ public class PlayerController : MonoBehaviour
         if (IsLockOn)
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
-            transform.Translate(moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            //transform.Translate(moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            if (DesiredMove != Vector2.zero)
+                moveDirection += Vector3.up * defualtUpForce;
+            _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
 
-            if (isCollidingWithEnemy)
-                transform.Translate(5 * -moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            //if (isCollidingWithEnemy)
+            //    transform.Translate(5 * -moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -403,10 +407,13 @@ public class PlayerController : MonoBehaviour
             moveDirection += right * DesiredMove.x;
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
-            transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World);
+            //transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World);
+            if(DesiredMove != Vector2.zero)
+                moveDirection += Vector3.up * defualtUpForce;
+            _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
 
-            if (isCollidingWithEnemy)
-                transform.Translate(5 * -moveDirection * currentSpeed * Time.deltaTime, Space.World);
+            //if (isCollidingWithEnemy)
+            //    transform.Translate(5 * -moveDirection * currentSpeed * Time.deltaTime, Space.World);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
