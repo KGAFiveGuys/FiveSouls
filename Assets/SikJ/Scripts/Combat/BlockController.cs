@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(AttackController))]
 public class BlockController : MonoBehaviour
 {
@@ -16,27 +17,32 @@ public class BlockController : MonoBehaviour
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
 
     private Health _characterHealth;
+    private Stamina _characterStamina;
     private AttackController _attackController;
 
     public event Action OnBlockCast;
     public event Action OnBlockSucceed;
+    public event Action OnBlockFailed;
     public event Action OnKnockBackFinished;
 
     private void Awake()
     {
         TryGetComponent(out _characterHealth);
+        TryGetComponent(out _characterStamina);
         TryGetComponent(out _attackController);
     }
 
     private void OnEnable()
     {
         OnBlockSucceed += ReadyCounterAttack;
+        OnBlockSucceed += UseStaminaOnBlockSucceed;
         _characterHealth.OnDead += StopKnockBack;
     }
 
     private void OnDisable()
     {
         OnBlockSucceed -= ReadyCounterAttack;
+        OnBlockSucceed -= UseStaminaOnBlockSucceed;
         _characterHealth.OnDead -= StopKnockBack;
     }
 
@@ -52,7 +58,13 @@ public class BlockController : MonoBehaviour
         blockCollider.gameObject.SetActive(false);
     }
 
-    public void Block(float damage)
+    private void UseStaminaOnBlockSucceed()
+	{
+        if (_characterStamina != null)
+            _characterStamina.Consume(_characterStamina.BlockSuccessCost);
+	}
+
+    public void BlockSucceed(float damage)
     {
         if (_characterHealth.CurrentHP == 0)
             return;
@@ -75,7 +87,19 @@ public class BlockController : MonoBehaviour
 
         blockParticle.Play();
         SFXManager.Instance.OnTimeSlowDown(duration);
-        SFXManager.Instance.OnPlayerBlock(duration);
+        SFXManager.Instance.OnPlayerBlockSucceed(duration);
+    }
+
+    public void BlockFailed()
+    {
+        if (_characterHealth.CurrentHP == 0)
+            return;
+
+        OnBlockFailed?.Invoke();
+
+        TurnOffBlockCollider();
+
+        SFXManager.Instance.OnPlayerBlockFailed();
     }
 
     private void ReadyCounterAttack()

@@ -18,6 +18,11 @@ public class Health : MonoBehaviour
         CurrentHP = MaxHP;
     }
 
+    private void OnEnable()
+    {
+        OnDead += () => gameObject.layer = LayerMask.NameToLayer("Ghost");
+    }
+
     public void GetDamage(AttackType type, float damage)
     {
         LastHitType = type;
