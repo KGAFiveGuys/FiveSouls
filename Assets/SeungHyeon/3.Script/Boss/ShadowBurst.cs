@@ -36,7 +36,7 @@ public class ShadowBurst : MonoBehaviour
                     break;
             }
 
-            targetBlockController.Block(damage);
+            targetBlockController.BlockSucceed(damage);
             _attackController.Attack(targetHealth, damage, true);
         }
         // 적중된 경우
