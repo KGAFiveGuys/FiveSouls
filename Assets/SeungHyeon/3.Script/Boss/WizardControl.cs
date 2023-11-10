@@ -38,6 +38,9 @@ public class WizardControl : MonoBehaviour
     [SerializeField] private ThunderBoltCircle thunderBoltCircle;
     [SerializeField] private ParticleSystem shadowburst;
     [SerializeField] private GameObject Fireball_Spawner;
+    [SerializeField] private GameObject FrostMissilePrefab;
+    [SerializeField] private GameObject RightHand;
+    [SerializeField] private GameObject FrostSpawner;
     [SerializeField] private FireBallSpawner fireBallSpawner;
     [SerializeField] private MegaPattern megapattern;
     [SerializeField] private float BackwardForce = 100f;
@@ -169,8 +172,8 @@ public class WizardControl : MonoBehaviour
                 StartCoroutine(fireBallSpawner.CreateFireBall());
                 return;
             case 2:
-                //StartCoroutine(UseThunderbolt());
-                StartCoroutine(megapattern.MegaThunderPatternUse());
+                StartCoroutine(UseThunderbolt());
+                //StartCoroutine(megapattern.MegaThunderPatternUse());
                 return;
         }    
     }
@@ -179,5 +182,9 @@ public class WizardControl : MonoBehaviour
         Vector3 Backward_Movement = -transform.forward * BackwardForce;
         Wizard_rb.AddForce(Backward_Movement);
         yield return null;
+    }
+    public void FrostMissile()
+    {
+        Instantiate(FrostMissilePrefab, RightHand.transform.position,Quaternion.identity ,FrostSpawner.transform);
     }
 }
