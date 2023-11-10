@@ -357,11 +357,6 @@ public class PlayerController : MonoBehaviour
         if (!Camera.main.GetComponent<CinemachineBrain>().IsBlending)
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
-
-    [SerializeField] private float defualtUpForce = 6f;
-    [SerializeField] private float stairDetectionDistance = 20f;
-    [SerializeField] private float stairDetectionOffsetUp = 2f;
-    [SerializeField] private float stairDetectionOffsetForward = -.5f;
     Vector3 moveDirection;
     private void Move()
     {
@@ -433,6 +428,10 @@ public class PlayerController : MonoBehaviour
             );
         }
     }
+    [SerializeField] private float defualtUpForce = 6f;
+    [SerializeField] private float stairDetectionDistance = 20f;
+    [SerializeField] private float stairDetectionOffsetUp = 2f;
+    [SerializeField] private float stairDetectionOffsetForward = -.5f;
     private bool IsGoingToStair(Vector3 currentDirection, float currentSpeed)
     {
         if (DesiredMove == Vector2.zero)
@@ -479,7 +478,6 @@ public class PlayerController : MonoBehaviour
         
         return isStairDetected;
     }
-
     private void Animate()
     {
         // Move
@@ -608,7 +606,7 @@ public class PlayerController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             var rateOverTime = jumpAirSpeedOverTime.Evaluate(elapsedTime / duration);
             var currentMovement = Vector3.Lerp(startSpeed, endSpeed, rateOverTime);
-            _rigidbody.MovePosition(currentMovement * Time.deltaTime);
+            _rigidbody.MovePosition(transform.position + currentMovement * Time.deltaTime);
             yield return null;
 		}
         isJumping = false;
