@@ -18,6 +18,7 @@ public enum ControlState
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(ConstantForce))]
 public class PlayerController : MonoBehaviour
 {
     [field:Header("State")]
@@ -118,6 +119,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
+    private ConstantForce _constantForce;
 
     public event Action OnRoll;
     public event Action OnJump;
@@ -132,6 +134,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
+        TryGetComponent(out _constantForce);
     }
 
     private void OnEnable()
@@ -346,7 +349,14 @@ public class PlayerController : MonoBehaviour
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
             if (IsGoingToStair(moveDirection))
+			{
+                _constantForce.force = Physics.gravity * 1000;
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+            }
+			else
+			{
+                _constantForce.force = Vector3.zero;
+            }
 
             _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
 
@@ -385,7 +395,14 @@ public class PlayerController : MonoBehaviour
             transform.LookAt(transform.position + moveDirection * currentSpeed);
 
             if (IsGoingToStair(moveDirection))
+			{
+                _constantForce.force = Physics.gravity * 1000;
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+            }
+            else
+            {
+                _constantForce.force = Vector3.zero;
+            }
 
             _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
 
