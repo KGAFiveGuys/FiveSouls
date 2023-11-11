@@ -358,7 +358,7 @@ public class PlayerController : MonoBehaviour
                 _constantForce.force = Vector3.zero;
             }
 
-            _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            _rigidbody.MovePosition(transform.position + (currentSpeed * moveDirection.magnitude) * Time.deltaTime * moveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -404,7 +404,7 @@ public class PlayerController : MonoBehaviour
                 _constantForce.force = Vector3.zero;
             }
 
-            _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
+            _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * moveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -425,8 +425,8 @@ public class PlayerController : MonoBehaviour
         if (DesiredMove == Vector2.zero)
             return false;
 
-        bool isStairDetected = false;
-        if (IsLockOn)
+		bool isStairDetected = false;
+		if (IsLockOn)
         {
             var forward = transform.forward * currentDirection.z;
             var right = transform.right * currentDirection.x;

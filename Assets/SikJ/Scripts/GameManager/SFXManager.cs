@@ -11,8 +11,8 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private GameObject AudioSourcePrefab;
     [SerializeField] private int BGM_AudioSourceCount = 3;
     [SerializeField] private int SFX_AudioSourceCount = 10;
-    private List<AudioSource> BGM_AudioSources = new List<AudioSource>();
-    private List<AudioSource> SFX_AudioSources = new List<AudioSource>();
+    private readonly List<AudioSource> BGM_AudioSources = new List<AudioSource>();
+    private readonly List<AudioSource> SFX_AudioSources = new List<AudioSource>();
     [SerializeField] private float TimeToUnmuteAfterPlay = .5f;
 
     #region BGM List
@@ -147,8 +147,8 @@ public class SFXManager : MonoBehaviour
         _playerHealth.OnDead += PlayerDeadSFX;
     }
 
-    private void OnDisable()
-    {
+	private void OnDisable()
+	{
         UnsubscribePlayerEvents();
     }
     private void UnsubscribePlayerEvents()
@@ -251,7 +251,7 @@ public class SFXManager : MonoBehaviour
         // Start Play
         source.clip = sfx.clip;
         source.volume = sfx.volumeOverTime.Evaluate(0);
-        source.loop = isLoop ? true : false;
+        source.loop = isLoop;
         source.Play();
 
         // Lerp Volumne

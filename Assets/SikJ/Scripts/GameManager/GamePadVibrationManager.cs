@@ -106,6 +106,7 @@ public class GamePadVibrationManager : MonoBehaviour
     {
         UnsubscribePlayerEvents();
     }
+    
     private void UnsubscribePlayerEvents()
     {
         _playerController.OnRoll -= PlayerRollVibration;
