@@ -56,17 +56,22 @@ public class BreakableObject:MonoBehaviour{
 
 	public void SpawnRandomPotion()
     {
-		switch(Random.Range(0, 2))
+		var weightedValue = potionSpawnWeight.Evaluate(Random.value);
+		if (weightedValue > .9f)
         {
-			case 0:
-				SpawnHealthPotion();
-				break;
-			case 1:
-				SpawnStaminaPotion();
-				break;
+			switch (Random.Range(0, 2))
+			{
+				case 0:
+					SpawnHealthPotion();
+					break;
+				case 1:
+					SpawnStaminaPotion();
+					break;
+			}
 		}
     }
 
+	public AnimationCurve potionSpawnWeight;
 	public float potionSpawnOffsetY = 0f;
 	public void SpawnHealthPotion()
 	{

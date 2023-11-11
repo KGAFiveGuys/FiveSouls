@@ -15,7 +15,8 @@ public class BreakableObjectEditor: Editor {
     	var target_cs = (BreakableObject)target;
 
         EditorGUILayout.LabelField("Spawn Potions", EditorStyles.miniLabel);
-        target_cs.potionSpawnOffsetY = EditorGUILayout.FloatField("Spawn OffsetY", target_cs.potionSpawnOffsetY);
+        target_cs.potionSpawnWeight = EditorGUILayout.CurveField(new GUIContent("Propbablility Weight", "Spawn if value above .9f"), target_cs.potionSpawnWeight, null);
+        target_cs.potionSpawnOffsetY = EditorGUILayout.FloatField("OffsetY", target_cs.potionSpawnOffsetY);
         target_cs.healthPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.healthPotion, typeof(GameObject), false);
         target_cs.staminaPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.staminaPotion, typeof(GameObject), false);
         EditorGUILayout.Space();
