@@ -7,7 +7,7 @@
 using UnityEngine;
 using System.Collections;
 
-
+[RequireComponent(typeof(Rigidbody))]
 public class BreakableObject:MonoBehaviour{
 	public Transform fragments; 					//Place the fractured object
 	public float waitForRemoveCollider = 1.0f; 		//Delay before removing collider (negative/zero = never)
@@ -20,6 +20,12 @@ public class BreakableObject:MonoBehaviour{
 	Transform fragmentd;							//Stores the fragmented object after break
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
+	Rigidbody rigidbody;
+
+    private void Awake()
+    {
+		TryGetComponent(out rigidbody);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -37,7 +43,9 @@ public class BreakableObject:MonoBehaviour{
 	}
 	
 	public void triggerBreak() {
-	    Destroy(transform.FindChild("object").gameObject);
+		rigidbody.isKinematic = false;
+		rigidbody.useGravity = true;
+		Destroy(transform.FindChild("object").gameObject);
 	    Destroy(transform.GetComponent<Collider>());
 	    Destroy(transform.GetComponent<Rigidbody>());
 		SFXManager.Instance.OnWoodenCrateBreaked();
