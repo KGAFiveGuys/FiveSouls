@@ -19,11 +19,11 @@ public class BreakableObject:MonoBehaviour{
 	Transform fragmentd;							//Stores the fragmented object after break
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
-	Rigidbody rigidbody;
+	Rigidbody _rigidbody;
 
     private void Awake()
     {
-		TryGetComponent(out rigidbody);
+		TryGetComponent(out _rigidbody);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -42,8 +42,8 @@ public class BreakableObject:MonoBehaviour{
 	}
 	
 	public void triggerBreak() {
-		rigidbody.isKinematic = false;
-		rigidbody.useGravity = true;
+		_rigidbody.isKinematic = false;
+		_rigidbody.useGravity = true;
 		Destroy(transform.FindChild("object").gameObject);
 	    Destroy(transform.GetComponent<Collider>());
 	    Destroy(transform.GetComponent<Rigidbody>());
