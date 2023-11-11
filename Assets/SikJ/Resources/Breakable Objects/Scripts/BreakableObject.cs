@@ -20,8 +20,10 @@ public class BreakableObject:MonoBehaviour{
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
 	Rigidbody _rigidbody;
+	public GameObject healthPotion;
+	public GameObject staminaPotion;
 
-    private void Awake()
+	private void Awake()
     {
 		TryGetComponent(out _rigidbody);
     }
@@ -40,8 +42,9 @@ public class BreakableObject:MonoBehaviour{
 			triggerBreak();
 		}
 	}
-	
+
 	public void triggerBreak() {
+		SpawnRandomPotion();
 		_rigidbody.isKinematic = false;
 		_rigidbody.useGravity = true;
 		Destroy(transform.FindChild("object").gameObject);
@@ -49,6 +52,30 @@ public class BreakableObject:MonoBehaviour{
 	    Destroy(transform.GetComponent<Rigidbody>());
 		SFXManager.Instance.OnWoodenCrateBreaked();
 	    StartCoroutine(breakObject());
+	}
+
+	public void SpawnRandomPotion()
+    {
+		switch(Random.Range(0, 2))
+        {
+			case 0:
+				SpawnHealthPotion();
+				break;
+			case 1:
+				SpawnStaminaPotion();
+				break;
+		}
+    }
+
+	public float potionSpawnOffsetY = 0f;
+	public void SpawnHealthPotion()
+	{
+		Instantiate(healthPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
+	}
+
+	public void SpawnStaminaPotion()
+	{
+		Instantiate(staminaPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
 	}
 
 	// breaks object

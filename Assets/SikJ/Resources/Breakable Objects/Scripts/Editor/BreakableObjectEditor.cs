@@ -13,6 +13,12 @@ using UnityEditor;
 public class BreakableObjectEditor: Editor {
     public override void OnInspectorGUI() {
     	var target_cs = (BreakableObject)target;
+
+        EditorGUILayout.LabelField("Spawn Potions", EditorStyles.miniLabel);
+        target_cs.potionSpawnOffsetY = EditorGUILayout.FloatField("Spawn OffsetY", target_cs.potionSpawnOffsetY);
+        target_cs.healthPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.healthPotion, typeof(GameObject), false);
+        target_cs.staminaPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.staminaPotion, typeof(GameObject), false);
+        EditorGUILayout.Space();
         EditorGUILayout.LabelField("Drag & Drop", EditorStyles.miniLabel);
     	target_cs.fragments = (Transform)EditorGUILayout.ObjectField("Fractured Object Prefab", target_cs.fragments, typeof(Transform) ,false );
     	target_cs.breakParticles = (ParticleSystem)EditorGUILayout.ObjectField("Particle System Prefab", target_cs.breakParticles, typeof(ParticleSystem) ,false);
