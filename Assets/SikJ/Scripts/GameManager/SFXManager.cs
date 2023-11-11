@@ -109,7 +109,7 @@ public class SFXManager : MonoBehaviour
     #endregion
 
     private void OnEnable()
-	{
+    {
         PlayerRollSFX = () => { PlayWhole(SFX_playerRoll); };
         PlayerJumpSFX = () => { PlayWhole(SFX_playerJump); };
         PlayerBlockCastSFX = () => { PlayWhole(SFX_playerBlockCast); };
@@ -117,17 +117,23 @@ public class SFXManager : MonoBehaviour
         PlayerWeakAttackCastSFX = () => { PlayWhole(SFX_playerWeakAttackCast); };
         PlayerWeakAttackHitSFX = () => { PlayWhole(SFX_playerWeakAttackHit); };
         PlayerStrongAttackCastSFX = () => { PlayWhole(SFX_playerStrongAttackCast); };
-        PlayerStrongAttackHitSFX = () => {
+        PlayerStrongAttackHitSFX = () =>
+        {
             PlayWhole(SFX_playerStrongAttackHit1);
             PlayWhole(SFX_playerStrongAttackHit2);
         };
         PlayerCounterAttackCastSFX = () => { PlayWhole(SFX_playerCounterAttackCast); };
         PlayerCounterAttackHitSFX = () => { PlayWhole(SFX_playerCounterAttackHit); };
-        PlayerDeadSFX = () => {
+        PlayerDeadSFX = () =>
+        {
             PlayWhole(SFX_playerDead1);
             PlayWhole(SFX_playerDead1);
         };
 
+        SubscribePlayerEvents();
+    }
+    private void SubscribePlayerEvents()
+    {
         _playerController.OnRoll += PlayerRollSFX;
         _playerController.OnJump += PlayerJumpSFX;
         _playerBlockController.OnBlockCast += PlayerBlockCastSFX;
@@ -137,12 +143,16 @@ public class SFXManager : MonoBehaviour
         _playerAttackController.OnStrongAttackCast += PlayerStrongAttackCastSFX;
         _playerAttackController.OnStrongAttackHit += PlayerStrongAttackHitSFX;
         _playerAttackController.OnCounterAttackCast += PlayerCounterAttackCastSFX;
-		_playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitSFX;
-		_playerHealth.OnDead += PlayerDeadSFX;
+        _playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitSFX;
+        _playerHealth.OnDead += PlayerDeadSFX;
     }
 
-	private void OnDisable()
-	{
+    private void OnDisable()
+    {
+        UnsubscribePlayerEvents();
+    }
+    private void UnsubscribePlayerEvents()
+    {
         _playerController.OnRoll -= PlayerRollSFX;
         _playerController.OnJump -= PlayerJumpSFX;
         _playerBlockController.OnBlockCast -= PlayerBlockCastSFX;
@@ -152,15 +162,14 @@ public class SFXManager : MonoBehaviour
         _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastSFX;
         _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitSFX;
         _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastSFX;
-		_playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitSFX;
-		_playerHealth.OnDead += PlayerDeadSFX;
+        _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitSFX;
+        _playerHealth.OnDead += PlayerDeadSFX;
     }
 
-	private void Start()
+    private void Start()
     {
         CreateAudioSources();
     }
-
     private void CreateAudioSources()
     {
         for (int i = 0; i < BGM_AudioSourceCount; i++)
@@ -176,18 +185,22 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    private static int BGMCounter = 0;
-    private static int SFXCounter = 0;
+    private static int BGMTurnCounter = 0;
+    private static int SFXTurnCounter = 0;
     private void PlayLoop(SoundEffectSO bgm)
     {
         if (bgm == null)
             return;
 
-        var audioSource = BGM_AudioSources[BGMCounter];
-        if (!audioSource.isPlaying)
-		{
-            StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
-            BGMCounter = (BGMCounter + 1) % BGM_AudioSourceCount;
+        for (int i = 0; i < BGM_AudioSourceCount; i++)
+        {
+            var audioSource = BGM_AudioSources[BGMTurnCounter];
+            if (!audioSource.isPlaying)
+            {
+                StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
+                BGMTurnCounter = (BGMTurnCounter + 1) % BGM_AudioSourceCount;
+                break;
+            }
         }
     }
 
@@ -196,11 +209,15 @@ public class SFXManager : MonoBehaviour
         if (sfx == null)
             return;
 
-        var audioSource = SFX_AudioSources[SFXCounter];
-        if (!audioSource.isPlaying)
+        for (int i = 0; i < SFX_AudioSourceCount; i++)
         {
-            StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
-            SFXCounter = (SFXCounter + 1) % SFX_AudioSourceCount;
+            var audioSource = SFX_AudioSources[SFXTurnCounter];
+            if (!audioSource.isPlaying)
+            {
+                StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
+                SFXTurnCounter = (SFXTurnCounter + 1) % SFX_AudioSourceCount;
+                break;
+            }
         }
     }
 
@@ -209,11 +226,15 @@ public class SFXManager : MonoBehaviour
         if (sfx == null)
             return;
 
-        var audioSource = SFX_AudioSources[SFXCounter];
-        if (!audioSource.isPlaying)
+        for (int i = 0; i < SFX_AudioSourceCount; i++)
         {
-            StartCoroutine(StartPlay(audioSource, sfx, duration));
-            SFXCounter = (SFXCounter + 1) % SFX_AudioSourceCount;
+            var audioSource = SFX_AudioSources[SFXTurnCounter];
+            if (!audioSource.isPlaying)
+            {
+                StartCoroutine(StartPlay(audioSource, sfx, duration));
+                SFXTurnCounter = (SFXTurnCounter + 1) % SFX_AudioSourceCount;
+                break;
+            }
         }
     }
 
@@ -231,7 +252,6 @@ public class SFXManager : MonoBehaviour
         source.clip = sfx.clip;
         source.volume = sfx.volumeOverTime.Evaluate(0);
         source.loop = isLoop ? true : false;
-        Debug.Log($"{source.name} Play - {sfx.clip.name}");
         source.Play();
 
         // Lerp Volumne
@@ -246,7 +266,6 @@ public class SFXManager : MonoBehaviour
 
         // Stop Play
         source.Stop();
-        Debug.Log($"{source.name} Stop - {sfx.clip.name}");
         StartCoroutine(RestoreVolume(source));
     }
 

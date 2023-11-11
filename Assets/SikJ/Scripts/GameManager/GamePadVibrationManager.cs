@@ -84,6 +84,10 @@ public class GamePadVibrationManager : MonoBehaviour
         PlayerBlockFailedVibration = () => { Vibrate(playerBlockFailed); };
         PlayerDeadVibration = () => { Vibrate(playerDead); };
 
+        SubscribePlayerEvents();
+    }
+    private void SubscribePlayerEvents()
+    {
         _playerController.OnRoll += PlayerRollVibration;
         _playerController.OnJump += PlayerJumpVibration;
         _playerAttackController.OnWeakAttackCast += PlayerWeakAttackCastVibration;
@@ -99,6 +103,10 @@ public class GamePadVibrationManager : MonoBehaviour
     }
 
     private void OnDisable()
+    {
+        UnsubscribePlayerEvents();
+    }
+    private void UnsubscribePlayerEvents()
     {
         _playerController.OnRoll -= PlayerRollVibration;
         _playerController.OnJump -= PlayerJumpVibration;

@@ -7,7 +7,6 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody))]
 public class BreakableObject:MonoBehaviour{
 	public Transform fragments; 					//Place the fractured object
 	public float waitForRemoveCollider = 1.0f; 		//Delay before removing collider (negative/zero = never)
