@@ -61,7 +61,7 @@ public class BossCantrol : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectRange);
         if (isTarget)
         {
-            Gizmos.DrawLine(transform.position, new Vector3(Target.position.x, 0, Target.position.z).normalized * 15f);
+            Gizmos.DrawLine(transform.position, new Vector3(Target.position.x, transform.position.y, Target.position.z).normalized * 15f);
         }
 
         //대쉬공격 범위
@@ -113,8 +113,8 @@ public class BossCantrol : MonoBehaviour
         if (colls.Length > 0)
         {
             Target = colls[0].transform;
-            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
-            Vector3 currentTF = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+            Vector3 currentTF = new Vector3(transform.position.x, transform.position.y, transform.position.z);
             distance = Vector3.Distance(targetTF, currentTF);
         }
     }
@@ -124,7 +124,7 @@ public class BossCantrol : MonoBehaviour
         if (isTarget)
         {
             agent.stoppingDistance = stopdistance * transform.localScale.x;
-            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
             agent.SetDestination(targetTF);
             transform.LookAt(targetTF);
             agent.isStopped = false;
@@ -174,7 +174,7 @@ public class BossCantrol : MonoBehaviour
         attackController.AttackCollider = AttackCollider[3];
         attackController.WeakAttackBaseDamage = 50f;
 
-        Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+        Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
         Vector3 LandPoint = Target.position + targetTF.normalized * 5f;
         agent.SetDestination(LandPoint);
         HulkAnimator.SetTrigger("Angry");
@@ -281,7 +281,7 @@ public class BossCantrol : MonoBehaviour
             yield return new WaitForSeconds(5f);//플레이어 그로기 어택시간만큼!!!!
             isGroggyHit = false;
             HulkAnimator.SetBool("isGroggyHit", isGroggyHit);
-            Vector3 targetTF = new Vector3(Target.position.x, 0, Target.position.z);
+            Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
             agent.SetDestination(targetTF);
         }
         yield return new WaitForSeconds(7.5f);
