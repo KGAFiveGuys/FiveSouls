@@ -98,8 +98,6 @@ public class BlockController : MonoBehaviour
         OnBlockFailed?.Invoke();
 
         TurnOffBlockCollider();
-
-        SFXManager.Instance.OnPlayerBlockFailed();
     }
 
     private void ReadyCounterAttack()
