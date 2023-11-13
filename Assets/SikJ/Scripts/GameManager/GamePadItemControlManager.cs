@@ -47,13 +47,12 @@ public class GamePadItemControlManager : MonoBehaviour
 
     private void OnSelectPerformed(InputAction.CallbackContext obj)
     {
-        var actionName = obj.action.activeControl.name;
-        Vector2 direction = actionName == "left" ? Vector2.left : Vector2.right;
+        var direction = obj.ReadValue<float>();
         SelectNextItem(direction);
     }
-    private void SelectNextItem(Vector2 direction)
+    private void SelectNextItem(float direction)
     {
-        
+        Debug.Log(direction);
     }
 
     private void OnUsePerformed(InputAction.CallbackContext obj)

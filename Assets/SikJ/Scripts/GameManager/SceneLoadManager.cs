@@ -39,16 +39,12 @@ public class SceneLoadManager : MonoBehaviour
         while (!asyncUnload.isDone)
         {
             yield return null;
-            Debug.Log($"Unloading {CurrentSceneIndex - 1}");
         }
-        Debug.Log($"Unloaded {CurrentSceneIndex - 1}");
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(CurrentSceneIndex, LoadSceneMode.Additive);
         while (!asyncLoad.isDone)
         {
             yield return null;
-            Debug.Log($"Loading {CurrentSceneIndex}");
         }
-        Debug.Log($"Loaded {CurrentSceneIndex}");
     }
 }
