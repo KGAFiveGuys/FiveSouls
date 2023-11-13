@@ -916,4 +916,10 @@ public class MutantController : MonoBehaviour
     {
         StrongParticle.SetActive(false);
     }
+
+    private void Anim_Speed(float speed)
+    {
+        mutantAnimator.SetFloat("Anim_Speed", speed);
+        print(mutantAnimator.speed);
+    }
 }

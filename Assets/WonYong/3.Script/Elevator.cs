@@ -10,7 +10,6 @@ public class Elevator : MonoBehaviour
     [SerializeField] private float Rotation_Speed;
 
     private Elevator_btn elevatorButton;
-    private IEnumerator currentMove;
     // 이동한 거리
     private float movedDistance = 0f;
 
@@ -26,6 +25,7 @@ public class Elevator : MonoBehaviour
             Elevator_btn.eleva_btn = !Elevator_btn.eleva_btn;
             StartCoroutine(MoveElevator());
         }
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -35,26 +35,22 @@ public class Elevator : MonoBehaviour
             collision.transform.SetParent(transform);
         }
 
-        if (Elevator_btn.eleva_btn && currentMove == null)
+        if (Elevator_btn.eleva_btn)
         {
             Elevator_btn.eleva_btn = false;
-            currentMove = MoveElevator();
-            StartCoroutine(currentMove);
+            StartCoroutine(MoveElevator());
         }
     }
 
 
-
     private void OnCollisionExit(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ragdoll"))
-            return;
-
         if (collision.transform != null)
         {
             collision.transform.SetParent(null);
             movedDistance = 0;
         }
+
     }
 
     private IEnumerator MoveElevator()
@@ -69,6 +65,6 @@ public class Elevator : MonoBehaviour
             yield return null;
         }
         elevatorButton.objectMaterial.color = Color.red;
-        currentMove = null;
+
     }
 }
