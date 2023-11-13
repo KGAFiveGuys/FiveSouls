@@ -18,6 +18,7 @@ public enum ControlState
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Stamina))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(ConstantForce))]
 public class PlayerController : MonoBehaviour
 {
     [field:Header("State")]
@@ -118,6 +119,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     #endregion
+    private ConstantForce _constantForce;
 
     public event Action OnRoll;
     public event Action OnJump;
@@ -132,6 +134,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _health);
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
+        TryGetComponent(out _constantForce);
     }
 
     private void OnEnable()
@@ -170,15 +173,6 @@ public class PlayerController : MonoBehaviour
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
-        #region SFX
-        _attackController.OnWeakAttackCast += SFXManager.Instance.OnPlayerWeakAttackCast;
-        _attackController.OnWeakAttackHit += SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackCast += SFXManager.Instance.OnPlayerStrongAttackCast;
-        _attackController.OnStrongAttackHit += SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackCast += SFXManager.Instance.OnPlayerCounterAttackCast;
-        _attackController.OnCounterAttackHit += SFXManager.Instance.OnPlayerCounterAttackHit;
-        _blockController.OnBlockCast += SFXManager.Instance.OnPlayerBlockCast;
-        #endregion
     }
 
     private void OnDisable()
@@ -217,15 +211,6 @@ public class PlayerController : MonoBehaviour
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
-        #region SFX
-        _attackController.OnWeakAttackCast -= SFXManager.Instance.OnPlayerWeakAttackCast;
-        _attackController.OnWeakAttackHit -= SFXManager.Instance.OnPlayerWeakAttackHit;
-        _attackController.OnStrongAttackCast -= SFXManager.Instance.OnPlayerStrongAttackCast;
-        _attackController.OnStrongAttackHit -= SFXManager.Instance.OnPlayerStrongAttackHit;
-        _attackController.OnCounterAttackCast -= SFXManager.Instance.OnPlayerCounterAttackCast;
-        _attackController.OnCounterAttackHit -= SFXManager.Instance.OnPlayerCounterAttackHit;
-        _blockController.OnBlockCast -= SFXManager.Instance.OnPlayerBlockCast;
-        #endregion
     }
 
     private void Start()
@@ -266,18 +251,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Animate();
     }
-
-    private bool isCollidingWithEnemy = false;
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = true;
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.layer == 1 << 8)
-            isCollidingWithEnemy = false;
-    }
+    
     private void CheckLockOnPointDistance()
     {
         if (!IsLockOn)
@@ -374,10 +348,17 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
-            if (IsGoingToStair(moveDirection, currentSpeed))
+            if (IsGoingToStair(moveDirection))
+			{
+                _constantForce.force = Physics.gravity * 1000;
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+            }
+			else
+			{
+                _constantForce.force = Vector3.zero;
+            }
 
-            _rigidbody.MovePosition(transform.position + moveDirection * (currentSpeed * moveDirection.magnitude) * Time.deltaTime);
+            _rigidbody.MovePosition(transform.position + (currentSpeed * moveDirection.magnitude) * Time.deltaTime * moveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -413,10 +394,17 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
 
-            if (IsGoingToStair(moveDirection, currentSpeed))
+            if (IsGoingToStair(moveDirection))
+			{
+                _constantForce.force = Physics.gravity * 1000;
                 moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+            }
+            else
+            {
+                _constantForce.force = Vector3.zero;
+            }
 
-            _rigidbody.MovePosition(transform.position + moveDirection * currentSpeed * Time.deltaTime);
+            _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * moveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -432,13 +420,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stairDetectionDistance = 20f;
     [SerializeField] private float stairDetectionOffsetUp = 2f;
     [SerializeField] private float stairDetectionOffsetForward = -.5f;
-    private bool IsGoingToStair(Vector3 currentDirection, float currentSpeed)
+    private bool IsGoingToStair(Vector3 currentDirection)
     {
         if (DesiredMove == Vector2.zero)
             return false;
 
-        bool isStairDetected = false;
-        if (IsLockOn)
+		bool isStairDetected = false;
+		if (IsLockOn)
         {
             var forward = transform.forward * currentDirection.z;
             var right = transform.right * currentDirection.x;
@@ -510,17 +498,6 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     public Vector2 DesiredRotate { get; private set; }
-    #region rotate_Action
-    private void OnRotatePerformed(InputAction.CallbackContext context)
-    {
-        DesiredRotate = context.ReadValue<Vector2>();
-    }
-    private void OnRotateCanceled(InputAction.CallbackContext context)
-    {
-        DesiredRotate = Vector2.zero;
-        isLockOnPointChangable = true;
-    }
-    #endregion
     #region run_Action
     private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
@@ -621,8 +598,8 @@ public class PlayerController : MonoBehaviour
         
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
-        _stamina.Consume(_stamina.BlockCastCost);
         _animator.SetBool(isBlock_hash, true);
+        _stamina.Consume(_stamina.BlockCastCost);
     }
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
@@ -659,9 +636,10 @@ public class PlayerController : MonoBehaviour
         if (isRoll)
         {
             ControlState = ControlState.Uncontrollable;
-            _stamina.Consume(_stamina.RollCost);
             _animator.SetBool(isRoll_hash, true);
+
             OnRoll?.Invoke();
+            _stamina.Consume(_stamina.RollCost);
             StartCoroutine(CancelRoll());
         }
     }
@@ -694,9 +672,9 @@ public class PlayerController : MonoBehaviour
 
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isWeakAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Weak);
         _stamina.Consume(_stamina.WeakAttackCost);
-        _animator.SetBool(isWeakAttack_hash, true);
         StartCoroutine(CancelWeakAttack());
     }
     private IEnumerator CancelWeakAttack()
@@ -722,9 +700,9 @@ public class PlayerController : MonoBehaviour
 
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isStrongAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Strong);
         _stamina.Consume(_stamina.StrongAttackCost);
-        _animator.SetBool(isStrongAttack_hash, true);
         StartCoroutine(CancelStrongAttack());
         
     }
@@ -743,10 +721,10 @@ public class PlayerController : MonoBehaviour
             return false;
 
         ControlState = ControlState.Uncontrollable;
+        _animator.SetBool(isCounterAttack_hash, true);
         _attackController.ChangeAttackType(AttackType.Counter);
         _stamina.Consume(_stamina.CounterAttackCost);
         _blockController.StopKnockBack();
-        _animator.SetBool(isCounterAttack_hash, true);
         StartCoroutine(CancelCounterAttack());
         return true;
     }
@@ -919,6 +897,17 @@ public class PlayerController : MonoBehaviour
         }
         VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
+    #region rotate_Action
+    private void OnRotatePerformed(InputAction.CallbackContext context)
+    {
+        DesiredRotate = context.ReadValue<Vector2>();
+    }
+    private void OnRotateCanceled(InputAction.CallbackContext context)
+    {
+        DesiredRotate = Vector2.zero;
+        isLockOnPointChangable = true;
+    }
+    #endregion
 
     #region Die
     public void Die()
@@ -932,7 +921,6 @@ public class PlayerController : MonoBehaviour
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
-        SFXManager.Instance.OnPlayerDead();
         ToggleRagdoll(true);
         StartCoroutine(DropEquipments(true));
     }

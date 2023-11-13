@@ -61,9 +61,9 @@ public class AttackController : MonoBehaviour
 
     public void ChangeAttackType(AttackType type)
     {
-        _OnAttackCast = null;
-
         CurrentAttackType = type;
+        
+        _OnAttackCast = null;
         switch (CurrentAttackType)
         {
             case AttackType.Weak:
@@ -91,12 +91,11 @@ public class AttackController : MonoBehaviour
                     _OnAttackHit += OnWeakAttackHit;
                     break;
                 case AttackType.Strong:
-                    _OnAttackHit = OnStrongAttackHit;
+                    _OnAttackHit += OnStrongAttackHit;
                     break;
-                // Test
                 case AttackType.Counter:
                     _OnAttackHit += OnCounterAttackHit;
-                    break;
+                    break;  
             }
             _OnAttackHit?.Invoke();
         }

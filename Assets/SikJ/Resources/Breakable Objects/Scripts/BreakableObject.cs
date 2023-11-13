@@ -7,7 +7,6 @@
 using UnityEngine;
 using System.Collections;
 
-
 public class BreakableObject:MonoBehaviour{
 	public Transform fragments; 					//Place the fractured object
 	public float waitForRemoveCollider = 1.0f; 		//Delay before removing collider (negative/zero = never)
@@ -20,24 +19,68 @@ public class BreakableObject:MonoBehaviour{
 	Transform fragmentd;							//Stores the fragmented object after break
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
+	Rigidbody _rigidbody;
+	public GameObject healthPotion;
+	public GameObject staminaPotion;
 
-	public void OnCollisionEnter(Collision collision) {
-	    if (collision.relativeVelocity.magnitude > durability) {
-	        triggerBreak();
-	    }
-	}
+	private void Awake()
+    {
+		TryGetComponent(out _rigidbody);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.layer == LayerMask.NameToLayer("Weapon")
+		   || other.gameObject.layer == LayerMask.NameToLayer("Ragdoll"))
+        {
+			triggerBreak();
+		}
+    }
 	
 	public void OnMouseDown() {
 		if(mouseClickDestroy){
 			triggerBreak();
 		}
 	}
-	
+
 	public void triggerBreak() {
-	    Destroy(transform.FindChild("object").gameObject);
+		SpawnRandomPotion();
+		_rigidbody.isKinematic = false;
+		_rigidbody.useGravity = true;
+		Destroy(transform.FindChild("object").gameObject);
 	    Destroy(transform.GetComponent<Collider>());
 	    Destroy(transform.GetComponent<Rigidbody>());
+		SFXManager.Instance.OnWoodenCrateBreaked();
 	    StartCoroutine(breakObject());
+	}
+
+	public void SpawnRandomPotion()
+    {
+		var weightedValue = potionSpawnWeight.Evaluate(Random.value);
+		if (weightedValue > .9f)
+        {
+			switch (Random.Range(0, 2))
+			{
+				case 0:
+					SpawnHealthPotion();
+					break;
+				case 1:
+					SpawnStaminaPotion();
+					break;
+			}
+		}
+    }
+
+	public AnimationCurve potionSpawnWeight;
+	public float potionSpawnOffsetY = 0f;
+	public void SpawnHealthPotion()
+	{
+		Instantiate(healthPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
+	}
+
+	public void SpawnStaminaPotion()
+	{
+		Instantiate(staminaPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
 	}
 
 	// breaks object
