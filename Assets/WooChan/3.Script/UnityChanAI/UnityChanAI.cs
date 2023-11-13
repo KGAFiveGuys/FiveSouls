@@ -24,7 +24,7 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private Collider slideCollider;
     [SerializeField] private Collider backFlipCollider;
     [SerializeField] private Collider crossPunchCollider;
-    
+    //------------------------------------------------------
     [SerializeField] private bool isIdle = false;
     [SerializeField] private bool isWalk = false;
     [SerializeField] private bool isWalk_R = false;
@@ -32,7 +32,7 @@ public class UnityChanAI : MonoBehaviour
 
     [SerializeField] private GameObject Target = null;
     [SerializeField] private float TargetDistance = 0f;
-    [SerializeField] private float WalkSpeed = 2f;
+    [SerializeField] private float WalkSpeed = 4f;
     [SerializeField] private float RunSpeed = 30f;
     [SerializeField] private float MDSpeed = 50f;
 
@@ -58,6 +58,8 @@ public class UnityChanAI : MonoBehaviour
     private bool AdvPunch_T2 = false;
     private bool CartWheelNext = false;
     private int CartWheelRan = 0;
+
+    private Coroutine MoveDelay = null;
 
     [SerializeField] private bool farP_Next = false; // farpattern 다음으로 넘어가기 위해서 한번더 체크하는용도
     [SerializeField] private bool farP_trigger = false;
@@ -190,8 +192,9 @@ public class UnityChanAI : MonoBehaviour
                 if (near)
                 {
                     StopMovement();
+
                     //MiddlePatternGraceTime = 0f;
-                    
+
                     while (NearPatternGraceTime < NearPatternTime && near)
                     {
                         if (!isMotion)
@@ -233,16 +236,16 @@ public class UnityChanAI : MonoBehaviour
                         if(Ran == 0 || Ran == 1)
                         {
                             ResetPos();
-                            isIdle = true;
+                            //isIdle = true;
                             animator.SetTrigger("Roll");
                         }
-                        else if(Ran == 2)
-                        {
-                            ResetPos();
-                            isIdle = true;
-                            StartCoroutine(BackBackPattern());
-                        }
-                        else if (Ran == 3)
+                        //else if(Ran == 2)
+                        //{
+                        //    ResetPos();
+                        //    isIdle = true;
+                            
+                        //}
+                        else if (Ran == 3 || Ran== 2)
                         {
                             ResetPos();
                             isIdle = true;
@@ -370,14 +373,16 @@ public class UnityChanAI : MonoBehaviour
         animator.SetBool("isSide_R", false);
         animator.SetBool("isSide_L", false);
     }
-    private IEnumerator MoveDelay()
+    private IEnumerator MoveDelay_co()
     {
-        float Motiondelay;
-        Motiondelay = Random.Range(3, 5);
-        isMove = true;
-        yield return new WaitForSeconds(Motiondelay);
-        isMove = false;
-
+        if (MoveDelay == null)
+        {
+            float Motiondelay;
+            Motiondelay = Random.Range(2, 4);
+            isMove = true;
+            yield return new WaitForSeconds(Motiondelay);
+            isMove = false;
+        }
     }
 
     private void RandomMovement()
@@ -403,16 +408,15 @@ public class UnityChanAI : MonoBehaviour
             {
                 isIdle = true;
             }
-            StartCoroutine(MoveDelay());
+            StartCoroutine(MoveDelay_co());
         }
     }
     private void StopMovement()
     {
         if (isMove)
         {
-            StopCoroutine(MoveDelay());
+            MoveDelay = null;
             isMove = false;
-            ResetPos();
         }
     }
     private void MoveUpdate()
@@ -706,7 +710,7 @@ public class UnityChanAI : MonoBehaviour
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.65f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
             {
-                transform.position += transform.TransformDirection(Vector3.forward) * 150f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.forward) * 300f * Time.deltaTime;
             }
             else if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
@@ -726,7 +730,7 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator AdvPunchDelay()
     {
         AdvPunch_T1 = true;
-        float Ran = Random.Range(1, 3);
+        float Ran = Random.Range(0.2f, 0.5f);
         yield return new WaitForSeconds(Ran);
 
         animator.SetTrigger("AdvancePunch2");
@@ -784,16 +788,6 @@ public class UnityChanAI : MonoBehaviour
         }
     }
 
-    private IEnumerator BackBackPattern()
-    {
-        isMotion = true;
-        animator.SetTrigger("RollBack");
-        yield return new WaitForSeconds(1f);
-        animator.SetTrigger("RollBack");
-        yield return new WaitForSeconds(1f);
-        animator.SetTrigger("MiddlePattern");
-        yield break;
-    }
 
 
     private void OnDrawGizmos()
