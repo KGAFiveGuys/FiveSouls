@@ -17,9 +17,11 @@ public class DealDamage : MonoBehaviour
         // 规绢等 版快
         if (layerMask == (int)_attackController.BlockableLayer)
         {
-			BlockController targetBlockController = other.gameObject.GetComponent<BlockDamage>().BlockController;
-            Health targetHealth = targetBlockController.gameObject.GetComponent<Health>();
-            Stamina targetStamina = targetBlockController.gameObject.GetComponent<Stamina>();
+            if (!other.gameObject.TryGetComponent(out BlockController targetBlockController)
+                || !other.gameObject.TryGetComponent(out Health targetHealth)
+                || !other.gameObject.TryGetComponent(out Stamina targetStamina))
+                return;
+
             float damage = 0f;
             switch (_attackController.CurrentAttackType)
             {
@@ -51,7 +53,9 @@ public class DealDamage : MonoBehaviour
 		// 利吝等 版快
 		else if (layerMask == (int)_attackController.AttackLayer)
         {
-            Health targetHealth = other.gameObject.GetComponent<Health>();
+            if (!other.gameObject.TryGetComponent(out Health targetHealth))
+                return;
+            
             float damage = 0f;
             switch (_attackController.CurrentAttackType)
             {

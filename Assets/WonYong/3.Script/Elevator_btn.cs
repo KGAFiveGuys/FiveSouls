@@ -16,7 +16,6 @@ public class Elevator_btn : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Weapon"))
         {
-            print("ÄÑÁ³³ª?");
             eleva_btn = !eleva_btn;
             if (eleva_btn)
             {
