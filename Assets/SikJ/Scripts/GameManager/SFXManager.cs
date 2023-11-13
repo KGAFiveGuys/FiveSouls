@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,10 +9,20 @@ public class SFXManager : MonoBehaviour
     public static SFXManager Instance => _instance;
 
     [SerializeField] private GameObject AudioSourcePrefab;
-    [SerializeField] private int AudioSourceCount = 10;
-    private List<AudioSource> AudioSources = new List<AudioSource>();
+    [SerializeField] private int BGM_AudioSourceCount = 3;
+    [SerializeField] private int SFX_AudioSourceCount = 10;
+    private readonly List<AudioSource> BGM_AudioSources = new List<AudioSource>();
+    private readonly List<AudioSource> SFX_AudioSources = new List<AudioSource>();
     [SerializeField] private float TimeToUnmuteAfterPlay = .5f;
 
+    #region BGM List
+    [Header("Back Ground Music")]
+    [SerializeField] private SoundEffectSO BGM_bossFight1;
+    [SerializeField] private SoundEffectSO BGM_bossFight2;
+    [SerializeField] private SoundEffectSO BGM_bossFight3;
+    [SerializeField] private SoundEffectSO BGM_bossFight4;
+    #endregion
+    #region SFX List
     [Header("Common")]
     [SerializeField] private SoundEffectSO SFX_timeSlowDown;
 
@@ -39,6 +50,38 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private SoundEffectSO SFX_playerRoll;
     [SerializeField] private SoundEffectSO SFX_playerJump;
 
+    [Header("Prop Breaks")]
+    [SerializeField] private SoundEffectSO SFX_woodenPropBreaked;
+    [SerializeField] private SoundEffectSO SFX_barrelBreaked;
+    #endregion
+
+    private PlayerController _playerController;
+    private AttackController _playerAttackController;
+    private BlockController _playerBlockController;
+    private Health _playerHealth;
+
+    // Player Locomotion
+    private event Action PlayerRollSFX = null;
+    private event Action PlayerJumpSFX = null;
+    // Player Combat
+    private event Action PlayerBlockCastSFX = null;
+    private event Action PlayerBlockFailedSFX = null;
+    public void OnPlayerBlockSucceed(float duration)
+    {
+        PlayWhole(SFX_playerBlockSucceed1);
+        PlayPartial(SFX_playerBlockSucceed2, duration);
+    }
+    public void OnTimeSlowDown(float duration) => PlayPartial(SFX_timeSlowDown, duration);
+    private event Action PlayerWeakAttackCastSFX = null;
+    private event Action PlayerWeakAttackHitSFX = null;
+    private event Action PlayerStrongAttackCastSFX = null;
+    private event Action PlayerStrongAttackHitSFX = null;
+    private event Action PlayerCounterAttackCastSFX = null;
+    private event Action PlayerCounterAttackHitSFX = null;
+    private event Action PlayerDeadSFX = null;
+    public void OnPlayerEquipmentFall() => PlayWhole(SFX_playerEquipmentFall);
+    public void OnWoodenCrateBreaked() => PlayWhole(SFX_woodenPropBreaked);
+
     private void Awake()
     {
         if (_instance == null)
@@ -49,86 +92,153 @@ public class SFXManager : MonoBehaviour
         else if (_instance != null && _instance != this)
         {
             Destroy(this);
-        }    
+        }
+
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        _playerController = playerObj.GetComponent<PlayerController>();
+        _playerAttackController = playerObj.GetComponent<AttackController>();
+        _playerBlockController = playerObj.GetComponent<BlockController>();
+        _playerHealth = playerObj.GetComponent<Health>();
+    }
+
+    #region BGM
+    public void OnBossFight1_Started() => PlayLoop(BGM_bossFight1);
+    public void OnBossFight2_Started() => PlayLoop(BGM_bossFight2);
+    public void OnBossFight3_Started() => PlayLoop(BGM_bossFight3);
+    public void OnBossFight4_Started() => PlayLoop(BGM_bossFight4);
+    #endregion
+
+    private void OnEnable()
+    {
+        PlayerRollSFX = () => { PlayWhole(SFX_playerRoll); };
+        PlayerJumpSFX = () => { PlayWhole(SFX_playerJump); };
+        PlayerBlockCastSFX = () => { PlayWhole(SFX_playerBlockCast); };
+        PlayerBlockFailedSFX = () => { PlayWhole(SFX_playerBlockFailed); };
+        PlayerWeakAttackCastSFX = () => { PlayWhole(SFX_playerWeakAttackCast); };
+        PlayerWeakAttackHitSFX = () => { PlayWhole(SFX_playerWeakAttackHit); };
+        PlayerStrongAttackCastSFX = () => { PlayWhole(SFX_playerStrongAttackCast); };
+        PlayerStrongAttackHitSFX = () =>
+        {
+            PlayWhole(SFX_playerStrongAttackHit1);
+            PlayWhole(SFX_playerStrongAttackHit2);
+        };
+        PlayerCounterAttackCastSFX = () => { PlayWhole(SFX_playerCounterAttackCast); };
+        PlayerCounterAttackHitSFX = () => { PlayWhole(SFX_playerCounterAttackHit); };
+        PlayerDeadSFX = () =>
+        {
+            PlayWhole(SFX_playerDead1);
+            PlayWhole(SFX_playerDead1);
+        };
+
+        SubscribePlayerEvents();
+    }
+    private void SubscribePlayerEvents()
+    {
+        _playerController.OnRoll += PlayerRollSFX;
+        _playerController.OnJump += PlayerJumpSFX;
+        _playerBlockController.OnBlockCast += PlayerBlockCastSFX;
+        _playerBlockController.OnBlockFailed += PlayerBlockFailedSFX;
+        _playerAttackController.OnWeakAttackCast += PlayerWeakAttackCastSFX;
+        _playerAttackController.OnWeakAttackHit += PlayerWeakAttackHitSFX;
+        _playerAttackController.OnStrongAttackCast += PlayerStrongAttackCastSFX;
+        _playerAttackController.OnStrongAttackHit += PlayerStrongAttackHitSFX;
+        _playerAttackController.OnCounterAttackCast += PlayerCounterAttackCastSFX;
+        _playerAttackController.OnCounterAttackHit += PlayerCounterAttackHitSFX;
+        _playerHealth.OnDead += PlayerDeadSFX;
+    }
+
+	private void OnDisable()
+	{
+        UnsubscribePlayerEvents();
+    }
+    private void UnsubscribePlayerEvents()
+    {
+        _playerController.OnRoll -= PlayerRollSFX;
+        _playerController.OnJump -= PlayerJumpSFX;
+        _playerBlockController.OnBlockCast -= PlayerBlockCastSFX;
+        _playerBlockController.OnBlockFailed -= PlayerBlockFailedSFX;
+        _playerAttackController.OnWeakAttackCast -= PlayerWeakAttackCastSFX;
+        _playerAttackController.OnWeakAttackHit -= PlayerWeakAttackHitSFX;
+        _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastSFX;
+        _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitSFX;
+        _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastSFX;
+        _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitSFX;
+        _playerHealth.OnDead += PlayerDeadSFX;
     }
 
     private void Start()
     {
         CreateAudioSources();
     }
-
     private void CreateAudioSources()
     {
-        for (int i = 0; i < AudioSourceCount; i++)
+        for (int i = 0; i < BGM_AudioSourceCount; i++)
         {
             GameObject gameObject = Instantiate(AudioSourcePrefab, transform);
-            AudioSources.Add(gameObject.GetComponent<AudioSource>());
+            BGM_AudioSources.Add(gameObject.GetComponent<AudioSource>());
+        }
+
+        for (int i = 0; i < SFX_AudioSourceCount; i++)
+        {
+            GameObject gameObject = Instantiate(AudioSourcePrefab, transform);
+            SFX_AudioSources.Add(gameObject.GetComponent<AudioSource>());
         }
     }
 
-    public void OnTimeSlowDown(float duration) => SFXPlayPartial(SFX_timeSlowDown, duration);
-    public void OnPlayerBlockCast()
+    private static int BGMTurnCounter = 0;
+    private static int SFXTurnCounter = 0;
+    private void PlayLoop(SoundEffectSO bgm)
     {
-        Debug.Log("SFX_OnPlayerBlockCast");
-    }
-    public void OnPlayerBlockSucceed(float duration)
-    {
-        SFXPlayWhole(SFX_playerBlockSucceed1);
-        SFXPlayPartial(SFX_playerBlockSucceed2, duration);
-    }
-    public void OnPlayerBlockFailed()
-	{
-        Debug.Log("SFX_OnPlayerBlockFailed");
-	}
-    public void OnPlayerWeakAttackCast() => SFXPlayWhole(SFX_playerWeakAttackCast);
-    public void OnPlayerStrongAttackCast() => SFXPlayWhole(SFX_playerStrongAttackCast);
-    public void OnPlayerCounterAttackCast() => SFXPlayWhole(SFX_playerCounterAttackCast);
-    public void OnPlayerWeakAttackHit() => SFXPlayWhole(SFX_playerWeakAttackHit);
-    public void OnPlayerStrongAttackHit()
-    {
-        SFXPlayWhole(SFX_playerStrongAttackHit1);
-        SFXPlayWhole(SFX_playerStrongAttackHit2);
-    }
-    public void OnPlayerCounterAttackHit() => SFXPlayWhole(SFX_playerCounterAttackHit);
-    public void OnPlayerJump() => SFXPlayWhole(SFX_playerJump);
-    public void OnPlayerDead()
-    {
-        SFXPlayWhole(SFX_playerDead1);
-        SFXPlayWhole(SFX_playerDead1);
-    }
-    public void OnPlayerEquipmentFall() => SFXPlayWhole(SFX_playerEquipmentFall);
+        if (bgm == null)
+            return;
 
-    private void SFXPlayWhole(SoundEffectSO sfx)
+        for (int i = 0; i < BGM_AudioSourceCount; i++)
+        {
+            var audioSource = BGM_AudioSources[BGMTurnCounter];
+            if (!audioSource.isPlaying)
+            {
+                StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
+                BGMTurnCounter = (BGMTurnCounter + 1) % BGM_AudioSourceCount;
+                break;
+            }
+        }
+    }
+
+    private void PlayWhole(SoundEffectSO sfx)
     {
         if (sfx == null)
             return;
 
-        foreach (var audioSource in AudioSources)
+        for (int i = 0; i < SFX_AudioSourceCount; i++)
         {
+            var audioSource = SFX_AudioSources[SFXTurnCounter];
             if (!audioSource.isPlaying)
             {
                 StartCoroutine(StartPlay(audioSource, sfx, sfx.clip.length));
+                SFXTurnCounter = (SFXTurnCounter + 1) % SFX_AudioSourceCount;
                 break;
             }
         }
     }
 
-    private void SFXPlayPartial(SoundEffectSO sfx, float duration)
+    private void PlayPartial(SoundEffectSO sfx, float duration)
     {
         if (sfx == null)
             return;
 
-        foreach (var audioSource in AudioSources)
+        for (int i = 0; i < SFX_AudioSourceCount; i++)
         {
+            var audioSource = SFX_AudioSources[SFXTurnCounter];
             if (!audioSource.isPlaying)
             {
                 StartCoroutine(StartPlay(audioSource, sfx, duration));
+                SFXTurnCounter = (SFXTurnCounter + 1) % SFX_AudioSourceCount;
                 break;
             }
         }
     }
 
-    private IEnumerator StartPlay(AudioSource source, SoundEffectSO sfx, float duration)
+    private IEnumerator StartPlay(AudioSource source, SoundEffectSO sfx, float duration, bool isLoop = false)
     {
         // Delay
         float elapsedTime = 0f;
@@ -141,6 +251,7 @@ public class SFXManager : MonoBehaviour
         // Start Play
         source.clip = sfx.clip;
         source.volume = sfx.volumeOverTime.Evaluate(0);
+        source.loop = isLoop;
         source.Play();
 
         // Lerp Volumne
