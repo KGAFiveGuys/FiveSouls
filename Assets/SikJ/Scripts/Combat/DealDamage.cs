@@ -17,9 +17,9 @@ public class DealDamage : MonoBehaviour
         // 방어된 경우
         if (layerMask == (int)_attackController.BlockableLayer)
         {
-            if (!other.gameObject.TryGetComponent(out BlockController targetBlockController)
-                || !other.gameObject.TryGetComponent(out Health targetHealth)
-                || !other.gameObject.TryGetComponent(out Stamina targetStamina))
+            if (!other.transform.parent.gameObject.TryGetComponent(out BlockController targetBlockController)
+                || !other.transform.parent.gameObject.TryGetComponent(out Health targetHealth)
+                || !other.transform.parent.gameObject.TryGetComponent(out Stamina targetStamina))
                 return;
 
             float damage = 0f;
