@@ -6,9 +6,9 @@ using UnityEngine.SceneManagement;
 public class SceneLoadManager : MonoBehaviour
 {
     private static SceneLoadManager _instance = null;
-    public static SceneLoadManager Instance { get; set; }
+    public static SceneLoadManager Instance => _instance;
 
-    public int CurrentSceneIndex { get; set; } = 0;
+    public int CurrentSceneIndex { get; set; } = 1;
 
     private void Awake()
     {
@@ -23,17 +23,32 @@ public class SceneLoadManager : MonoBehaviour
         }
     }
 
-    public void LoadNextScene()
+    private void Start()
     {
-        SceneManager.UnloadSceneAsync(CurrentSceneIndex++);
-        SceneManager.LoadSceneAsync(CurrentSceneIndex, LoadSceneMode.Additive);
+        SceneManager.LoadScene(CurrentSceneIndex, LoadSceneMode.Additive);
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void LoadNextScene()
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        StartCoroutine(LoadSceneAsync());
+    }
+
+    private IEnumerator LoadSceneAsync()
+    {
+        AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(CurrentSceneIndex++);
+        while (!asyncUnload.isDone)
         {
-            LoadNextScene();
+            yield return null;
+            Debug.Log($"Unloading {CurrentSceneIndex - 1}");
         }
+        Debug.Log($"Unloaded {CurrentSceneIndex - 1}");
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(CurrentSceneIndex, LoadSceneMode.Additive);
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+            Debug.Log($"Loading {CurrentSceneIndex}");
+        }
+        Debug.Log($"Loaded {CurrentSceneIndex}");
     }
 }
