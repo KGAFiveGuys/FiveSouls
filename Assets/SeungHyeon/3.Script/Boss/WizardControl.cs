@@ -5,13 +5,15 @@ public enum Effect
 {
     Lightning = 0,
     Fire,
-    Ground
+    Ground,
+    Frost
 }
 public enum Status
 {
     Idle = 0,
     Ready,
     Attack,
+    MegaPattern,
     Death
 }
 [System.Serializable]
@@ -72,6 +74,7 @@ public class WizardControl : MonoBehaviour
 
         if (wizardinfo.status.Equals(Status.Ready))
         {
+            transform.LookAt(wizardinfo.ChaseTarget.transform.position);
             AttackTime += Time.deltaTime;
             if (AttackTime >= 5f)
             {
@@ -83,10 +86,10 @@ public class WizardControl : MonoBehaviour
     public void CheckPlayerPosition()
     {
         Dist = Vector3.Distance(wizardinfo.ChaseTarget.transform.position, transform.position);
-        if(Dist <= 5f && wizardinfo.status == Status.Idle)
+        if(Dist <= 20f && wizardinfo.status == Status.Idle)
         {
-            Wizard_anim.SetBool("idle_combat", true);
             wizardinfo.status = Status.Ready;
+            Wizard_anim.SetBool("Ready",true);
             ReadyEffect.SetActive(true);
         }
         
@@ -94,11 +97,7 @@ public class WizardControl : MonoBehaviour
     public int SelectPattern()
     {
         int rand = 0;
-        if (Dist <= 8f)
-        {
-            return rand;
-        }
-        rand = Random.Range(1, 3);
+        rand = Random.Range(0, 4);
         return rand;
     }
     public IEnumerator AttackReady(int AttackPlayer)
@@ -137,14 +136,14 @@ public class WizardControl : MonoBehaviour
         collisionModule.enabled = true;
         shadowburst.Play();
         Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
-        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
-        {
-            Debug.Log("벽있음");
-        }
-        else
-        {
-            StartCoroutine(BackStep());
-        }
+        //if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        //{
+        //    Debug.Log("벽있음");
+        //}
+        //else
+        //{
+        //    StartCoroutine(BackStep());
+        //}
     }
     private void SelectAnimation(int pattern)
     {
@@ -158,6 +157,8 @@ public class WizardControl : MonoBehaviour
                 return;
             case 2:
                 Wizard_anim.SetTrigger("Lightning");
+                return;
+            default:
                 return;
         }
     }
@@ -175,6 +176,9 @@ public class WizardControl : MonoBehaviour
                 StartCoroutine(UseThunderbolt());
                 //StartCoroutine(megapattern.MegaThunderPatternUse());
                 return;
+            case 3:
+                UseFrostMissile();
+                return;
         }    
     }
     private IEnumerator BackStep()
@@ -186,5 +190,9 @@ public class WizardControl : MonoBehaviour
     public void FrostMissile()
     {
         Instantiate(FrostMissilePrefab, RightHand.transform.position,Quaternion.identity ,FrostSpawner.transform);
+    }
+    private void UseFrostMissile()
+    {
+        Wizard_anim.SetTrigger("Frost");
     }
 }
