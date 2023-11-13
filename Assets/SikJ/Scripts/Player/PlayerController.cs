@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
+    public InputAction useItem;
 
     [Header("PlayerMove")]
     #region PlayerMove
