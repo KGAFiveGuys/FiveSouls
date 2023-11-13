@@ -4,12 +4,12 @@ using UnityEngine;
 
 [RequireComponent(typeof(AttackController))]
 [RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Fury))]
 public class UnityChanAI : MonoBehaviour
 {
     private AttackController attackController;
     private Animator animator;
-    [SerializeField] Rigidbody rigidbody;
+    private Fury fury;
 
     // AttackCollider
     [SerializeField] private Collider hookCollider;
@@ -33,8 +33,8 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private GameObject Target = null;
     [SerializeField] private float TargetDistance = 0f;
     [SerializeField] private float WalkSpeed = 4f;
-    [SerializeField] private float RunSpeed = 30f;
-    [SerializeField] private float MDSpeed = 50f;
+    [SerializeField] private float RunSpeed = 50f;
+    [SerializeField] private float MDSpeed = 100f;
 
     [SerializeField] private bool near = false;
     [SerializeField] private bool middle = false;
@@ -65,7 +65,8 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private bool farP_trigger = false;
 
     [SerializeField] private bool isMotion = false;
-
+    
+    private bool isFury = false;
     private bool isMove = false;
     private int P_layer;
 
@@ -73,7 +74,7 @@ public class UnityChanAI : MonoBehaviour
     {
         TryGetComponent(out attackController);
         TryGetComponent(out animator);
-        TryGetComponent(out rigidbody);
+        TryGetComponent(out fury);
     }
 
     private void Start()
@@ -101,6 +102,14 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
+        if (fury.Flag && !isFury)
+        {
+            StopAllCoroutines();
+            ResetPos();
+            animator.SetTrigger("MustDie");
+            isFury = true;
+        }
+
         //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
         if (Target && !isMotion)
         {
@@ -157,6 +166,8 @@ public class UnityChanAI : MonoBehaviour
             this.near = false;
             this.middle = false;
             this.far = false;
+            fury.CurrentFuryGauge += 20f * Time.deltaTime;
+
         }
 
         TargetDistance = Vector3.Distance(transform.position, Target.transform.position);
@@ -284,22 +295,6 @@ public class UnityChanAI : MonoBehaviour
                         farPatternGraceTime = 0f;
                     }
                 }
-                else
-                {
-                    while (!near && !middle && !far && MustDieGraceTime < 10f)
-                    {
-                        yield return null;
-                        MustDieGraceTime += Time.deltaTime;
-                    }
-                    if (!near && !middle && !far && MustDieGraceTime > 10f)
-                    {
-                        animator.SetTrigger("MustDie");
-                        ResetPos();
-                        isIdle = true;
-                        yield break;
-                    }
-                }
-
                 yield return null;
 
 
@@ -570,7 +565,7 @@ public class UnityChanAI : MonoBehaviour
             LookAt_Rotation_Y(Target.transform);
             if (!middleP1)
             {
-                StartCoroutine(MiddleP_Delay()); // 1~3초 후 패턴2로 넘어감
+                StartCoroutine(MiddleP_Delay());
             } 
         }
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("MiddlePattern3"))
@@ -580,7 +575,7 @@ public class UnityChanAI : MonoBehaviour
             attackController.StrongAttackBaseDamage = 100;
             if (!middleP2)
             {
-                StartCoroutine(MiddleP_Delay2()); // 1초 후 패턴 넘어감
+                StartCoroutine(MiddleP_Delay2());
             }
             LookAt_Rotation_Y(Target.transform);
         }
@@ -593,7 +588,7 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator MiddleP_Delay()
     {
         middleP1 = true;
-        float Ran = Random.Range(1, 3);
+        float Ran = Random.Range(1f, 2f);
         yield return new WaitForSeconds(Ran);
         animator.SetTrigger("MiddlePattern2");
         yield break;
@@ -657,7 +652,7 @@ public class UnityChanAI : MonoBehaviour
             LookAt_Rotation_Y(Target.transform);
             if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.3f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.7f)
             {
-                transform.position += transform.TransformDirection(Vector3.back) * 10f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.back) * 20f * Time.deltaTime;
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.75f)
             {
@@ -710,7 +705,7 @@ public class UnityChanAI : MonoBehaviour
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.65f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
             {
-                transform.position += transform.TransformDirection(Vector3.forward) * 300f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.forward) * 400f * Time.deltaTime;
             }
             else if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
@@ -760,7 +755,7 @@ public class UnityChanAI : MonoBehaviour
             if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
             {
                 isMotion = true;
-                transform.position += transform.TransformDirection(Vector3.forward) * 10f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.forward) * 20f * Time.deltaTime;
             }
             else
             {
