@@ -5,21 +5,31 @@ using UnityEngine.UI;
 
 public class RedAlarm : MonoBehaviour
 {
+    [Header("알람설정")]
     [SerializeField] private GameObject AlarmUI;
     [SerializeField] private Image AlarmColor;
     [SerializeField] private float Timer;
     [SerializeField] private int MultiNum;
-    private float flowTime;
     private PlayerController playerController;
+    private float flowTime;
 
+    public static RedAlarm Instance = null;
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         playerController = FindObjectOfType<PlayerController>();
     }
 
     private void Update()
     {
-        //보스 AI스크립트에 알람컴포턴트 find참조하고 공격패턴 출력전에 StartCoroutine(MorningCall()); 넣으면 됩니다.
         ShowAlarm();
     }
 
@@ -27,9 +37,7 @@ public class RedAlarm : MonoBehaviour
     {
         if (playerController.LockedOnEnemy != null)
         {
-            var YPos = playerController.LockedOnEnemy.GetComponent<BoxCollider>().center.y * playerController.LockedOnEnemy.transform.localScale.y;
-            Vector3 targetPosition = new Vector3(playerController.LockedOnEnemy.transform.position.x, YPos, playerController.LockedOnEnemy.transform.position.z);
-            var pos = Camera.main.WorldToScreenPoint(targetPosition);
+            var pos = Camera.main.WorldToScreenPoint(playerController.LockOnTargetPoint.transform.position);
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var scale = rectTransform.localScale;
             var width = rectTransform.rect.width;
@@ -41,7 +49,7 @@ public class RedAlarm : MonoBehaviour
         }
     }
 
-    public IEnumerator StorngAlarm()
+    public IEnumerator StrongAlarm()
     {
         if (playerController.LockedOnEnemy != null)
         {
@@ -50,7 +58,7 @@ public class RedAlarm : MonoBehaviour
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var startScale = Vector3.one;
             var endScale = Vector3.one * MultiNum;
-            flowTime = 0;            
+            flowTime = 0;
             while (Timer > flowTime)
             {
                 flowTime += Time.deltaTime;
