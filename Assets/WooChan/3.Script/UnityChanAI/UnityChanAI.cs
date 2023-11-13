@@ -99,7 +99,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
-        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
         if (Target && !isMotion)
         {
             LookAt_Rotation_Y(Target.transform);
@@ -126,11 +126,11 @@ public class UnityChanAI : MonoBehaviour
     private void CheckDistance()
     {
 
-        Collider[] near = Physics.OverlapSphere(transform.position, 5f, P_layer);
+        Collider[] near = Physics.OverlapSphere(transform.position, 10f, P_layer);
 
-        Collider[] middle = Physics.OverlapSphere(transform.position, 20f, P_layer);
+        Collider[] middle = Physics.OverlapSphere(transform.position, 40f, P_layer);
         
-        Collider[] far = Physics.OverlapSphere(transform.position, 40f, P_layer);
+        Collider[] far = Physics.OverlapSphere(transform.position, 100f, P_layer);
         
         if (near.Length > 0)
         {
@@ -799,9 +799,9 @@ public class UnityChanAI : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, 5f);
+        Gizmos.DrawWireSphere(transform.position, 10f);
         //Gizmos.DrawWireSphere(transform.position, 10f);
-        Gizmos.DrawWireSphere(transform.position, 20f);
         Gizmos.DrawWireSphere(transform.position, 40f);
+        Gizmos.DrawWireSphere(transform.position, 100f);
     }
 }
