@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(AttackController))]
 [RequireComponent(typeof(Animator))]
@@ -12,6 +13,10 @@ public class UnityChanAI : MonoBehaviour
     private Fury fury;
 
     [SerializeField] private GameObject Sword;
+    [SerializeField] private Material SwordMaterial;
+    private Color AlphaZero;
+    private Color SwordColor;
+
     [SerializeField] private GameObject Aura1;
     private Transform Aura1Parent;
     [SerializeField] private Collider Aura1Collider;
@@ -95,6 +100,9 @@ public class UnityChanAI : MonoBehaviour
         P_layer = LayerMask.GetMask("Player");
         MiddlePatternTime = Random.Range(3, 5);
         NearPatternTime = Random.Range(1f, 2f);
+
+        AlphaZero = new Color(0, 0, 0, 0);
+        SwordColor = new Color(0, 0, 0, 1);
 
         StartCoroutine(DecidePattern());
     }
@@ -802,10 +810,37 @@ public class UnityChanAI : MonoBehaviour
     private void SwordOn()
     {
         Sword.SetActive(true);
+        StartCoroutine(SwordFadeIn());
     }
     private void SwordOff()
     {
         Sword.SetActive(false);
+        StartCoroutine(SwordFadeOut());
+
+    }
+    private IEnumerator SwordFadeIn()
+    {
+        float startTime = Time.time;
+        while (Time.time - startTime < 1f)
+        {
+            float t = (Time.time - startTime) / 1f;
+            SwordMaterial.color = Color.Lerp(AlphaZero, SwordColor, t);
+            yield return null;
+        }
+        SwordMaterial.color = SwordColor;
+        yield break;
+    }
+    private IEnumerator SwordFadeOut()
+    {
+        float startTime = Time.time;
+        while (Time.time - startTime < 1f)
+        {
+            float t = (Time.time - startTime) / 1f;
+            SwordMaterial.color = Color.Lerp(SwordColor, AlphaZero, t);
+            yield return null;
+        }
+        SwordMaterial.color = AlphaZero;
+        yield break;
     }
     private void Aura1On()
     {
