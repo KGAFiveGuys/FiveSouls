@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Item))]
 public class ShowPickUpIcon : MonoBehaviour
 {
     public static Item CurrentFocusedItem { get; private set; } = null;
     
     private Item itemSelf;
     private PlayerController playerController;
+    private PocketInventory playerPocketInventory;
     private PlayerHUDController playerHUDController;
     private static GameObject pickUpIcon;
     [SerializeField] private Vector3 offset = Vector3.zero;
@@ -18,6 +18,7 @@ public class ShowPickUpIcon : MonoBehaviour
     {
         TryGetComponent(out itemSelf);
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        playerPocketInventory = GameObject.FindGameObjectWithTag("Player").GetComponent<PocketInventory>();
         playerHUDController = GameObject.FindGameObjectWithTag("PlayerHUD").GetComponent<PlayerHUDController>();
 
         if (pickUpIcon == null)
@@ -26,8 +27,8 @@ public class ShowPickUpIcon : MonoBehaviour
 
     private void Update()
     {
-        if (CurrentFocusedItem != null)
-            Debug.Log(CurrentFocusedItem.gameObject.name);
+        //if (CurrentFocusedItem != null)
+        //    Debug.Log(CurrentFocusedItem.gameObject.name);
     }
 
     private void OnTriggerStay(Collider other)
@@ -62,7 +63,7 @@ public class ShowPickUpIcon : MonoBehaviour
         if (CurrentFocusedItem == null)
         {
             CurrentFocusedItem = itemSelf;
-            playerController.OnPickUpItem += MoveToInvetory;
+            playerController.OnPickUpItem += PickUp;
             pickUpIcon.SetActive(true);
             return true;
         }
@@ -79,7 +80,7 @@ public class ShowPickUpIcon : MonoBehaviour
         if (thisItemDistance < focusedItemDistance)
         {
             CurrentFocusedItem = itemSelf;
-            playerController.OnPickUpItem += MoveToInvetory;
+            playerController.OnPickUpItem += PickUp;
             var currentFocusedIcon = CurrentFocusedItem.GetComponent<ShowPickUpIcon>();
             currentFocusedIcon.DisablePickUp();
             return true;
@@ -90,7 +91,7 @@ public class ShowPickUpIcon : MonoBehaviour
 
     public void DisablePickUp()
     {
-        playerController.OnPickUpItem -= MoveToInvetory;
+        playerController.OnPickUpItem -= PickUp;
     }
 
     private void UpdatePickUpIconPosition()
@@ -107,8 +108,12 @@ public class ShowPickUpIcon : MonoBehaviour
         pickUpIcon.transform.position = new Vector3(pos.x - xOffset, pos.y + yOffset, pos.z);
     }
 
-    private void MoveToInvetory()
+    private void PickUp()
     {
-        Debug.Log($"{gameObject.name} collected");
+        playerPocketInventory.StoreItem(itemSelf.itemInfo);
+        pickUpIcon.SetActive(false);
+        CurrentFocusedItem = null;
+        DisablePickUp();
+        Destroy(gameObject);
     }
 }

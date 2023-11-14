@@ -12,8 +12,8 @@ public class Stamina : MonoBehaviour
     [field: SerializeField] public float MaxStamina { get; private set; } = 100f;
     [field: SerializeField] public float CurrentStamina { get; private set; }
     [field: Header("Regenerate")]
-    [field: SerializeField] public float RegenDelay { get; private set; } = 1f;
-    [field: SerializeField] public float MaxRegenPerSeconds { get; private set; } = 30f;
+    [field: SerializeField] public float RegenDelay { get; set; } = 1f;
+    [field: SerializeField] public float MaxRegenPerSeconds { get; set; } = 30f;
     [SerializeField] private float MaxRegenTimeThreshold = 2f;
     [SerializeField] private float elapsedTimeAfterConsume;
     [SerializeField] private AnimationCurve RegenLerpIntensity;

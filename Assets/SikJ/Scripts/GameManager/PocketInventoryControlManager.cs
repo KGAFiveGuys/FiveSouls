@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GamePadItemControlManager : MonoBehaviour
+public class PocketInventoryControlManager : MonoBehaviour
 {
-    private static GamePadItemControlManager _instance = null;
-    public GamePadItemControlManager Instance => _instance;
-
+    private static PocketInventoryControlManager _instance = null;
+    public PocketInventoryControlManager Instance => _instance;
     public bool IsVisible { get; private set; } = false;
+
+    private PocketInventory playerPocketInventory;
 
     public InputAction select;
     public InputAction use;
@@ -25,6 +26,8 @@ public class GamePadItemControlManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        playerPocketInventory = GameObject.FindGameObjectWithTag("Player").GetComponent<PocketInventory>();
     }
 
     private void OnEnable()
@@ -48,19 +51,19 @@ public class GamePadItemControlManager : MonoBehaviour
     private void OnSelectPerformed(InputAction.CallbackContext obj)
     {
         var direction = obj.ReadValue<float>();
-        SelectNextItem(direction);
+        SelectItem(direction);
     }
-    private void SelectNextItem(float direction)
+    private void SelectItem(float direction)
     {
-        Debug.Log(direction);
+        playerPocketInventory.ChangeSelection((int)direction);
     }
 
     private void OnUsePerformed(InputAction.CallbackContext obj)
     {
-        UseCurrentItem();
+        UseItem();
     }
-    private void UseCurrentItem()
+    private void UseItem()
     {
-        Debug.Log("UseCurrentItem");
+        playerPocketInventory.UseCurrentItem();
     }
 }
