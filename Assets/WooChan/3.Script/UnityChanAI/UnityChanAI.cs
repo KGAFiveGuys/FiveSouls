@@ -821,9 +821,9 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator SwordFadeIn()
     {
         float startTime = Time.time;
-        while (Time.time - startTime < 1f)
+        while (Time.time - startTime < 2f)
         {
-            float t = (Time.time - startTime) / 1f;
+            float t = (Time.time - startTime) / 2f;
             SwordMaterial.color = Color.Lerp(AlphaZero, SwordColor, t);
             yield return null;
         }
@@ -833,9 +833,9 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator SwordFadeOut()
     {
         float startTime = Time.time;
-        while (Time.time - startTime < 1f)
+        while (Time.time - startTime < 2f)
         {
-            float t = (Time.time - startTime) / 1f;
+            float t = (Time.time - startTime) / 2f;
             SwordMaterial.color = Color.Lerp(SwordColor, AlphaZero, t);
             yield return null;
         }
