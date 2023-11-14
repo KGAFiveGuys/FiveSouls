@@ -92,6 +92,7 @@ public class PocketInventory : MonoBehaviour
 		if (CurrentPocket.count == 0)
 		{
             Debug.Log($"{CurrentPocket.itemInfo.Name} 재고 없음...");
+            return;
         }
 		
         if(TryUse(pocketList[currentIndex]))
