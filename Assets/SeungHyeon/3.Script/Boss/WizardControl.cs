@@ -37,16 +37,17 @@ public class WizardControl : MonoBehaviour
     private Animator Wizard_anim;
     private float AttackTime = 0;
     [SerializeField] private float ThunderDelay = 0.5f;
-    [SerializeField] private ThunderBoltCircle thunderBoltCircle;
-    [SerializeField] private ParticleSystem shadowburst;
-    [SerializeField] private GameObject Fireball_Spawner;
-    [SerializeField] private GameObject FrostMissilePrefab;
-    [SerializeField] private GameObject RightHand;
-    [SerializeField] private GameObject FrostSpawner;
-    [SerializeField] private FireBallSpawner fireBallSpawner;
-    [SerializeField] private MegaPattern megapattern;
+    [SerializeField]private ThunderBoltCircle thunderBoltCircle;
+    [SerializeField]private ParticleSystem shadowburst;
+    [SerializeField]private GameObject Fireball_Spawner;
+    [SerializeField]private GameObject FrostMissilePrefab;
+    [SerializeField]private GameObject RightHand;
+    [SerializeField]private GameObject FrostSpawner;
+    [SerializeField]private FireBallSpawner fireBallSpawner;
+    [SerializeField]public MegaPattern megapattern;
     [SerializeField] private float BackwardForce = 100f;
     [SerializeField] private Rigidbody Wizard_rb;
+    [SerializeField] private GameObject MagicImage;
 
     [Header("¿Ã∆Â∆Æ")]
     [SerializeField] private AttackEffect[] Attack_effect;
@@ -67,6 +68,8 @@ public class WizardControl : MonoBehaviour
         TryGetComponent(out Wizard_anim);
         TryGetComponent(out Wizard_rb);
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
+        MagicImage = Instantiate(MagicImage, FindObjectOfType<PlayerHUDController>().transform);
+        MagicImage.SetActive(false);
     }
     private void Update()
     {
@@ -91,13 +94,14 @@ public class WizardControl : MonoBehaviour
             wizardinfo.status = Status.Ready;
             Wizard_anim.SetBool("Ready",true);
             ReadyEffect.SetActive(true);
+            MagicImage.SetActive(true);
         }
         
     }
     public int SelectPattern()
     {
-        int rand = 0;
-        rand = Random.Range(0, 4);
+        int rand = 3;
+        //rand = Random.Range(0, 4);
         return rand;
     }
     public IEnumerator AttackReady(int AttackPlayer)
