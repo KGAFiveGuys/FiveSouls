@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
-    public InputAction useItem;
+    public InputAction pickUpItem;
 
     [Header("PlayerMove")]
     #region PlayerMove
@@ -170,6 +170,9 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed += OnLockOnPerformed;
         lockOn.Enable();
+
+        pickUpItem.performed += OnPickUpItemPerformed;
+        pickUpItem.Enable();
         #endregion
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
@@ -208,6 +211,9 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed -= OnLockOnPerformed;
         lockOn.Disable();
+
+        pickUpItem.performed -= OnPickUpItemPerformed;
+        pickUpItem.Disable();
         #endregion
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
@@ -880,6 +886,15 @@ public class PlayerController : MonoBehaviour
         VC_Default.GetComponent<CinemachineFreeLook>().LookAt.position = transform.position;
     }
 
+    #endregion
+    #region pickUpItem_Action
+    private void OnPickUpItemPerformed(InputAction.CallbackContext context)
+    {
+        if (IsDead)
+            return;
+
+        
+    }
     #endregion
     private IEnumerator ResetDefaultVCRotation()
     {
