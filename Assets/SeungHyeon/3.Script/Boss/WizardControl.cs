@@ -5,13 +5,15 @@ public enum Effect
 {
     Lightning = 0,
     Fire,
-    Ground
+    Ground,
+    Frost
 }
 public enum Status
 {
     Idle = 0,
     Ready,
     Attack,
+    MegaPattern,
     Death
 }
 [System.Serializable]
@@ -38,6 +40,9 @@ public class WizardControl : MonoBehaviour
     [SerializeField] private ThunderBoltCircle thunderBoltCircle;
     [SerializeField] private ParticleSystem shadowburst;
     [SerializeField] private GameObject Fireball_Spawner;
+    [SerializeField] private GameObject FrostMissilePrefab;
+    [SerializeField] private GameObject RightHand;
+    [SerializeField] private GameObject FrostSpawner;
     [SerializeField] private FireBallSpawner fireBallSpawner;
     [SerializeField] private MegaPattern megapattern;
     [SerializeField] private float BackwardForce = 100f;
@@ -69,6 +74,7 @@ public class WizardControl : MonoBehaviour
 
         if (wizardinfo.status.Equals(Status.Ready))
         {
+            transform.LookAt(wizardinfo.ChaseTarget.transform.position);
             AttackTime += Time.deltaTime;
             if (AttackTime >= 5f)
             {
@@ -80,10 +86,10 @@ public class WizardControl : MonoBehaviour
     public void CheckPlayerPosition()
     {
         Dist = Vector3.Distance(wizardinfo.ChaseTarget.transform.position, transform.position);
-        if(Dist <= 5f && wizardinfo.status == Status.Idle)
+        if(Dist <= 20f && wizardinfo.status == Status.Idle)
         {
-            Wizard_anim.SetBool("idle_combat", true);
             wizardinfo.status = Status.Ready;
+            Wizard_anim.SetBool("Ready",true);
             ReadyEffect.SetActive(true);
         }
         
@@ -91,11 +97,7 @@ public class WizardControl : MonoBehaviour
     public int SelectPattern()
     {
         int rand = 0;
-        if (Dist <= 8f)
-        {
-            return rand;
-        }
-        rand = Random.Range(1, 3);
+        rand = Random.Range(0, 4);
         return rand;
     }
     public IEnumerator AttackReady(int AttackPlayer)
@@ -134,14 +136,14 @@ public class WizardControl : MonoBehaviour
         collisionModule.enabled = true;
         shadowburst.Play();
         Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
-        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
-        {
-            Debug.Log("벽있음");
-        }
-        else
-        {
-            StartCoroutine(BackStep());
-        }
+        //if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
+        //{
+        //    Debug.Log("벽있음");
+        //}
+        //else
+        //{
+        //    StartCoroutine(BackStep());
+        //}
     }
     private void SelectAnimation(int pattern)
     {
@@ -156,6 +158,8 @@ public class WizardControl : MonoBehaviour
             case 2:
                 Wizard_anim.SetTrigger("Lightning");
                 return;
+            default:
+                return;
         }
     }
     private void SelectPattern(int pattern)
@@ -169,8 +173,11 @@ public class WizardControl : MonoBehaviour
                 StartCoroutine(fireBallSpawner.CreateFireBall());
                 return;
             case 2:
-                //StartCoroutine(UseThunderbolt());
-                StartCoroutine(megapattern.MegaThunderPatternUse());
+                StartCoroutine(UseThunderbolt());
+                //StartCoroutine(megapattern.MegaThunderPatternUse());
+                return;
+            case 3:
+                UseFrostMissile();
                 return;
         }    
     }
@@ -179,5 +186,13 @@ public class WizardControl : MonoBehaviour
         Vector3 Backward_Movement = -transform.forward * BackwardForce;
         Wizard_rb.AddForce(Backward_Movement);
         yield return null;
+    }
+    public void FrostMissile()
+    {
+        Instantiate(FrostMissilePrefab, RightHand.transform.position,Quaternion.identity ,FrostSpawner.transform);
+    }
+    private void UseFrostMissile()
+    {
+        Wizard_anim.SetTrigger("Frost");
     }
 }
