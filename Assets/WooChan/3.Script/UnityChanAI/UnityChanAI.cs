@@ -6,12 +6,14 @@ using UnityEngine.UI;
 [RequireComponent(typeof(AttackController))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Fury))]
+[RequireComponent(typeof(Health))]
 public class UnityChanAI : MonoBehaviour
 {
     private AttackController attackController;
     private Animator animator;
     private Fury fury;
 
+    [SerializeField] private Health p_Health;
     [SerializeField] private GameObject Sword;
     [SerializeField] private Material SwordMaterial;
     private Color AlphaZero;
@@ -123,18 +125,24 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
-        if (fury.Flag && !isFury)
+        if (fury.Flag && !isFury && p_Health.CurrentHP > 0)
         {
             StopAllCoroutines();
             ResetPos();
             animator.SetTrigger("MustDie");
             isFury = true;
         }
-
+        
         //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-        if (Target && !isMotion)
+        if (Target && !isMotion && p_Health.CurrentHP > 0)
         {
             LookAt_Rotation_Y(Target.transform);
+        }
+        if(p_Health.CurrentHP <= 0)
+        {
+            StopCoroutine(DecidePattern());
+            StopMovement();
+            ResetPos();
         }
 
         AuraSlash();
@@ -193,7 +201,7 @@ public class UnityChanAI : MonoBehaviour
 
         TargetDistance = Vector3.Distance(transform.position, Target.transform.position);
 
-        if (TargetDistance < 10f)
+        if (TargetDistance < 15f)
         {
             farP_Next = true;
         }
@@ -727,7 +735,7 @@ public class UnityChanAI : MonoBehaviour
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.65f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
             {
-                transform.position += transform.TransformDirection(Vector3.forward) * 400f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.forward) * 600f * Time.deltaTime;
             }
             else if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
@@ -814,16 +822,15 @@ public class UnityChanAI : MonoBehaviour
     }
     private void SwordOff()
     {
-        Sword.SetActive(false);
         StartCoroutine(SwordFadeOut());
 
     }
     private IEnumerator SwordFadeIn()
     {
         float startTime = Time.time;
-        while (Time.time - startTime < 2f)
+        while (Time.time - startTime < 1.5f)
         {
-            float t = (Time.time - startTime) / 2f;
+            float t = (Time.time - startTime) / 1.5f;
             SwordMaterial.color = Color.Lerp(AlphaZero, SwordColor, t);
             yield return null;
         }
@@ -833,13 +840,15 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator SwordFadeOut()
     {
         float startTime = Time.time;
-        while (Time.time - startTime < 2f)
+        while (Time.time - startTime < 1f)
         {
-            float t = (Time.time - startTime) / 2f;
+            float t = (Time.time - startTime) / 1f;
             SwordMaterial.color = Color.Lerp(SwordColor, AlphaZero, t);
             yield return null;
         }
         SwordMaterial.color = AlphaZero;
+        Sword.SetActive(false);
+
         yield break;
     }
     private void Aura1On()
