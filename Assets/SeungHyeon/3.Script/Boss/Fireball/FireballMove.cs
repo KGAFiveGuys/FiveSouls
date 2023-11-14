@@ -66,9 +66,15 @@ public class FireballMove : MonoBehaviour
     }
     private IEnumerator FireBallMove()
     {
+        float elapsedTime = 0f;
         while(true)
         {
-            FireBall_timerCurrent += Time.deltaTime * FireBall_speed;
+            elapsedTime += Time.deltaTime;
+            var currentSpeed = FireBall_speed + (elapsedTime);
+            Debug.Log($"{currentSpeed} ({elapsedTime})");
+
+            //FireBall_timerCurrent += Time.deltaTime * FireBall_speed;
+            FireBall_timerCurrent += Time.deltaTime * currentSpeed;
 
             DistanceOfTarget = Vector3.Distance(Targetplayer.transform.position, transform.position);
             if (DistanceOfTarget <= 3f && status.Equals(FireBallStatus.Chase))
@@ -90,7 +96,8 @@ public class FireballMove : MonoBehaviour
             }
             else
             {
-                transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed * 1.5f);
+                //transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * FireBall_speed * 1.5f);
+                transform.position += DirVector * FireBall_timerCurrent * (Time.deltaTime * currentSpeed * 1.5f);
             }
             yield return null;
         }
