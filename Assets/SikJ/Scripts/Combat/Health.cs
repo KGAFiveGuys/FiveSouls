@@ -33,4 +33,10 @@ public class Health : MonoBehaviour
         if (CurrentHP <= 0)
             OnDead?.Invoke();
     }
+
+    public void GetHeal(float amount)
+    {
+        CurrentHP += Mathf.Min(MaxHP, CurrentHP + amount);
+        OnHealthChanged?.Invoke();
+    }
 }
