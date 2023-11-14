@@ -126,6 +126,7 @@ public class PlayerController : MonoBehaviour
     public event Action OnJump;
     public event Action OnLockOn;
     public event Action OnLockOff;
+    public event Action OnPickUpItem;
 
     private void Awake()
     {
@@ -893,7 +894,7 @@ public class PlayerController : MonoBehaviour
         if (IsDead)
             return;
 
-        
+        OnPickUpItem?.Invoke();
     }
     #endregion
     private IEnumerator ResetDefaultVCRotation()

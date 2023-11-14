@@ -15,10 +15,12 @@ public class BreakableObjectEditor: Editor {
     	var target_cs = (BreakableObject)target;
 
         EditorGUILayout.LabelField("Spawn Potions", EditorStyles.miniLabel);
-        target_cs.potionSpawnWeight = EditorGUILayout.CurveField(new GUIContent("Propbablility Weight", "Spawn if value above .9f"), target_cs.potionSpawnWeight, null);
+        target_cs.potionSpawnWeight = EditorGUILayout.CurveField(new GUIContent("Propbablility Weight", "Spawn if value above .8f"), target_cs.potionSpawnWeight, null);
         target_cs.potionSpawnOffsetY = EditorGUILayout.FloatField("OffsetY", target_cs.potionSpawnOffsetY);
-        target_cs.healthPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.healthPotion, typeof(GameObject), false);
-        target_cs.staminaPotion = (GameObject)EditorGUILayout.ObjectField("Health Potion Prfeab", target_cs.staminaPotion, typeof(GameObject), false);
+        target_cs.healthRegenBoostPotion = (GameObject)EditorGUILayout.ObjectField("Health Regen Boost Potion Prfeab", target_cs.healthRegenBoostPotion, typeof(GameObject), false);
+        target_cs.staminaRegenBoostPotion = (GameObject)EditorGUILayout.ObjectField("Stamina Regen Boost Potion Prfeab", target_cs.staminaRegenBoostPotion, typeof(GameObject), false);
+        target_cs.baseDamageBoostPotion = (GameObject)EditorGUILayout.ObjectField("Base Damage Boost Potion Prfeab", target_cs.baseDamageBoostPotion, typeof(GameObject), false);
+        target_cs.counterDamageBoostPotion = (GameObject)EditorGUILayout.ObjectField("Counter Damage Boost Potion Prfeab", target_cs.counterDamageBoostPotion, typeof(GameObject), false);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Drag & Drop", EditorStyles.miniLabel);
     	target_cs.fragments = (Transform)EditorGUILayout.ObjectField("Fractured Object Prefab", target_cs.fragments, typeof(Transform) ,false );

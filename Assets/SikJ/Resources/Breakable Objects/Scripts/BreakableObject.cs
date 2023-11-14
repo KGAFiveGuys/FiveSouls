@@ -6,6 +6,7 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BreakableObject:MonoBehaviour{
 	public Transform fragments; 					//Place the fractured object
@@ -20,8 +21,13 @@ public class BreakableObject:MonoBehaviour{
 	bool broken;                                    //Determines if the object has been broken or not 
 	Transform frags;
 	Rigidbody _rigidbody;
-	public GameObject healthPotion;
-	public GameObject staminaPotion;
+	public GameObject healthRegenBoostPotion;
+	public GameObject staminaRegenBoostPotion;
+	public GameObject baseDamageBoostPotion;
+	public GameObject counterDamageBoostPotion;
+
+
+	public List<GameObject> potionList;
 
 	private void Awake()
     {
@@ -57,30 +63,35 @@ public class BreakableObject:MonoBehaviour{
 	public void SpawnRandomPotion()
     {
 		var weightedValue = potionSpawnWeight.Evaluate(Random.value);
-		if (weightedValue > .9f)
+		if (weightedValue > .8f)
         {
-			switch (Random.Range(0, 2))
+			GameObject potion = null;
+			switch (Random.Range(0, 4))
 			{
 				case 0:
-					SpawnHealthPotion();
+					potion = healthRegenBoostPotion;
 					break;
 				case 1:
-					SpawnStaminaPotion();
+					potion = staminaRegenBoostPotion;
+					break;
+				case 2:
+					potion = baseDamageBoostPotion;
+					break;
+				case 3:
+					potion = counterDamageBoostPotion;
 					break;
 			}
+
+            if (potion != null)
+				SpawnPotion(potion);
 		}
     }
 
 	public AnimationCurve potionSpawnWeight;
 	public float potionSpawnOffsetY = 0f;
-	public void SpawnHealthPotion()
-	{
-		Instantiate(healthPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
-	}
-
-	public void SpawnStaminaPotion()
-	{
-		Instantiate(staminaPotion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
+	public void SpawnPotion(GameObject potion)
+    {
+		Instantiate(potion, transform.position + Vector3.up * potionSpawnOffsetY, Quaternion.identity);
 	}
 
 	// breaks object

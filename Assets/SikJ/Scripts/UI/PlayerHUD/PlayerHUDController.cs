@@ -42,6 +42,8 @@ public class PlayerHUDController : MonoBehaviour
 
     private Health _lockedOnEnemyHealth = null;
     #endregion
+    [Header("On PickUp Item Appeared")]
+    public GameObject pickUpIcon;
 
     private void Awake()
     {
@@ -86,8 +88,8 @@ public class PlayerHUDController : MonoBehaviour
         playerBackgroundStamina.value = playerForegroundStamina.value;
         currentCheckPlayerStamina = CheckStaminaBackground();
         StartCoroutine(currentCheckPlayerStamina);
-		#endregion
-	}
+        #endregion
+    }
 
 	#region Player
 	private IEnumerator currentCheckPlayerStamina;
