@@ -667,8 +667,7 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
+        if (isCounterAttacking)
             return;
 
         if (TryCounterAttack())
@@ -695,8 +694,7 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
+        if (isCounterAttacking)
             return;
 
         if (TryCounterAttack())
@@ -722,11 +720,14 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region Counter Attack
+    private bool isCounterAttacking = false;
     private bool TryCounterAttack()
     {
         if (!_attackController.IsCounterAttack
             || _stamina.CurrentStamina <= _stamina.CounterAttackThreshold)
             return false;
+
+        isCounterAttacking = true;
 
         ControlState = ControlState.Uncontrollable;
         _animator.SetBool(isCounterAttack_hash, true);
@@ -746,6 +747,8 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
 
         _attackController.StopCounterAttackTime();
+
+        isCounterAttacking = false;
     }
     #endregion
     #region lockOn_Action
