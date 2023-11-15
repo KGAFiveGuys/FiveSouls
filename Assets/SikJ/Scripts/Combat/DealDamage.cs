@@ -15,7 +15,8 @@ public class DealDamage : MonoBehaviour
             return;
 
         // 방어된 경우
-        if (layerMask == (int)_attackController.BlockableLayer)
+        if (_attackController.CurrentAttackType == AttackType.Weak
+            && layerMask == (int)_attackController.BlockableLayer)
         {
             if (!other.transform.parent.gameObject.TryGetComponent(out BlockController targetBlockController)
                 || !other.transform.parent.gameObject.TryGetComponent(out Health targetHealth)
