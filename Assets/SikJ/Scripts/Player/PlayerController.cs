@@ -521,24 +521,20 @@ public class PlayerController : MonoBehaviour
         if (_stamina.CurrentStamina == 0)
             return;
 
-        var isRun = context.ReadValueAsButton();
-        if (isRun)
-		{
-            if (currentCheckMovingEnoughToRun != null)
-            {
-                StopCoroutine(currentCheckMovingEnoughToRun);
-                currentCheckMovingEnoughToRun = null;
-            }
-
-            // Walk -> Run
-			if (!IsRun)
-			{
-                currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
-                StartCoroutine(currentCheckMovingEnoughToRun);
-            }
-
-			IsRun = !IsRun;
+        if (currentCheckMovingEnoughToRun != null)
+        {
+            StopCoroutine(currentCheckMovingEnoughToRun);
+            currentCheckMovingEnoughToRun = null;
         }
+
+        // Walk -> Run
+		if (!IsRun)
+		{
+            currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
+            StartCoroutine(currentCheckMovingEnoughToRun);
+        }
+
+		IsRun = !IsRun;
     }
     private IEnumerator CheckMovingEnoughToRun()
 	{
@@ -571,21 +567,17 @@ public class PlayerController : MonoBehaviour
             || isJumping
             || _stamina.CurrentStamina < _stamina.JumpThreshold)
             return;
+        
+        // 마지막 이동정보 저장
+        float lastSpeed = IsRun ? runSpeed : walkSpeed;
+        Vector3 lastMovement = moveDirection * lastSpeed;
 
-        var isJump = context.ReadValueAsButton();
-        if (isJump)
-		{
-            // 마지막 이동정보 저장
-            float lastSpeed = IsRun ? runSpeed : walkSpeed;
-            Vector3 lastMovement = moveDirection * lastSpeed;
-
-            isJumping = true;
-            IsRun = false;
-            _stamina.Consume(_stamina.JumpCost);
-            _animator.SetBool(isJump_hash, true);
-            OnJump?.Invoke();
-            StartCoroutine(CancelJump(lastMovement));
-        }
+        isJumping = true;
+        IsRun = false;
+        _stamina.Consume(_stamina.JumpCost);
+        _animator.SetBool(isJump_hash, true);
+        OnJump?.Invoke();
+        StartCoroutine(CancelJump(lastMovement));
     }
     private IEnumerator CancelJump(Vector3 lastMovement)
     {
@@ -606,22 +598,39 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool(isJump_hash, false);
     }
     #endregion
+    private bool isBlocking = false;
     #region block_Action
     private void OnBlockPerformed(InputAction.CallbackContext context)
     {
-        if (_attackController.IsCounterAttack)
+        if (ControlState == ControlState.Uncontrollable
+            || isBlocking
+            || _attackController.IsCounterAttack)
             return;
-        
+
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
-        _animator.SetBool(isBlock_hash, true);
         _stamina.Consume(_stamina.BlockCastCost);
+        _animator.SetBool(isBlock_hash, true);
+        StartCoroutine(TurnOnBlock(6));
     }
+    private IEnumerator TurnOnBlock(int frames)
+	{
+        int frameCount = 0;
+		while (frameCount < frames)
+		{
+            frameCount++;
+            yield return null;
+        }
+        _blockController.TurnOnBlockCollider();
+        isBlocking = true;
+	}
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
-        if (_attackController.IsCounterAttack)
+        if (!isBlocking
+            || _attackController.IsCounterAttack)
             return;
-        
+
+        isBlocking = false;
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         _blockController.TurnOffBlockCollider();
@@ -675,10 +684,8 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        if (isCounterAttacking)
-            return;
-
-        if (TryCounterAttack())
+        if (isCounterAttacking
+            || TryCounterAttack())
             return;
         
         if (ControlState == ControlState.Uncontrollable
@@ -702,10 +709,8 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
-        if (isCounterAttacking)
-            return;
-
-        if (TryCounterAttack())
+        if (isCounterAttacking
+            || TryCounterAttack())
             return;
 
         if (ControlState == ControlState.Uncontrollable
@@ -919,7 +924,8 @@ public class PlayerController : MonoBehaviour
     #region pickUpItem_Action
     private void OnPickUpItemPerformed(InputAction.CallbackContext context)
     {
-        if (IsDead)
+        if (IsDead
+            || ControlState == ControlState.Uncontrollable)
             return;
 
         OnPickUpItem?.Invoke();
@@ -928,7 +934,8 @@ public class PlayerController : MonoBehaviour
     #region talkToNPC_Action
     private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
     {
-        if (IsDead)
+        if (IsDead
+            || ControlState == ControlState.Uncontrollable)
             return;
 
         OnTalkToNPC?.Invoke();
