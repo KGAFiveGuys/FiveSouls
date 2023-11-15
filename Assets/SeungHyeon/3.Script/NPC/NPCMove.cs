@@ -31,6 +31,8 @@ public class NPCMove : MonoBehaviour
     public void TalkNpc()
     {
         npc_agent.speed = 0;
+        //모션바꾸는거
+        //쳐다보게 하고 return id
     }
 
 }
