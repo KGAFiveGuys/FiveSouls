@@ -33,7 +33,7 @@ public class PocketInventory : MonoBehaviour
     // PlayerHUD에서 구독하여 사용할 것
     public event Action OnSelectionChanged;
     // PlayerController, PlayerHUD에서 구독하여 사용할 것
-    public event Action OnItemUsed;
+    public event Action<ItemSO> OnItemUsed;
 
     private Health playerHealth;
     private Stamina playerStamina;
@@ -101,7 +101,7 @@ public class PocketInventory : MonoBehaviour
             temp.count--;
             pocketList[currentIndex] = temp;
 
-            OnItemUsed?.Invoke();
+            OnItemUsed?.Invoke(pocketList[currentIndex].itemInfo);
         }
         else
         {
