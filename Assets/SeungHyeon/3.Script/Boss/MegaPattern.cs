@@ -5,6 +5,7 @@ using UnityEngine;
 public class MegaPattern : MonoBehaviour
 {
     public Transform centerTransform;
+    [SerializeField] private WizardControl wizard;
     [SerializeField] private float Tempo = 0.2f;
     public int rowCount = 3;
     public int colCount = 8;
@@ -23,6 +24,7 @@ public class MegaPattern : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        wizard = FindObjectOfType<WizardControl>();
         Thunderobjectpool = new List<List<GameObject>>();
         Fireobjectpool = new List<List<GameObject>>();
         centerTransform = transform;
@@ -136,7 +138,9 @@ public class MegaPattern : MonoBehaviour
         for (int i = 0; i < StormObjectpool.Count; i++)
         {
             StormObjectpool[i].SetActive(false);
+
         }
+        wizard.wizardinfo.status = Status.Ready;
     }
 
 }

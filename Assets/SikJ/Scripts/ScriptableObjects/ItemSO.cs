@@ -13,6 +13,7 @@ public enum ItemType
 [CreateAssetMenu(fileName = "ItemSO_", menuName = "ScriptableObjects/ItemSO")]
 public class ItemSO : ScriptableObject
 {
+    [SerializeField] public Sprite image;
     [SerializeField] public ItemType type;
     [SerializeField] public float duration;
     [SerializeField] public string Name;

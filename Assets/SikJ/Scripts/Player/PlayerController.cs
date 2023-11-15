@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     public InputAction jump;
     public InputAction lockOn;
     public InputAction pickUpItem;
+    public InputAction talkToNPC;
 
     [Header("PlayerMove")]
     #region PlayerMove
@@ -127,6 +128,7 @@ public class PlayerController : MonoBehaviour
     public event Action OnLockOn;
     public event Action OnLockOff;
     public event Action OnPickUpItem;
+    public event Action OnTalkToNPC;
 
     private void Awake()
     {
@@ -174,6 +176,9 @@ public class PlayerController : MonoBehaviour
 
         pickUpItem.performed += OnPickUpItemPerformed;
         pickUpItem.Enable();
+
+        talkToNPC.performed += OnTalkToNPCPerformed;
+        talkToNPC.Enable();
         #endregion
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
@@ -215,6 +220,9 @@ public class PlayerController : MonoBehaviour
 
         pickUpItem.performed -= OnPickUpItemPerformed;
         pickUpItem.Disable();
+
+        talkToNPC.performed -= OnTalkToNPCPerformed;
+        talkToNPC.Disable();
         #endregion
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
@@ -667,8 +675,7 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
+        if (isCounterAttacking)
             return;
 
         if (TryCounterAttack())
@@ -695,8 +702,7 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
+        if (isCounterAttacking)
             return;
 
         if (TryCounterAttack())
@@ -722,11 +728,14 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region Counter Attack
+    private bool isCounterAttacking = false;
     private bool TryCounterAttack()
     {
         if (!_attackController.IsCounterAttack
             || _stamina.CurrentStamina <= _stamina.CounterAttackThreshold)
             return false;
+
+        isCounterAttacking = true;
 
         ControlState = ControlState.Uncontrollable;
         _animator.SetBool(isCounterAttack_hash, true);
@@ -746,6 +755,8 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
 
         _attackController.StopCounterAttackTime();
+
+        isCounterAttacking = false;
     }
     #endregion
     #region lockOn_Action
@@ -888,15 +899,6 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-    #region pickUpItem_Action
-    private void OnPickUpItemPerformed(InputAction.CallbackContext context)
-    {
-        if (IsDead)
-            return;
-
-        OnPickUpItem?.Invoke();
-    }
-    #endregion
     private IEnumerator ResetDefaultVCRotation()
     {
         // 더 가까운 방향으로 회전하도록 수정 필요
@@ -914,6 +916,24 @@ public class PlayerController : MonoBehaviour
         }
         VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
+    #region pickUpItem_Action
+    private void OnPickUpItemPerformed(InputAction.CallbackContext context)
+    {
+        if (IsDead)
+            return;
+
+        OnPickUpItem?.Invoke();
+    }
+    #endregion
+    #region talkToNPC_Action
+    private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
+    {
+        if (IsDead)
+            return;
+
+        OnTalkToNPC?.Invoke();
+    }
+    #endregion
     #region rotate_Action
     private void OnRotatePerformed(InputAction.CallbackContext context)
     {
