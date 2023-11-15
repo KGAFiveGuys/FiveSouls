@@ -20,7 +20,7 @@ public struct Pocket
 [RequireComponent(typeof(AttackController))]
 public class PocketInventory : MonoBehaviour
 {
-    [SerializeField] private PocketInventoryControlManager pocketInventoryControlManager;
+    [SerializeField] private PocketInventoryManager pocketInventoryControlManager;
     [SerializeField] ItemSO healthRegenBoostPotion;
     [SerializeField] ItemSO staminaRegenBoostPotion;
     [SerializeField] ItemSO baseDamageBoostPotion;
