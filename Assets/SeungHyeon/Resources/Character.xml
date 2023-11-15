@@ -1,0 +1,11 @@
+﻿<dialogues>
+  <dialogue id="1">
+    <character>테스트1</character>
+    <text>안녕하십니까</text>
+    <text>반갑습니다</text>
+  </dialogue>
+  <dialogue id="2">
+    <character>테스트2</character>
+    <text>안녕하세요 테스트2 입니다.</text>
+  </dialogue>
+</dialogues>
