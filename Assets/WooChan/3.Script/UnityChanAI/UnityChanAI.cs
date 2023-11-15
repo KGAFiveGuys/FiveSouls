@@ -902,7 +902,6 @@ public class UnityChanAI : MonoBehaviour
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("AuraSlash1"))
         {
             LookAt_Rotation_Y(Target.transform);
-            //transform.LookAt(Target.transform);
             if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.9f)
             {
                 isMotion = true;
