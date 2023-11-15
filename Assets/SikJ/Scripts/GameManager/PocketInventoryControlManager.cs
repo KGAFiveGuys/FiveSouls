@@ -3,12 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro;
 
 public class PocketInventoryControlManager : MonoBehaviour
 {
     private static PocketInventoryControlManager _instance = null;
     public PocketInventoryControlManager Instance => _instance;
     public bool IsVisible { get; private set; } = false;
+
+    [SerializeField] private Image currentPocket;
+    [SerializeField] private TextMeshProUGUI currentPocketCount;
+    [SerializeField] private TextMeshProUGUI currentPocketName;
 
     private PocketInventory playerPocketInventory;
 
@@ -46,6 +52,13 @@ public class PocketInventoryControlManager : MonoBehaviour
 
         use.performed -= OnUsePerformed;
         use.Disable();
+    }
+
+    public void ChangePocketInfo(ItemSO itemInfo, int count)
+    {
+        currentPocket.sprite = itemInfo.image;
+        currentPocketCount.text = $"{count:#0}";
+        currentPocketName.text = itemInfo.Name;
     }
 
     private void OnSelectPerformed(InputAction.CallbackContext obj)

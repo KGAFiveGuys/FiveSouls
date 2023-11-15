@@ -20,6 +20,7 @@ public struct Pocket
 [RequireComponent(typeof(AttackController))]
 public class PocketInventory : MonoBehaviour
 {
+    [SerializeField] private PocketInventoryControlManager pocketInventoryControlManager;
     [SerializeField] ItemSO healthRegenBoostPotion;
     [SerializeField] ItemSO staminaRegenBoostPotion;
     [SerializeField] ItemSO baseDamageBoostPotion;
@@ -30,9 +31,6 @@ public class PocketInventory : MonoBehaviour
     private int currentIndex = 0;
     public Pocket CurrentPocket => pocketList[currentIndex];
 
-    // PlayerHUD에서 구독하여 사용할 것
-    public event Action OnSelectionChanged;
-    // PlayerController, PlayerHUD에서 구독하여 사용할 것
     public event Action<ItemSO> OnItemUsed;
 
     private Health playerHealth;
@@ -53,11 +51,6 @@ public class PocketInventory : MonoBehaviour
         pocketList.Add(pocket2);
         pocketList.Add(pocket3);
         pocketList.Add(pocket4);
-    }
-
-	private void Update()
-	{
-        Debug.Log($"현재선택 : {CurrentPocket.itemInfo.Name} ({CurrentPocket.count})");
     }
 
 	public void StoreItem(ItemSO itemSO)
@@ -84,16 +77,14 @@ public class PocketInventory : MonoBehaviour
         else if (currentIndex < 0)
             currentIndex += pocketList.Count;
 
-        OnSelectionChanged?.Invoke();
+        var currentPocket = pocketList[currentIndex];
+        pocketInventoryControlManager.ChangePocketInfo(currentPocket.itemInfo, currentPocket.count);
     }
 
     public void UseCurrentItem()
 	{
 		if (CurrentPocket.count == 0)
-		{
-            Debug.Log($"{CurrentPocket.itemInfo.Name} 재고 없음...");
             return;
-        }
 		
         if(TryUse(pocketList[currentIndex]))
 		{
@@ -107,6 +98,8 @@ public class PocketInventory : MonoBehaviour
         {
             Debug.Log($"{CurrentPocket.itemInfo.Name}의 효과가 아직 남아있습니다");
 		}
+
+        ChangeSelection(0);
     }
 
 	private bool TryUse(Pocket pocket)
