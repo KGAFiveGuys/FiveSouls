@@ -48,7 +48,6 @@ public class XmlTest : MonoBehaviour
         if (dialogues.TryGetValue(dialogueID, out DialogueData dialogueData))
         {
             CharacterName.text = $"{dialogueData.Character}";
-            // 여러 개의 텍스트가 있다면 모두 표시
             dialogueText.text = dialogueData.Texts[0];
         }
         else
