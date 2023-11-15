@@ -9,13 +9,14 @@ public class NPCMove : MonoBehaviour
     private int destPoint = 0;
     private NavMeshAgent npc_agent;
 
+
     private void Start()
     {
         npc_agent = GetComponent<NavMeshAgent>();
 
         GotoNextPoint();
     }
-    void GotoNextPoint()
+    public void GotoNextPoint()
     {
         if (points.Length == 0)
             return;
@@ -28,11 +29,4 @@ public class NPCMove : MonoBehaviour
         if (!npc_agent.pathPending && npc_agent.remainingDistance < 0.5f)
             GotoNextPoint();
     }
-    public void TalkNpc()
-    {
-        npc_agent.speed = 0;
-        //모션바꾸는거
-        //쳐다보게 하고 return id
-    }
-
 }
