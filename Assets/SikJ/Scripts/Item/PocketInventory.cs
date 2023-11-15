@@ -65,7 +65,9 @@ public class PocketInventory : MonoBehaviour
                 break;
             }
         }
-	}
+
+        ChangeSelection(0);
+    }
 
 	public void ChangeSelection(int direction)
 	{
@@ -163,8 +165,6 @@ public class PocketInventory : MonoBehaviour
 
             playerHealth.GetHeal(currentHeal);
             yield return null;
-
-            Debug.Log($"체력 재생 +{currentHeal}");
         }
 
         currentHealthRegenBoost = null;
@@ -183,8 +183,6 @@ public class PocketInventory : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             yield return null;
-
-            Debug.Log("기력 재생 부스트!");
         }
 
         playerStamina.RegenDelay = originDelay;
@@ -206,8 +204,6 @@ public class PocketInventory : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             yield return null;
-
-            Debug.Log("기본 공격 부스트!");
         }
 
         playerAttackController.WeakAttackBaseDamage = originWeakAttackDamage;
@@ -227,8 +223,6 @@ public class PocketInventory : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             yield return null;
-
-            Debug.Log("카운터 공격 부스트!");
         }
 
         playerAttackController.CounterAttackBaseDamage = originCounterAttackDamage;
