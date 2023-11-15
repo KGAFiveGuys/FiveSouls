@@ -12,6 +12,7 @@ public class BlockController : MonoBehaviour
     [SerializeField] private ParticleSystem blockParticle;
     [field: Tooltip("데미지 감소 비율")]
     [field: SerializeField] [field: Range(0f, 1f)] public float BlockDampRate { get; private set; } = .2f;
+    [SerializeField] private float knockBackFixedDuration = .2f;
     [SerializeField] private float knockBackDurationPerDamage = .2f;
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
@@ -69,7 +70,8 @@ public class BlockController : MonoBehaviour
         if (_characterHealth.CurrentHP == 0)
             return;
 
-        var duration = damage * knockBackDurationPerDamage;
+        //var duration = damage * knockBackDurationPerDamage;
+        var duration = knockBackFixedDuration;
         knockBackDuration = duration;
         OnBlockSucceed?.Invoke();
 
