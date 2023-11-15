@@ -30,7 +30,7 @@ public class RockPooling : MonoBehaviour
 
     private void Creat_Rock()
     {
-        var offset = new Vector3(0f, 0f, Random.Range(-50f, 50f));
+        var offset = new Vector3(Random.Range(-50f, 50f), 0f, 0f);
         var newRock = Instantiate(RockPrefab_Two, pool_position.position + offset, Quaternion.identity);
         newRock.SetActive(false);
         poolRock.Add(newRock);
@@ -43,25 +43,22 @@ public class RockPooling : MonoBehaviour
         {
             if (rock != null && !rock.activeSelf)
             {
-                int randomValue = Random.Range(1, 5);
+                int randomValue = Random.Range(3, 6);
                 rock.SetActive(true);
                 Rigidbody rb = rock.GetComponent<Rigidbody>();
 
                 if (rb != null)
                 {
-                    Vector3 forceDirection = new Vector3(-10.0f, -25f, 0);
-                    float forceMagnitude = 2f;
+                    Vector3 forceDirection = -(transform.right + transform.up * 4);
+                    float forceMagnitude = 15f;
                     rb.AddForce(forceDirection * forceMagnitude, ForceMode.Impulse);
                 }
 
                 Rock_count--;
                 yield return new WaitForSeconds(randomValue);
-
-                if (Rock_count == 20)
-                {
-                    StartCoroutine(Rock_Creat_co());
-                }
+                StartCoroutine(Rock_Creat_co());
             }
+
         }
 
     }
