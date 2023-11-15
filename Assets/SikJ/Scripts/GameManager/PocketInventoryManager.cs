@@ -6,10 +6,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
 
-public class PocketInventoryControlManager : MonoBehaviour
+public class PocketInventoryManager : MonoBehaviour
 {
-    private static PocketInventoryControlManager _instance = null;
-    public PocketInventoryControlManager Instance => _instance;
+    private static PocketInventoryManager _instance = null;
+    public PocketInventoryManager Instance => _instance;
     public bool IsVisible { get; private set; } = false;
 
     [SerializeField] private Image currentPocket;
