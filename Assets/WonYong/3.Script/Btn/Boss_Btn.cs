@@ -6,6 +6,8 @@ public class Boss_Btn : MonoBehaviour
 {
     [SerializeField] private GameObject boss_btn;
     [SerializeField] private GameObject boss;
+    [Header("bossOn=>rockpool Off")]
+    [SerializeField] private GameObject RockPool;
     public Material objectMaterial;
     private void Awake()
     {
@@ -25,6 +27,7 @@ public class Boss_Btn : MonoBehaviour
                 // 부모 오브젝트에서 자식 오브젝트를 찾아서 활성화합니다.
                 boss_btn.SetActive(true);
                 boss.SetActive(true);
+                RockPool.SetActive(false);
                 objectMaterial.color = Color.red;
 
             }

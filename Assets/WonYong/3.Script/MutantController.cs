@@ -100,6 +100,9 @@ public class MutantController : MonoBehaviour
     bool isGroggy = false;
     bool isDie = false;
 
+    //전체 행동 체크
+    bool isAction = false;
+
     //거리계산
     private float distance;
     //마우스 커서 가리기
@@ -134,7 +137,7 @@ public class MutantController : MonoBehaviour
     {
         get
         {
-            if (distance >= 20f && distance <=100f)
+            if (distance >= 30f && distance <=50f)
             {
                 return true;
             }
@@ -177,19 +180,19 @@ public class MutantController : MonoBehaviour
 
     private void Update()
     {
+        //print(distance);
+        print("isAction : " + isAction);
+        
         if(health_m.CurrentHP <= 0)
         {
             agent.enabled = false;
         }
         Timer();
         Dance();
-
         Groggy();
         Die();
         Howilng_att();
-
-        
-
+        //distance 계산용
         player.transform.position = player.transform.position;
         Move_ToPlayer();
         Rotate(); 
@@ -203,9 +206,7 @@ public class MutantController : MonoBehaviour
             Togle_Cursor();
         }
 
-        Judgement_MonAction();
-
-        
+        Judgement_MonAction(); 
     }
     private void Timer()
     {
@@ -386,7 +387,7 @@ public class MutantController : MonoBehaviour
     private IEnumerator MoveForward()
     {
         isJumping = true;
-
+        isAction = true;
         //이부분 x값으로 변환시키는게 아니라 distance를 가져와서 써야함.
         //float distanceToMove = Skilljudgment.distance - 2f;
         float distanceToMove = distance - 2f;
@@ -410,6 +411,7 @@ public class MutantController : MonoBehaviour
 
         // 대쉬 끝
         attackController.TurnOffAttackCollider();
+        isAction = false;
 
     }
 
@@ -554,6 +556,9 @@ public class MutantController : MonoBehaviour
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, 30f);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, 50f);
     }
 
     private IEnumerator Dash_Cool_co()
@@ -570,30 +575,28 @@ public class MutantController : MonoBehaviour
   
     private void Judgement_MonAction()
     {
-
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1 << 9);
 
         distance = Vector3.Distance(player.transform.position, transform.position);
-        if(distance > 100f)
+        if(distance > 50f)
         {
             agent.enabled = false;
         }
 
-         if(distance > 30f && distance <=100f)
+        if(distance > 30f && distance <=50f)
         {
-            if(isSmash && isDash)
+            if(isAction)
             {
                 agent.enabled = false;
             }
-            else
+            else if(!isAction)
             {
                 agent.enabled = true;
             }
-
         }
         else if (distance <= 30f && distance > 20f)
         {
-            if(!isGroggy && !isSmash && !isSwing && !isDash &&!isRock)
+            if(!isAction)
             {
                 agent.enabled = true;
                 attackController.ChangeAttackType(AttackType.Strong);
@@ -604,33 +607,32 @@ public class MutantController : MonoBehaviour
         }
         else if (distance <= 20f && distance > 10f)
         {
+
             agent.enabled = false;
             if (!isDash )
             {
                 transform.LookAt(player.transform);
-                if (!isRock && !isSmash && !isSwing)
+                if (!isAction)
                 {
-                    if(cool_Rock == 0)
-                    {
-                        ThrowRock_anim();
-                    }
+                    print("들어옴?");
+                    ThrowRock_anim();   
                 }
             }
         }
-        else if (distance <= 10f)
+        else if (distance <= 10f && distance >= 5f)
         {
             if (cool_Swing == 0 || cool_Smash == 0)
             {
                 switch (UnityEngine.Random.Range(0, 2))
                 {
                     case 0:
-                        if(cool_Swing == 0 && !isDash && !isSmash)
+                        if(cool_Swing == 0 && !isAction)
                         {
                             //약
                             attackController.ChangeAttackType(AttackType.Weak);
                             attackController.AttackCollider = swingAttackCollider;
                             attackController.WeakAttackBaseDamage = Swing_dmg;
-                            Swing_att();
+                            StartCoroutine(Swing_att());
                         }
                         else
                         {
@@ -638,15 +640,13 @@ public class MutantController : MonoBehaviour
                         }
                         break;
                     case 1:
-                        if(cool_Smash == 0 &&!isDash && !isSwing)
+                        if(cool_Smash == 0 && !isAction)
                         {
                             //강
                             attackController.ChangeAttackType(AttackType.Strong);
                             attackController.AttackCollider = smashAttackCollider;
                             attackController.StrongAttackBaseDamage = Smash_dmg;
-                            Smash_Att();
-                            StartCoroutine(Up_Smash_Strong_coll());
-                            
+                            StartCoroutine(Smash_Att());
                         }
                         else
                         {
@@ -658,16 +658,19 @@ public class MutantController : MonoBehaviour
                 }
             }
         }
+        else if(distance < 5f)
+        {
+            transform.LookAt(player.transform);
+        }
     }
 
     //네비게이션을 이용하여 플레이어에게 이동
     private void Move_ToPlayer()
     {
-        if(distance > 30f )
+        if(agent.enabled)
         {
             agent.SetDestination(player.transform.position);
         }
-
     }
 
 
@@ -730,22 +733,108 @@ public class MutantController : MonoBehaviour
     }
 
 
-    private void Swing_att()
+    private IEnumerator Swing_att()
     {
-        if(cool_Swing != 0)
+        AnimationClip SwingAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Swing_Weak");
+        agent.enabled = false;
+        isAction = true;
+        if (cool_Swing != 0)
         {
             isSwing = false;
         }
         isSwing = true;
-        //mutantAnimator.SetBool(isSwing_hash, isSwing);
         mutantAnimator.SetTrigger("Swing");
         StartCoroutine(Swing_Cool_co());
-    }
-   
-    
+        yield return new WaitForSeconds(SwingAnimation.length);
+        agent.enabled = true;
+        isAction = false;
+        //mutantAnimator.SetBool(isSwing_hash, isSwing);
 
-    //대쉬 공격
-    private void Dash_Att()
+    }
+
+    private IEnumerator Smash_Att()
+    {
+        AnimationClip SmashAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Smash_Strong");
+        agent.enabled = false;
+        isAction = true;
+        if (cool_Smash != 0)
+        {
+            isSmash = false;
+        }
+        isSmash = true;
+        mutantAnimator.SetTrigger("Smash");
+        StartCoroutine(Up_Smash_Strong_coll());
+        StartCoroutine(Smash_Cool_co());
+        yield return new WaitForSeconds(SmashAnimation.length);
+        agent.enabled = true;
+        isAction = false;
+    }
+
+    //로직 개선후 사용or 폐기
+    private IEnumerator Smash_Action_Check_co()
+    {
+        if (!isAction)
+        {
+            isAction = true;
+            agent.enabled = false;
+            print("smash_co");
+            print(isAction);
+            AnimationClip SmashAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Smash_Strong");
+            float SmashAnimationTime = SmashAnimation.length;
+            print("SmashTime" + SmashAnimationTime);
+            while (SmashAnimationTime < 0)
+            {
+
+                SmashAnimationTime -= Time.deltaTime;
+                yield return null;
+            }
+            isAction = false;
+            agent.enabled = true;
+        }
+
+  
+
+    }
+
+    private IEnumerator Throw_Action_Check_co()
+    {
+        isAction = true;
+        agent.enabled = false;
+        AnimationClip PickAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Get_Rock");
+        AnimationClip ThrowAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
+        float Rock_Time = PickAnimation.length + ThrowAnimation.length;
+        while (Rock_Time < 0)
+        {
+            print("Rock_Time" + Rock_Time);
+            Rock_Time -= Time.deltaTime;
+            yield return null;
+        }
+        isAction = false;
+        agent.enabled = true;
+    }
+
+    private IEnumerator Swing_Action_Check_co()
+    {
+        isAction = true;
+        agent.enabled =false;
+        AnimationClip SwingAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Swing_Weak");
+        float SwingAnimationTime = SwingAnimation.length;
+
+        while (SwingAnimationTime < 0)
+        {
+            print("SwingAnimationTime : " + SwingAnimationTime);
+            SwingAnimationTime -= Time.deltaTime;
+            yield return null;
+        }
+        isAction = false;
+        agent.enabled = true;
+    }
+
+
+
+
+//대쉬 공격
+private void Dash_Att()
     {
         if (isDash)
         {
@@ -763,7 +852,7 @@ public class MutantController : MonoBehaviour
     //스매쉬 쿨관리
     private IEnumerator Smash_Cool_co()
     {
-        while(cool_Smash < Smash_cool)
+        while (cool_Smash < Smash_cool)
         {
             cool_Smash += Time.deltaTime;
             yield return null;
@@ -773,35 +862,13 @@ public class MutantController : MonoBehaviour
     }
 
     //스매쉬 
-    private void Smash_Att()
-    {
-        if (cool_Smash != 0)
-        {
-            isSmash = false;
-        }
-        isSmash = true;
-        mutantAnimator.SetTrigger("Smash");
-        StartCoroutine(Smash_Cool_co());
-    }
 
-    //private void Agent_Stop_On()
-    //{
-    //    agent.isStopped = true;
-    //}
-    //private void Agent_Stop_Off()
-    //{
-    //    agent.isStopped = false;
-    //}
-    float count;
 
 
     //돌던지기 애니메이션 출력
     private void ThrowRock_anim()
     {
-        if (!isRock)
-        {
             mutantAnimator.SetTrigger("ThrowRock");
-        }
     }
 
     //쿨관리
@@ -816,12 +883,15 @@ public class MutantController : MonoBehaviour
         cool_Rock = 0;
 
     }
+
     //돌생성
     private void PickUpRock()
     {
+
         if (cool_Rock == 0)
         {
             isRock = true;
+            
             if (!isDash && currentRock == null)
             {
                 // 돌을 생성하고 손 위치에 놓기
@@ -832,6 +902,8 @@ public class MutantController : MonoBehaviour
                 AnimationClip throwAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
                 float waitTime = throwAnimation.length;
 
+                isAction = true;
+                agent.enabled = false;
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
                 StartCoroutine(Rock_Cool_co());
             }
@@ -842,6 +914,8 @@ public class MutantController : MonoBehaviour
     {
         isRock = false;
         yield return new WaitForSeconds(time);
+        isAction = false;
+        agent.enabled = true;
         rock.transform.parent = null;
         Rigidbody rb = rock.GetComponent<Rigidbody>();
         
@@ -853,7 +927,7 @@ public class MutantController : MonoBehaviour
         // 플레이어의 방향으로 던지기
         // 플레이어의 전방 방향
         var handPos = handPosition.position;
-        var playerGroundPos = new Vector3(player.transform.position.x, 0, player.transform.position.z);
+        var playerGroundPos = new Vector3(player.transform.position.x, player.transform.position.y, player.transform.position.z);
         Vector3 throwDirection = playerGroundPos - handPos;
 
         float elapsedTime = 0f;
@@ -868,7 +942,6 @@ public class MutantController : MonoBehaviour
 
             yield return null;
         }
-
 
     }
     // 춤추기 

@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class ReturnRock : MonoBehaviour
 {
-    private GameObject rockPooling;
-    private void Awake()
-    {
-        rockPooling = GameObject.Find("RockPoolposition");
-    }
+    [SerializeField] private GameObject rockPooling;
     private void OnTriggerEnter(Collider other)
     {
 
         if (other.CompareTag("Rock"))
         {
-            var offset = new Vector3(0f, 0f, Random.Range(-50f, 50f));
+            var offset = new Vector3(Random.Range(-50f, 50f),0f, 0f );
             other.gameObject.SetActive(false);
             RockPooling.Rock_count++;
             other.gameObject.transform.position = rockPooling.transform.position + offset;
