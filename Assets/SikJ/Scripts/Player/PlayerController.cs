@@ -413,7 +413,9 @@ public class PlayerController : MonoBehaviour
             if (IsGoingToStair(moveDirection))
 			{
                 _constantForce.force = Physics.gravity * 1000;
-                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+
+				if (DesiredMove != Vector2.zero)
+                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
             else
             {
@@ -438,9 +440,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stairDetectionOffsetForward = -.5f;
     private bool IsGoingToStair(Vector3 currentDirection)
     {
-        if (DesiredMove == Vector2.zero)
-            return false;
-
 		bool isStairDetected = false;
 		if (IsLockOn)
         {
