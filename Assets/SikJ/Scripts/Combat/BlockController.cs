@@ -13,7 +13,6 @@ public class BlockController : MonoBehaviour
     [field: Tooltip("데미지 감소 비율")]
     [field: SerializeField] [field: Range(0f, 1f)] public float BlockDampRate { get; private set; } = .2f;
     [SerializeField] private float knockBackFixedDuration = .2f;
-    [SerializeField] private float knockBackDurationPerDamage = .2f;
     [SerializeField] private float knockBackSpeed = 200f;
     [SerializeField] private AnimationCurve knockBackTimeSlowDownIntensity;
 
@@ -70,9 +69,6 @@ public class BlockController : MonoBehaviour
         if (_characterHealth.CurrentHP == 0)
             return;
 
-        //var duration = damage * knockBackDurationPerDamage;
-        var duration = knockBackFixedDuration;
-        knockBackDuration = duration;
         OnBlockSucceed?.Invoke();
 
         TurnOffBlockCollider();
@@ -88,8 +84,8 @@ public class BlockController : MonoBehaviour
         StartCoroutine(lastKnockBack);
 
         blockParticle.Play();
-        SFXManager.Instance.OnTimeSlowDown(duration);
-        SFXManager.Instance.OnPlayerBlockSucceed(duration);
+        SFXManager.Instance.OnTimeSlowDown(knockBackFixedDuration);
+        SFXManager.Instance.OnPlayerBlockSucceed(knockBackFixedDuration);
     }
 
     public void BlockFailed()
@@ -104,23 +100,22 @@ public class BlockController : MonoBehaviour
 
     private void ReadyCounterAttack()
     {
-        _attackController.CounterAttackThreshold = knockBackDuration;
+        _attackController.CounterAttackThreshold = knockBackFixedDuration;
         _attackController.StartCounterAttackTime();
     }
 
     private IEnumerator lastKnockBack;
-    [SerializeField] private float knockBackDuration;
     private IEnumerator KnockBack()
     {
         float elapsedTime = 0f;
-        while (elapsedTime < knockBackDuration)
+        while (elapsedTime < knockBackFixedDuration)
         {
             elapsedTime += Time.deltaTime;
             transform.Translate(-transform.forward * knockBackSpeed * Time.deltaTime, Space.World);
             Debug.DrawLine(transform.position, transform.position + -transform.forward * knockBackSpeed, Color.red);
             
             // TimeSlowDown
-            Time.timeScale = knockBackTimeSlowDownIntensity.Evaluate(elapsedTime / knockBackDuration);
+            Time.timeScale = knockBackTimeSlowDownIntensity.Evaluate(elapsedTime / knockBackFixedDuration);
 
             yield return null;
         }

@@ -100,7 +100,7 @@ public class AttackController : MonoBehaviour
             _OnAttackHit?.Invoke();
         }
 
-        targetHealth.GetDamage(CurrentAttackType, damage);
+        targetHealth.GetDamage(CurrentAttackType, damage, isBlocked);
         TurnOffAttackCollider();
     }
 

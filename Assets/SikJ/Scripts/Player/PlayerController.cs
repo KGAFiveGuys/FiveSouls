@@ -120,6 +120,8 @@ public class PlayerController : MonoBehaviour
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
+    private readonly int isWeakHit_hash = Animator.StringToHash("isWeakHit");
+    private readonly int isStrongHit_hash = Animator.StringToHash("isStrongHit");
     #endregion
     private ConstantForce _constantForce;
 
@@ -180,6 +182,8 @@ public class PlayerController : MonoBehaviour
         talkToNPC.performed += OnTalkToNPCPerformed;
         talkToNPC.Enable();
         #endregion
+        _health.OnAttackHit += OnWeakHit;
+        _health.OnAttackHit += OnStrongHit;
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
@@ -224,6 +228,8 @@ public class PlayerController : MonoBehaviour
         talkToNPC.performed -= OnTalkToNPCPerformed;
         talkToNPC.Disable();
         #endregion
+        _health.OnAttackHit -= OnWeakHit;
+        _health.OnAttackHit -= OnStrongHit;
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
@@ -952,6 +958,56 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    #region Hit
+    public void OnWeakHit(AttackType type)
+    {
+        if (type != AttackType.Weak)
+            return;
+
+        ControlState = ControlState.Uncontrollable;
+        
+        _attackController.TurnOffAttackCollider();
+        InterruptAllActions();
+
+        _animator.SetTrigger(isWeakHit_hash);
+        StartCoroutine(CancelWeakHit());
+    }
+    private IEnumerator CancelWeakHit()
+    {
+        yield return new WaitForSeconds(.71f);
+
+        _animator.ResetTrigger(isWeakHit_hash);
+        ControlState = ControlState.Controllable;
+    }
+    public void OnStrongHit(AttackType type)
+    {
+        if (type != AttackType.Strong)
+            return;
+
+        ControlState = ControlState.Uncontrollable;
+
+        _attackController.TurnOffAttackCollider();
+        InterruptAllActions();
+
+        _animator.SetTrigger(isStrongHit_hash);
+        StartCoroutine(CancelStrongHit());
+    }
+    public IEnumerator CancelStrongHit()
+    {
+        yield return new WaitForSeconds(1f);
+
+        _animator.ResetTrigger(isStrongHit_hash);
+        ControlState = ControlState.Controllable;
+    }
+    private void InterruptAllActions()
+    {
+        _animator.SetBool(isWeakAttack_hash, false);
+        _animator.SetBool(isStrongAttack_hash, false);
+        _animator.SetBool(isCounterAttack_hash, false);
+        _animator.SetBool(isJump_hash, false);
+        _animator.SetBool(isRoll_hash, false);
+    }
+    #endregion
     #region Die
     public void Die()
     {

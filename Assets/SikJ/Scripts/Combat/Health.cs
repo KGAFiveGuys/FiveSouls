@@ -10,7 +10,14 @@ public class Health : MonoBehaviour
     public float CurrentHP { get; private set; }
     [field:SerializeField] public AttackType LastHitType { get; set; }
 
+    /// <summary>
+    /// Update UI
+    /// </summary>
     public event Action OnHealthChanged;
+    /// <summary>
+    /// Interrupt combat actions
+    /// </summary>
+    public event Action<AttackType> OnAttackHit;
     public event Action OnDead;
 
     private void Awake()
@@ -23,10 +30,13 @@ public class Health : MonoBehaviour
         OnDead += () => gameObject.layer = LayerMask.NameToLayer("Ghost");
     }
 
-    public void GetDamage(AttackType type, float damage)
+    public void GetDamage(AttackType type, float damage, bool isBlocked)
     {
         LastHitType = type;
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
+
+        if (!isBlocked)
+            OnAttackHit?.Invoke(type);
 
         OnHealthChanged?.Invoke();
 
