@@ -370,14 +370,17 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
-            if (IsGoingToStair(moveDirection))
+            if (IsGoingToStair(moveDirection, out bool isGrounded))
 			{
-                _constantForce.force = Physics.gravity * 1000;
-                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+                _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
+
+                if (isGrounded)
+                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
 			else
 			{
-                _constantForce.force = Vector3.zero;
+                //_constantForce.force = Vector3.zero;
+                _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
             _rigidbody.MovePosition(transform.position + (currentSpeed * moveDirection.magnitude) * Time.deltaTime * moveDirection);
@@ -416,16 +419,16 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
 
-            if (IsGoingToStair(moveDirection))
+            if (IsGoingToStair(moveDirection, out bool isGrounded))
 			{
-                _constantForce.force = Physics.gravity * 1000;
+                _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
 
-				if (DesiredMove != Vector2.zero)
+				if (DesiredMove != Vector2.zero && isGrounded)
                     moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
             else
             {
-                _constantForce.force = Vector3.zero;
+                _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
             _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * moveDirection);
@@ -444,7 +447,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stairDetectionDistance = 20f;
     [SerializeField] private float stairDetectionOffsetUp = 2f;
     [SerializeField] private float stairDetectionOffsetForward = -.5f;
-    private bool IsGoingToStair(Vector3 currentDirection)
+    private bool IsGoingToStair(Vector3 currentDirection, out bool isGrounded)
     {
 		bool isStairDetected = false;
 		if (IsLockOn)
@@ -466,6 +469,8 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                                                         // MaxDistance
                 1 << 14                                                                         // Layer (Stair = 14)
             );
+
+            isGrounded = hit.distance <= stairDetectionOffsetUp;
         }
         else
         {
@@ -483,6 +488,8 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                             // MaxDistance
                 1 << 14                                             // Layer (Stair = 14)
             );
+
+            isGrounded = hit.distance <= stairDetectionOffsetUp;
         }
         
         return isStairDetected;
@@ -775,20 +782,22 @@ public class PlayerController : MonoBehaviour
         if (IsDead)
             return;
 
+        var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        var isBlending = cinemachineBrain.IsBlending;
+        if (isBlending)
+            return;
+
         if (IsLockOn)
         {
+            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
             UnlockOnPoint();
             OnLockOff();
             return;
         }
-
-        var isPressed = context.ReadValueAsButton();
-        var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
-        if (!(isPressed && !isBlending))
-            return;
         
         if (TryFindLockOnPointInRange(out LockOnPoint target))
 		{
+            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.FixedUpdate;
             LockOnPoint(target);
             OnLockOn();
         }
