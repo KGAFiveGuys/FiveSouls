@@ -26,10 +26,10 @@ public class CinematicCameraManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         camera.SetActive(true);
-        cart.m_Speed = 30f;
+        cart.m_Speed = 25f;
 
         // Wait until finish
-        while (camera.transform.position != track.transform.position + track.m_Waypoints[29].position)
+        while (camera.transform.position != track.transform.position + track.m_Waypoints[track.m_Waypoints.Length - 1].position)
         {
             yield return null;
         }
