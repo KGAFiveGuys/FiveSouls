@@ -100,7 +100,8 @@ public class UnityChanAI : MonoBehaviour
 
     private void Start()
     {
-        P_layer = LayerMask.GetMask("Player");
+        P_layer = LayerMask.GetMask("Player", "Ghost");
+
         MiddlePatternTime = Random.Range(3, 5);
         NearPatternTime = Random.Range(1f, 2f);
 

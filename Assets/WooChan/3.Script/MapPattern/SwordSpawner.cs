@@ -23,7 +23,9 @@ public class SwordSpawner : MonoBehaviour
     public bool startExplosion { get; private set; } = false;
 
     private float FireTime = 0f;
+    [SerializeField] private float StartFire = 5f;
     private float ExplosionTime = 0f;
+    [SerializeField] private float StartExplosion = 5f;
     private float DeleteTime = 0f;
 
 
@@ -103,11 +105,11 @@ public class SwordSpawner : MonoBehaviour
         if (Sword5.activeSelf)
         {
             FireTime += Time.deltaTime;
-            if(FireTime > 5f)
+            if(FireTime > StartFire)
             {
                 startFire = true;
                 ExplosionTime += Time.deltaTime;
-                if(ExplosionTime > 5f)
+                if(ExplosionTime > StartExplosion)
                 {
                     startExplosion = true;
                 }
