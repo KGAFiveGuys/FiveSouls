@@ -1,17 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(AttackController))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Fury))]
+[RequireComponent(typeof(Health))]
 public class UnityChanAI : MonoBehaviour
 {
+    [SerializeField] private Collider hitCollider;
     private AttackController attackController;
     private Animator animator;
     private Fury fury;
 
+    [SerializeField] private Health p_Health;
     [SerializeField] private GameObject Sword;
+    [SerializeField] private Material SwordMaterial;
+    private Color AlphaZero;
+    private Color SwordColor;
+
     [SerializeField] private GameObject Aura1;
     private Transform Aura1Parent;
     [SerializeField] private Collider Aura1Collider;
@@ -96,6 +104,9 @@ public class UnityChanAI : MonoBehaviour
         MiddlePatternTime = Random.Range(3, 5);
         NearPatternTime = Random.Range(1f, 2f);
 
+        AlphaZero = new Color(0, 0, 0, 0);
+        SwordColor = new Color(0, 0, 0, 1);
+
         StartCoroutine(DecidePattern());
     }
 
@@ -115,18 +126,23 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
-        if (fury.Flag && !isFury)
+        if (fury.Flag && !isFury && p_Health.CurrentHP > 0 && !isMotion)
         {
             StopAllCoroutines();
             ResetPos();
             animator.SetTrigger("MustDie");
             isFury = true;
         }
-
-        //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-        if (Target && !isMotion)
+        
+        if (Target && !isMotion && p_Health.CurrentHP > 0)
         {
             LookAt_Rotation_Y(Target.transform);
+        }
+        if(p_Health.CurrentHP <= 0)
+        {
+            StopCoroutine(DecidePattern());
+            StopMovement();
+            ResetPos();
         }
 
         AuraSlash();
@@ -150,7 +166,7 @@ public class UnityChanAI : MonoBehaviour
     private void CheckDistance()
     {
 
-        Collider[] near = Physics.OverlapSphere(transform.position, 10f, P_layer);
+        Collider[] near = Physics.OverlapSphere(transform.position, 11f, P_layer);
 
         Collider[] middle = Physics.OverlapSphere(transform.position, 40f, P_layer);
         
@@ -185,7 +201,7 @@ public class UnityChanAI : MonoBehaviour
 
         TargetDistance = Vector3.Distance(transform.position, Target.transform.position);
 
-        if (TargetDistance < 10f)
+        if (TargetDistance < 25f)
         {
             farP_Next = true;
         }
@@ -200,8 +216,8 @@ public class UnityChanAI : MonoBehaviour
     {
         Vector3 lookAtPosition = targetTransform.position;
         lookAtPosition.y = transform.position.y;
-
-        transform.LookAt(lookAtPosition);
+        Vector3 direction = lookAtPosition - transform.position;
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 10f);
     }
 
 
@@ -210,14 +226,12 @@ public class UnityChanAI : MonoBehaviour
         while (true)
         {
 
-            if (!isMotion)
+            if (!isMotion && p_Health.CurrentHP > 0)
             {
 
                 if (near)
                 {
                     StopMovement();
-
-                    //MiddlePatternGraceTime = 0f;
 
                     while (NearPatternGraceTime < NearPatternTime && near)
                     {
@@ -281,6 +295,7 @@ public class UnityChanAI : MonoBehaviour
                 }
                 if (far)
                 {
+                    RandomMovement();
                     while (farPatternGraceTime < 6f && far)
                     {
                         if (!isMotion)
@@ -477,12 +492,12 @@ public class UnityChanAI : MonoBehaviour
         {
             attackController.ChangeAttackType(AttackType.Strong);
             attackController.AttackCollider = screwAttackCollider;
-            attackController.StrongAttackBaseDamage = 200;
+            attackController.StrongAttackBaseDamage = 100;
 
             isMotion = true;
             transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
 
-            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f && !animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2"))
+            if (!animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2"))
             {
                 LookAt_Rotation_Y(Target.transform);
             }
@@ -495,12 +510,15 @@ public class UnityChanAI : MonoBehaviour
         }
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("FarPattern2"))
         {
-            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.4f)
+            isMotion = true;
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.5f)
             {
+                hitCollider.enabled = false;
                 transform.position += transform.TransformDirection(Vector3.forward) * RunSpeed * Time.deltaTime;
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
+                hitCollider.enabled = true;
                 isMotion = false;
                 farP_trigger = false;
             }
@@ -719,7 +737,7 @@ public class UnityChanAI : MonoBehaviour
             }
             else if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.65f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.8f)
             {
-                transform.position += transform.TransformDirection(Vector3.forward) * 400f * Time.deltaTime;
+                transform.position += transform.TransformDirection(Vector3.forward) * 600f * Time.deltaTime;
             }
             else if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
@@ -802,10 +820,38 @@ public class UnityChanAI : MonoBehaviour
     private void SwordOn()
     {
         Sword.SetActive(true);
+        StartCoroutine(SwordFadeIn());
     }
     private void SwordOff()
     {
+        StartCoroutine(SwordFadeOut());
+
+    }
+    private IEnumerator SwordFadeIn()
+    {
+        float startTime = Time.time;
+        while (Time.time - startTime < 1.5f)
+        {
+            float t = (Time.time - startTime) / 1.5f;
+            SwordMaterial.color = Color.Lerp(AlphaZero, SwordColor, t);
+            yield return null;
+        }
+        SwordMaterial.color = SwordColor;
+        yield break;
+    }
+    private IEnumerator SwordFadeOut()
+    {
+        float startTime = Time.time;
+        while (Time.time - startTime < 1f)
+        {
+            float t = (Time.time - startTime) / 1f;
+            SwordMaterial.color = Color.Lerp(SwordColor, AlphaZero, t);
+            yield return null;
+        }
+        SwordMaterial.color = AlphaZero;
         Sword.SetActive(false);
+
+        yield break;
     }
     private void Aura1On()
     {
@@ -853,9 +899,9 @@ public class UnityChanAI : MonoBehaviour
 
     private void AuraSlash()
     {
-        LookAt_Rotation_Y(Target.transform);
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("AuraSlash1"))
         {
+            LookAt_Rotation_Y(Target.transform);
             if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0f && animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.9f)
             {
                 isMotion = true;
@@ -871,7 +917,7 @@ public class UnityChanAI : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, 10f);
+        Gizmos.DrawWireSphere(transform.position, 12f);
         Gizmos.DrawWireSphere(transform.position, 40f);
         Gizmos.DrawWireSphere(transform.position, 80f);
     }
