@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviour
     public InputAction roll;
     public InputAction jump;
     public InputAction lockOn;
+    public InputAction pickUpItem;
+    public InputAction talkToNPC;
 
     [Header("PlayerMove")]
     #region PlayerMove
@@ -118,6 +120,8 @@ public class PlayerController : MonoBehaviour
     private readonly int isJump_hash = Animator.StringToHash("isJump");
     private readonly int isBlock_hash = Animator.StringToHash("isBlock");
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
+    private readonly int isWeakHit_hash = Animator.StringToHash("isWeakHit");
+    private readonly int isStrongHit_hash = Animator.StringToHash("isStrongHit");
     #endregion
     private ConstantForce _constantForce;
 
@@ -125,6 +129,8 @@ public class PlayerController : MonoBehaviour
     public event Action OnJump;
     public event Action OnLockOn;
     public event Action OnLockOff;
+    public event Action OnPickUpItem;
+    public event Action OnTalkToNPC;
 
     private void Awake()
     {
@@ -169,7 +175,15 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed += OnLockOnPerformed;
         lockOn.Enable();
+
+        pickUpItem.performed += OnPickUpItemPerformed;
+        pickUpItem.Enable();
+
+        talkToNPC.performed += OnTalkToNPCPerformed;
+        talkToNPC.Enable();
         #endregion
+        _health.OnAttackHit += OnWeakHit;
+        _health.OnAttackHit += OnStrongHit;
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
@@ -207,7 +221,15 @@ public class PlayerController : MonoBehaviour
 
         lockOn.performed -= OnLockOnPerformed;
         lockOn.Disable();
+
+        pickUpItem.performed -= OnPickUpItemPerformed;
+        pickUpItem.Disable();
+
+        talkToNPC.performed -= OnTalkToNPCPerformed;
+        talkToNPC.Disable();
         #endregion
+        _health.OnAttackHit -= OnWeakHit;
+        _health.OnAttackHit -= OnStrongHit;
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
@@ -348,14 +370,17 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
-            if (IsGoingToStair(moveDirection))
+            if (IsGoingToStair(moveDirection, out bool isGrounded))
 			{
-                _constantForce.force = Physics.gravity * 1000;
-                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+                _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
+
+                if (isGrounded)
+                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
 			else
 			{
-                _constantForce.force = Vector3.zero;
+                //_constantForce.force = Vector3.zero;
+                _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
             _rigidbody.MovePosition(transform.position + (currentSpeed * moveDirection.magnitude) * Time.deltaTime * moveDirection);
@@ -394,14 +419,16 @@ public class PlayerController : MonoBehaviour
 
             transform.LookAt(transform.position + moveDirection * currentSpeed);
 
-            if (IsGoingToStair(moveDirection))
+            if (IsGoingToStair(moveDirection, out bool isGrounded))
 			{
-                _constantForce.force = Physics.gravity * 1000;
-                moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+                _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
+
+				if (DesiredMove != Vector2.zero && isGrounded)
+                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
             else
             {
-                _constantForce.force = Vector3.zero;
+                _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
             _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * moveDirection);
@@ -420,11 +447,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float stairDetectionDistance = 20f;
     [SerializeField] private float stairDetectionOffsetUp = 2f;
     [SerializeField] private float stairDetectionOffsetForward = -.5f;
-    private bool IsGoingToStair(Vector3 currentDirection)
+    private bool IsGoingToStair(Vector3 currentDirection, out bool isGrounded)
     {
-        if (DesiredMove == Vector2.zero)
-            return false;
-
 		bool isStairDetected = false;
 		if (IsLockOn)
         {
@@ -445,6 +469,8 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                                                         // MaxDistance
                 1 << 14                                                                         // Layer (Stair = 14)
             );
+
+            isGrounded = hit.distance <= stairDetectionOffsetUp;
         }
         else
         {
@@ -462,6 +488,8 @@ public class PlayerController : MonoBehaviour
                 stairDetectionDistance,                             // MaxDistance
                 1 << 14                                             // Layer (Stair = 14)
             );
+
+            isGrounded = hit.distance <= stairDetectionOffsetUp;
         }
         
         return isStairDetected;
@@ -505,24 +533,20 @@ public class PlayerController : MonoBehaviour
         if (_stamina.CurrentStamina == 0)
             return;
 
-        var isRun = context.ReadValueAsButton();
-        if (isRun)
-		{
-            if (currentCheckMovingEnoughToRun != null)
-            {
-                StopCoroutine(currentCheckMovingEnoughToRun);
-                currentCheckMovingEnoughToRun = null;
-            }
-
-            // Walk -> Run
-			if (!IsRun)
-			{
-                currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
-                StartCoroutine(currentCheckMovingEnoughToRun);
-            }
-
-			IsRun = !IsRun;
+        if (currentCheckMovingEnoughToRun != null)
+        {
+            StopCoroutine(currentCheckMovingEnoughToRun);
+            currentCheckMovingEnoughToRun = null;
         }
+
+        // Walk -> Run
+		if (!IsRun)
+		{
+            currentCheckMovingEnoughToRun = CheckMovingEnoughToRun();
+            StartCoroutine(currentCheckMovingEnoughToRun);
+        }
+
+		IsRun = !IsRun;
     }
     private IEnumerator CheckMovingEnoughToRun()
 	{
@@ -555,21 +579,17 @@ public class PlayerController : MonoBehaviour
             || isJumping
             || _stamina.CurrentStamina < _stamina.JumpThreshold)
             return;
+        
+        // 마지막 이동정보 저장
+        float lastSpeed = IsRun ? runSpeed : walkSpeed;
+        Vector3 lastMovement = moveDirection * lastSpeed;
 
-        var isJump = context.ReadValueAsButton();
-        if (isJump)
-		{
-            // 마지막 이동정보 저장
-            float lastSpeed = IsRun ? runSpeed : walkSpeed;
-            Vector3 lastMovement = moveDirection * lastSpeed;
-
-            isJumping = true;
-            IsRun = false;
-            _stamina.Consume(_stamina.JumpCost);
-            _animator.SetBool(isJump_hash, true);
-            OnJump?.Invoke();
-            StartCoroutine(CancelJump(lastMovement));
-        }
+        isJumping = true;
+        IsRun = false;
+        _stamina.Consume(_stamina.JumpCost);
+        _animator.SetBool(isJump_hash, true);
+        OnJump?.Invoke();
+        StartCoroutine(CancelJump(lastMovement));
     }
     private IEnumerator CancelJump(Vector3 lastMovement)
     {
@@ -590,22 +610,39 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool(isJump_hash, false);
     }
     #endregion
+    private bool isBlocking = false;
     #region block_Action
     private void OnBlockPerformed(InputAction.CallbackContext context)
     {
-        if (_attackController.IsCounterAttack)
+        if (ControlState == ControlState.Uncontrollable
+            || isBlocking
+            || _attackController.IsCounterAttack)
             return;
-        
+
         IsRun = false;
         ControlState = ControlState.Uncontrollable;
-        _animator.SetBool(isBlock_hash, true);
         _stamina.Consume(_stamina.BlockCastCost);
+        _animator.SetBool(isBlock_hash, true);
+        StartCoroutine(TurnOnBlock(6));
     }
+    private IEnumerator TurnOnBlock(int frames)
+	{
+        int frameCount = 0;
+		while (frameCount < frames)
+		{
+            frameCount++;
+            yield return null;
+        }
+        _blockController.TurnOnBlockCollider();
+        isBlocking = true;
+	}
     private void OnBlockCanceled(InputAction.CallbackContext context)
     {
-        if (_attackController.IsCounterAttack)
+        if (!isBlocking
+            || _attackController.IsCounterAttack)
             return;
-        
+
+        isBlocking = false;
         ControlState = ControlState.Controllable;
         _animator.SetBool(isBlock_hash, false);
         _blockController.TurnOffBlockCollider();
@@ -659,11 +696,8 @@ public class PlayerController : MonoBehaviour
     #region weakAttack_Action
     private void OnWeakAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
-            return;
-
-        if (TryCounterAttack())
+        if (isCounterAttacking
+            || TryCounterAttack())
             return;
         
         if (ControlState == ControlState.Uncontrollable
@@ -687,11 +721,8 @@ public class PlayerController : MonoBehaviour
     #region strongAttack_Action
     private void OnStrongAttackPerformed(InputAction.CallbackContext context)
     {
-        var isPressed = context.ReadValueAsButton();
-        if (!isPressed)
-            return;
-
-        if (TryCounterAttack())
+        if (isCounterAttacking
+            || TryCounterAttack())
             return;
 
         if (ControlState == ControlState.Uncontrollable
@@ -714,11 +745,14 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region Counter Attack
+    private bool isCounterAttacking = false;
     private bool TryCounterAttack()
     {
         if (!_attackController.IsCounterAttack
             || _stamina.CurrentStamina <= _stamina.CounterAttackThreshold)
             return false;
+
+        isCounterAttacking = true;
 
         ControlState = ControlState.Uncontrollable;
         _animator.SetBool(isCounterAttack_hash, true);
@@ -738,6 +772,8 @@ public class PlayerController : MonoBehaviour
         IsRun = false;
 
         _attackController.StopCounterAttackTime();
+
+        isCounterAttacking = false;
     }
     #endregion
     #region lockOn_Action
@@ -746,20 +782,22 @@ public class PlayerController : MonoBehaviour
         if (IsDead)
             return;
 
+        var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        var isBlending = cinemachineBrain.IsBlending;
+        if (isBlending)
+            return;
+
         if (IsLockOn)
         {
+            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
             UnlockOnPoint();
             OnLockOff();
             return;
         }
-
-        var isPressed = context.ReadValueAsButton();
-        var isBlending = Camera.main.GetComponent<CinemachineBrain>().IsBlending;
-        if (!(isPressed && !isBlending))
-            return;
         
         if (TryFindLockOnPointInRange(out LockOnPoint target))
 		{
+            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.FixedUpdate;
             LockOnPoint(target);
             OnLockOn();
         }
@@ -897,6 +935,26 @@ public class PlayerController : MonoBehaviour
         }
         VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.Value = endRotation;
     }
+    #region pickUpItem_Action
+    private void OnPickUpItemPerformed(InputAction.CallbackContext context)
+    {
+        if (IsDead
+            || ControlState == ControlState.Uncontrollable)
+            return;
+
+        OnPickUpItem?.Invoke();
+    }
+    #endregion
+    #region talkToNPC_Action
+    private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
+    {
+        if (IsDead
+            || ControlState == ControlState.Uncontrollable)
+            return;
+
+        OnTalkToNPC?.Invoke();
+    }
+    #endregion
     #region rotate_Action
     private void OnRotatePerformed(InputAction.CallbackContext context)
     {
@@ -909,6 +967,58 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    #region Hit
+    public void OnWeakHit(AttackType type)
+    {
+        if (type != AttackType.Weak)
+            return;
+
+        ControlState = ControlState.Uncontrollable;
+        
+        _attackController.TurnOffAttackCollider();
+        InterruptAllActions();
+
+        SFXManager.Instance.OnPlayerWeakHit();
+        _animator.SetTrigger(isWeakHit_hash);
+        StartCoroutine(CancelWeakHit());
+    }
+    private IEnumerator CancelWeakHit()
+    {
+        yield return new WaitForSeconds(.71f);
+
+        _animator.ResetTrigger(isWeakHit_hash);
+        ControlState = ControlState.Controllable;
+    }
+    public void OnStrongHit(AttackType type)
+    {
+        if (type != AttackType.Strong)
+            return;
+
+        ControlState = ControlState.Uncontrollable;
+
+        _attackController.TurnOffAttackCollider();
+        InterruptAllActions();
+
+        SFXManager.Instance.OnPlayerStrongHit();
+        _animator.SetTrigger(isStrongHit_hash);
+        StartCoroutine(CancelStrongHit());
+    }
+    public IEnumerator CancelStrongHit()
+    {
+        yield return new WaitForSeconds(1f);
+
+        _animator.ResetTrigger(isStrongHit_hash);
+        ControlState = ControlState.Controllable;
+    }
+    private void InterruptAllActions()
+    {
+        _animator.SetBool(isWeakAttack_hash, false);
+        _animator.SetBool(isStrongAttack_hash, false);
+        _animator.SetBool(isCounterAttack_hash, false);
+        _animator.SetBool(isJump_hash, false);
+        _animator.SetBool(isRoll_hash, false);
+    }
+    #endregion
     #region Die
     public void Die()
     {

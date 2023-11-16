@@ -5,6 +5,8 @@ using UnityEngine;
 public class MegaPattern : MonoBehaviour
 {
     public Transform centerTransform;
+    [SerializeField] private WizardControl wizard;
+    [SerializeField] private float Tempo = 0.2f;
     public int rowCount = 3;
     public int colCount = 8;
     public GameObject ThunderToSpawn;
@@ -22,6 +24,7 @@ public class MegaPattern : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        wizard = FindObjectOfType<WizardControl>();
         Thunderobjectpool = new List<List<GameObject>>();
         Fireobjectpool = new List<List<GameObject>>();
         centerTransform = transform;
@@ -33,14 +36,14 @@ public class MegaPattern : MonoBehaviour
             };
         Firedirections = new Vector3[8]
         {
-            Quaternion.Euler(0, 0, 0) * Vector3.forward,
-            Quaternion.Euler(0, 45, 0) * Vector3.forward,
-            Quaternion.Euler(0, 90, 0) * Vector3.forward,
-            Quaternion.Euler(0, 135, 0) * Vector3.forward,
-            Quaternion.Euler(0, 180, 0) * Vector3.forward,
-            Quaternion.Euler(0, 225, 0) * Vector3.forward,
-            Quaternion.Euler(0, 270, 0) * Vector3.forward,
-            Quaternion.Euler(0, 315, 0) * Vector3.forward
+            Quaternion.Euler(0, 22.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 67.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 112.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 157.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 202.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 247.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 292.5f, 0) * Vector3.forward,
+            Quaternion.Euler(0, 337.5f, 0) * Vector3.forward
         };
         for (int i = rowCount; i > 0; i--)
         {
@@ -109,7 +112,7 @@ public class MegaPattern : MonoBehaviour
             {
                 Thunderobjectpool[i][j].SetActive(true);
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(Tempo);
         }
         StartCoroutine(MegaFirePatternUse());
     }
@@ -121,7 +124,7 @@ public class MegaPattern : MonoBehaviour
             {
                 Fireobjectpool[i-1][j-1].SetActive(true);
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(Tempo);
         }
         StartCoroutine(MegaStormPatternUse());
     }
@@ -135,7 +138,9 @@ public class MegaPattern : MonoBehaviour
         for (int i = 0; i < StormObjectpool.Count; i++)
         {
             StormObjectpool[i].SetActive(false);
+
         }
+        wizard.wizardinfo.status = Status.Ready;
     }
 
 }

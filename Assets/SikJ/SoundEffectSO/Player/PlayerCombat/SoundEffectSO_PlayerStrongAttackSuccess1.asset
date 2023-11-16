@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
+  m_Name: SoundEffectSO_PlayerStrongAttackSuccess1
+  m_EditorClassIdentifier: 
+  clip: {fileID: 8300000, guid: 876e864002095814da5a4cae247fb322, type: 3}
+  delay: 0
+  volumeOverTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.8
+      inSlope: 0.6163502
+      outSlope: 0.6163502
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.075
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.8
+      inSlope: -0.5547149
+      outSlope: -0.5547149
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.08333337
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
