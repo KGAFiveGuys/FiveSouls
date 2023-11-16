@@ -6,12 +6,28 @@ using System.Xml;
 
 public class XmlTest : MonoBehaviour
 {
+    private static XmlTest _instance = null;
+    public static XmlTest instance => _instance;
+
+    public GameObject DialogueBox;
     public Text CharacterName;
     // Start is called before the first frame update
     public Text dialogueText;
+    public int dialogueindex = 0;
+    public Dictionary<int, DialogueData> dialogues;
 
-    private Dictionary<int, DialogueData> dialogues;
-
+    private void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else if (_instance != this)
+        {
+            Destroy(this);
+        }
+    }
     private void Start()
     {
         string xmlFilePath = "C:/Users/KGA/Desktop/gitHub/FiveSouls/Assets/SeungHyeon/Resources/Character.xml";
@@ -40,15 +56,17 @@ public class XmlTest : MonoBehaviour
             // 대화 데이터 저장
             dialogues.Add(dialogueID, new DialogueData(character,texts));
         }
-        // 예시로 첫 번째 대화 표시
-        DisplayDialogue(1);
     }
-    void DisplayDialogue(int dialogueID)
+    public void DisplayDialogue(int dialogueID)
     {
+        if(!XmlTest.instance.DialogueBox.activeSelf)
+        {
+            XmlTest.instance.DialogueBox.SetActive(true);
+        }
         if (dialogues.TryGetValue(dialogueID, out DialogueData dialogueData))
         {
             CharacterName.text = $"{dialogueData.Character}";
-            dialogueText.text = dialogueData.Texts[0];
+            dialogueText.text = dialogueData.Texts[dialogueindex];
         }
         else
         {
