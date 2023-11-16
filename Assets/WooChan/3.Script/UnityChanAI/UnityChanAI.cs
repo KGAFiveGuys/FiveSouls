@@ -126,7 +126,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
-        if (fury.Flag && !isFury && p_Health.CurrentHP > 0)
+        if (fury.Flag && !isFury && p_Health.CurrentHP > 0 && !isMotion)
         {
             StopAllCoroutines();
             ResetPos();

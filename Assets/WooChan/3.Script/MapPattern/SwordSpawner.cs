@@ -18,12 +18,14 @@ public class SwordSpawner : MonoBehaviour
     [SerializeField] private Renderer[] Meshs;
     [SerializeField] private Collider[] ExplosionCollider;
 
-    private bool startFire = false;
-    private bool startExplosion = false;
+
+    public bool startFire { get; private set; } = false;
+    public bool startExplosion { get; private set; } = false;
 
     private float FireTime = 0f;
     private float ExplosionTime = 0f;
     private float DeleteTime = 0f;
+
 
     private void Update()
     {
