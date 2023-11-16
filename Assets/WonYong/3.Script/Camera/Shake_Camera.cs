@@ -6,7 +6,7 @@ using Cinemachine;
 public class Shake_Camera : MonoBehaviour
 {
     [SerializeField] private CinemachineVirtualCamera camera_;
-
+    [SerializeField] private SoundEffectSO sound;
     Vector3 cameraPos;
 
     [SerializeField] [Range(0.01f, 2f)] float ShakeRangeX = 0.05f;
@@ -18,6 +18,7 @@ public class Shake_Camera : MonoBehaviour
         if (collision.gameObject.CompareTag("Rock"))
         {
             Shake();
+            SFXManager.Instance.PlayWhole(sound);
         }
     }
 

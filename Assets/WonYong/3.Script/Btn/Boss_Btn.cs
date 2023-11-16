@@ -19,8 +19,6 @@ public class Boss_Btn : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Weapon"))
         {
-            print("ÄÑÁ³³ª?");
-
             Boss_btn = true;
             if (Boss_btn)
             {

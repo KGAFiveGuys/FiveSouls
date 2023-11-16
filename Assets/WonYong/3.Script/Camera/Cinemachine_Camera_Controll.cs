@@ -10,7 +10,6 @@ public class Cinemachine_Camera_Controll : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        print("Awak : Z");
         TryGetComponent(out cinemachineVirtual);
     }
     private void Start()
