@@ -36,7 +36,8 @@ public class WizardControl : MonoBehaviour
     private float Dist;//플레이어와 보스와의 거리
     private Animator Wizard_anim;
     private float AttackTime = 0;
-    [SerializeField] private float ThunderDelay = 0.5f;
+    [SerializeField] private Health health; 
+    [SerializeField]private float ThunderDelay = 0.5f;
     [SerializeField]private ThunderBoltCircle thunderBoltCircle;
     [SerializeField]private ParticleSystem shadowburst;
     [SerializeField]private GameObject Fireball_Spawner;
@@ -61,6 +62,7 @@ public class WizardControl : MonoBehaviour
 
     private void Awake()
     {
+        health = GetComponentInParent<Health>();
         wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
         fireBallSpawner = FindObjectOfType<FireBallSpawner>();
         megapattern = FindObjectOfType<MegaPattern>();
@@ -74,6 +76,10 @@ public class WizardControl : MonoBehaviour
     private void Update()
     {
         CheckPlayerPosition();
+        if(health.CurrentHP <= 0 && !wizardinfo.status.Equals(Status.Death))
+        {
+            Die();
+        }
 
         if (wizardinfo.status.Equals(Status.Ready))
         {
@@ -100,8 +106,8 @@ public class WizardControl : MonoBehaviour
     }
     public int SelectPattern()
     {
-        int rand = 3;
-        //rand = Random.Range(0, 4);
+        int rand = 0;
+        rand = Random.Range(0, 4);
         return rand;
     }
     public IEnumerator AttackReady(int AttackPlayer)
@@ -198,5 +204,13 @@ public class WizardControl : MonoBehaviour
     private void UseFrostMissile()
     {
         Wizard_anim.SetTrigger("Frost");
+    }
+    public void Die()
+    {
+        wizardinfo.status = Status.Death;
+        Wizard_anim.SetBool("Ready", false);
+        Wizard_anim.SetTrigger("Die");
+        ReadyEffect.SetActive(false);
+        MagicImage.SetActive(false);
     }
 }
