@@ -35,7 +35,7 @@ public class Health : MonoBehaviour
         LastHitType = type;
         CurrentHP = Mathf.Max(0, CurrentHP - damage);
 
-        if (!isBlocked)
+        if (CurrentHP > 0 && !isBlocked)
             OnAttackHit?.Invoke(type);
 
         OnHealthChanged?.Invoke();
