@@ -83,7 +83,9 @@ public class WizardControl : MonoBehaviour
 
         if (wizardinfo.status.Equals(Status.Ready))
         {
-            transform.LookAt(wizardinfo.ChaseTarget.transform.position);
+            var targetPos = wizardinfo.ChaseTarget.transform.position;
+            var lookAtPos = new Vector3(targetPos.x, transform.position.y, targetPos.z);
+            transform.LookAt(lookAtPos);
             AttackTime += Time.deltaTime;
             if (AttackTime >= 5f)
             {
@@ -177,16 +179,20 @@ public class WizardControl : MonoBehaviour
         switch(pattern)
         {
             case 0:
+                AttackAlarm.Instance.YellowAlarm();
                 ClosePattern();
                 return;
             case 1:
+                AttackAlarm.Instance.RedAlarm();
                 StartCoroutine(fireBallSpawner.CreateFireBall());
                 return;
             case 2:
+                AttackAlarm.Instance.RedAlarm();
                 StartCoroutine(UseThunderbolt());
                 //StartCoroutine(megapattern.MegaThunderPatternUse());
                 return;
             case 3:
+                AttackAlarm.Instance.YellowAlarm();
                 UseFrostMissile();
                 return;
         }    
