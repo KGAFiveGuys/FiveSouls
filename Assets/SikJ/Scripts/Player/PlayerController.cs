@@ -285,6 +285,9 @@ public class PlayerController : MonoBehaviour
     }
     public void UnlockOnPoint()
     {
+        var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
+
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
         LockOnTargetPoint.IsLockedOn = false;
@@ -293,6 +296,9 @@ public class PlayerController : MonoBehaviour
     }
     private void LockOnPoint(LockOnPoint target)
     {
+        var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.FixedUpdate;
+
         UI_lockOnPoint.SetActive(true);
         ToggleTargetGroupCamera(true, target.gameObject);
         LockOnTargetPoint = target;
@@ -789,7 +795,6 @@ public class PlayerController : MonoBehaviour
 
         if (IsLockOn)
         {
-            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
             UnlockOnPoint();
             OnLockOff();
             return;
@@ -797,7 +802,6 @@ public class PlayerController : MonoBehaviour
         
         if (TryFindLockOnPointInRange(out LockOnPoint target))
 		{
-            cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.FixedUpdate;
             LockOnPoint(target);
             OnLockOn();
         }
