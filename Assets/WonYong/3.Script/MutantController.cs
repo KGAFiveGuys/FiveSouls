@@ -202,8 +202,11 @@ public class MutantController : MonoBehaviour
         {
             Togle_Cursor();
         }
+        if(health_m.CurrentHP >= 0)
+        {
+            Judgement_MonAction();
+        }
 
-        Judgement_MonAction(); 
     }
     private void Timer()
     {
@@ -599,18 +602,18 @@ public class MutantController : MonoBehaviour
                 attackController.ChangeAttackType(AttackType.Strong);
                 attackController.AttackCollider = dashAttackCollider;
                 attackController.StrongAttackBaseDamage = Dash_dmg;
+                AttackAlarm.Instance.RedAlarm();
                 Dash_Att();
             }
         }
         else if (distance <= 20f && distance > 10f)
         {
-
-            agent.enabled = false;
             if (!isDash )
             {
                 transform.LookAt(player.transform);
                 if (!isAction)
                 {
+                    AttackAlarm.Instance.YellowAlarm();
                     ThrowRock_anim();   
                 }
             }
@@ -628,6 +631,7 @@ public class MutantController : MonoBehaviour
                             attackController.ChangeAttackType(AttackType.Weak);
                             attackController.AttackCollider = swingAttackCollider;
                             attackController.WeakAttackBaseDamage = Swing_dmg;
+                            AttackAlarm.Instance.YellowAlarm();
                             StartCoroutine(Swing_att());
                         }
                         else
@@ -642,6 +646,7 @@ public class MutantController : MonoBehaviour
                             attackController.ChangeAttackType(AttackType.Strong);
                             attackController.AttackCollider = smashAttackCollider;
                             attackController.StrongAttackBaseDamage = Smash_dmg;
+                            AttackAlarm.Instance.RedAlarm();
                             StartCoroutine(Smash_Att());
                         }
                         else
@@ -679,7 +684,7 @@ public class MutantController : MonoBehaviour
 
         //attackController.transform.position = new Vector3()
 
-        float Smashtime = SmashAnimation.length;
+        float Smashtime = SmashAnimation.length - 1;
         float elapsedTime = 0f;
         
         var startPos = attackCollider.transform.position;
