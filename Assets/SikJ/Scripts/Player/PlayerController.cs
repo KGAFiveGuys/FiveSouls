@@ -969,6 +969,7 @@ public class PlayerController : MonoBehaviour
         _attackController.TurnOffAttackCollider();
         InterruptAllActions();
 
+        SFXManager.Instance.OnPlayerWeakHit();
         _animator.SetTrigger(isWeakHit_hash);
         StartCoroutine(CancelWeakHit());
     }
@@ -989,6 +990,7 @@ public class PlayerController : MonoBehaviour
         _attackController.TurnOffAttackCollider();
         InterruptAllActions();
 
+        SFXManager.Instance.OnPlayerStrongHit();
         _animator.SetTrigger(isStrongHit_hash);
         StartCoroutine(CancelStrongHit());
     }

@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
-  m_Name: SoundEffectSO_PlayerStrongAttackHit2
+  m_Name: SoundEffectSO_PlayerStrongAttackSuccess1
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 1080975f9a11b9e41b34120147698f43, type: 3}
+  clip: {fileID: 8300000, guid: 876e864002095814da5a4cae247fb322, type: 3}
   delay: 0
   volumeOverTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: -0.707547
-      outSlope: -0.707547
+      value: 0.8
+      inSlope: 0.6163502
+      outSlope: 0.6163502
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.06666667
+      outWeight: 0.075
     - serializedVersion: 3
       time: 0.5
-      value: 0.8
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 34
@@ -37,12 +37,12 @@ MonoBehaviour:
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0.62893033
-      outSlope: 0.62893033
+      value: 0.8
+      inSlope: -0.5547149
+      outSlope: -0.5547149
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.07500005
+      inWeight: 0.08333337
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8f9b7aa8244b3e44bff52ad139ac760, type: 3}
-  m_Name: SoundEffectSO_PlayerWeakAttackHit
+  m_Name: SoundEffectSO_PlayerWeakAttackSuccess
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 04c289db2221deb42b326857e7ad2b04, type: 3}
   delay: 0

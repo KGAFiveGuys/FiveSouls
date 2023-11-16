@@ -36,11 +36,14 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private SoundEffectSO SFX_playerWeakAttackCast;
     [SerializeField] private SoundEffectSO SFX_playerStrongAttackCast;
     [SerializeField] private SoundEffectSO SFX_playerCounterAttackCast;
-    // Attack Hit
-    [SerializeField] private SoundEffectSO SFX_playerWeakAttackHit;
-    [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit1;
-    [SerializeField] private SoundEffectSO SFX_playerStrongAttackHit2;
-    [SerializeField] private SoundEffectSO SFX_playerCounterAttackHit;
+    // Attack Success
+    [SerializeField] private SoundEffectSO SFX_playerWeakAttackSuccess;
+    [SerializeField] private SoundEffectSO SFX_playerStrongAttackSuccess1;
+    [SerializeField] private SoundEffectSO SFX_playerStrongAttackSuccess2;
+    [SerializeField] private SoundEffectSO SFX_playerCounterAttackSuccess;
+    // Hit
+    [SerializeField] private SoundEffectSO SFX_playerWeakHit;
+    [SerializeField] private SoundEffectSO SFX_playerStrongHit;
     // Dead
     [SerializeField] private SoundEffectSO SFX_playerDead1;
     [SerializeField] private SoundEffectSO SFX_playerDead2;
@@ -66,6 +69,14 @@ public class SFXManager : MonoBehaviour
     // Player Combat
     private event Action PlayerBlockCastSFX = null;
     private event Action PlayerBlockFailedSFX = null;
+    public void OnPlayerWeakHit()
+    {
+        PlayWhole(SFX_playerWeakHit);
+    }
+    public void OnPlayerStrongHit()
+    {
+        PlayWhole(SFX_playerStrongHit);
+    }
     public void OnPlayerBlockSucceed(float duration)
     {
         PlayWhole(SFX_playerBlockSucceed1);
@@ -115,15 +126,15 @@ public class SFXManager : MonoBehaviour
         PlayerBlockCastSFX = () => { PlayWhole(SFX_playerBlockCast); };
         PlayerBlockFailedSFX = () => { PlayWhole(SFX_playerBlockFailed); };
         PlayerWeakAttackCastSFX = () => { PlayWhole(SFX_playerWeakAttackCast); };
-        PlayerWeakAttackHitSFX = () => { PlayWhole(SFX_playerWeakAttackHit); };
+        PlayerWeakAttackHitSFX = () => { PlayWhole(SFX_playerWeakAttackSuccess); };
         PlayerStrongAttackCastSFX = () => { PlayWhole(SFX_playerStrongAttackCast); };
         PlayerStrongAttackHitSFX = () =>
         {
-            PlayWhole(SFX_playerStrongAttackHit1);
-            PlayWhole(SFX_playerStrongAttackHit2);
+            PlayWhole(SFX_playerStrongAttackSuccess1);
+            PlayWhole(SFX_playerStrongAttackSuccess2);
         };
         PlayerCounterAttackCastSFX = () => { PlayWhole(SFX_playerCounterAttackCast); };
-        PlayerCounterAttackHitSFX = () => { PlayWhole(SFX_playerCounterAttackHit); };
+        PlayerCounterAttackHitSFX = () => { PlayWhole(SFX_playerCounterAttackSuccess); };
         PlayerDeadSFX = () =>
         {
             PlayWhole(SFX_playerDead1);
