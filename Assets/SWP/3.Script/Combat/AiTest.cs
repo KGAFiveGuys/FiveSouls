@@ -3,25 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(AttackController))]
 public class AiTest : MonoBehaviour
 {
+    private enum HulkState
+    {
+        Navi,
+        Attack,
+    }
 
-    #region 신규
-    [Header("랙돌 필수품")]
+    [Header("Ragdoll Field")]
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
 
-    [Header("보스 변수들")]
+    [Header("Hulk Field")]
     [SerializeField] private LayerMask TargetMask;
     private float distance = 100f;
     [SerializeField] private float detectRange = 30f;
     private float AdDistance = 5f;
     [SerializeField] private float stopdistance = 1.25f;//근접공격거리 & 보스멈출거리
     [SerializeField] private Collider[] AttackCollider;
+    [SerializeField] private float PatternCoolTime = 4f;
+    [SerializeField] private float Timer = 4f;
+    [SerializeField] private bool PatternOn;
     private Transform Target;
     private Animator HulkAnimator;
     private NavMeshAgent agent;
@@ -33,15 +41,13 @@ public class AiTest : MonoBehaviour
     [SerializeField] private GameObject Curtain;
 
     //보스상태
-    private bool PatternOn = false; //패턴 공격중인지
+    private HulkState currentState;
     private bool isDead = false;
-    private bool isAngry = true; // 광폭화
     private bool isTarget = false;
-    private bool NaviOn = false;
     private bool isLook = false;
+    private bool isAngry = true; // 광폭화
+    private bool onlyone = true; // 광폭화
 
-    //상태조건
-    int AttackNum;
 
     private void OnDrawGizmos()
     {
@@ -64,17 +70,33 @@ public class AiTest : MonoBehaviour
         TryGetComponent(out HulkAnimator);
         TryGetComponent(out bossHealth);
         TryGetComponent(out attackController);
+        currentState = HulkState.Navi;
     }
+    private void Start()
+    {
+        if (isTarget)
+        {
+            StartCoroutine(AttackCooldown());
+        }
+    }
+
     private void FixedUpdate()
     {
         CalcDistance();
         HulkAnimator.SetBool("HasTarget", isTarget);
-        if (!PatternOn)
+        if (isTarget)
         {
-            StartCoroutine(DrawPattern());
+            LookTarget();
+            if (PatternOn)
+            {
+                DrawPattern();
+            }
+            //else
+            //{
+            //    SetNavi();
+            //}
         }
     }
-
     private void Update()
     {
         if (bossHealth.CurrentHP <= 0)
@@ -83,16 +105,16 @@ public class AiTest : MonoBehaviour
                 return;
 
             isDead = true;
-            Curtain.SetActive(false);
+            Curtain.SetActive(!isDead);
             ToggleRagdoll(isDead);
         }
-        if (isTarget && !PatternOn)
+        //광폭화 패턴
+        if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && isAngry)
         {
-            SetNavi();
+            isAngry = false;
+            StartCoroutine(FuryAttack());
         }
-        LookTarget();
     }
-
 
     private void CalcDistance()
     {
@@ -110,50 +132,66 @@ public class AiTest : MonoBehaviour
             isTarget = false;
         }
     }
-
+    private void LookTarget()
+    {
+            if (isLook || !PatternOn)
+            {
+                float h = Input.GetAxisRaw("Horizontal");
+                float v = Input.GetAxisRaw("Vertical");
+                Vector3 lookVec = new Vector3(h, transform.position.y, v) * 5f;
+                Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+                transform.LookAt(targetTF + lookVec);
+            }
+    }
+    private IEnumerator AttackCooldown()
+    {
+        while (!isDead)
+        {
+            if (!PatternOn)
+            {
+                Timer = PatternCoolTime;
+                while (Timer <= 0)
+                {
+                    Timer -= Time.deltaTime;
+                    Debug.Log(Timer);
+                }
+                PatternOn = true;
+            }
+            yield return null;
+        }
+        yield return null;
+    }
     private void SetNavi()
     {
         Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
         agent.SetDestination(targetTF);
-    }
-
-    private void LookTarget()
-    {
-        if (isLook)
+        if (distance <= stopdistance * transform.localScale.x)
         {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Horizontal");
-            Vector3 lookVec = new Vector3(h, transform.position.y, v) * 5f;
-            Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
-            transform.LookAt(targetTF + lookVec);
+            agent.isStopped = true;
         }
     }
 
-    private IEnumerator DrawPattern()
+
+    private void DrawPattern()
     {
-        if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && isAngry)
+        PatternOn = false;
+        isLook = true;
+        agent.isStopped = true;
+        //agent.updateRotation = false;
+        if (distance <= AdDistance * transform.localScale.x && distance > stopdistance * transform.localScale.x * 2f)
         {
-            isAngry = false;
-            yield return FuryAttack();
+            StopCoroutine(SlideAttack());
+            StartCoroutine(SlideAttack());
         }
-        else
+        else if (distance <= stopdistance * transform.localScale.x * 2f && distance > stopdistance * transform.localScale.x * 1.1f)
         {
-            PatternOn = true;
-            //광폭화 공격
-            float delay = Random.Range(0.5f, 4f);
-            yield return new WaitForSeconds(delay);
-            if (distance <= AdDistance * transform.localScale.x && distance > stopdistance * transform.localScale.x * 2f)
-            {
-                StartCoroutine(SlideAttack());
-            }
-            else if (distance <= stopdistance * transform.localScale.x * 2f && distance > stopdistance * transform.localScale.x * 1.1f)
-            {
-                StartCoroutine(RightAttack());
-            }
-            else if (distance <= stopdistance * transform.localScale.x * 1.1f)
-            {
-                StartCoroutine(NearAttack());
-            }
+            StopCoroutine(RightAttack());
+            StartCoroutine(RightAttack());
+        }
+        else if (distance <= stopdistance * transform.localScale.x * 1.1f)
+        {
+            StopCoroutine(NearAttack());
+            StartCoroutine(NearAttack());
         }
     }
 
@@ -165,8 +203,8 @@ public class AiTest : MonoBehaviour
         attackController.StrongAttackBaseDamage = 50f;
 
         Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
-        Vector3 LandPoint = Target.position + targetTF.normalized * 5f;
-        agent.SetDestination(LandPoint);
+        Vector3 AttackPoint = Target.position + targetTF.normalized * 5f;
+        agent.SetDestination(AttackPoint);
         HulkAnimator.SetTrigger("Angry");
 
         yield return new WaitForSeconds(9f);
@@ -180,6 +218,10 @@ public class AiTest : MonoBehaviour
         attackController.ChangeAttackType(AttackType.Weak);
         attackController.AttackCollider = AttackCollider[2];
         attackController.WeakAttackBaseDamage = 25f;
+
+        Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+        Vector3 AttackPoint = Target.position + targetTF.normalized * (AdDistance * transform.localScale.x - distance);
+        agent.SetDestination(AttackPoint);
 
         yield return new WaitForSeconds(0.5f);
         HulkAnimator.SetTrigger("Sliding");
@@ -195,6 +237,10 @@ public class AiTest : MonoBehaviour
         attackController.ChangeAttackType(AttackType.Strong);
         attackController.AttackCollider = AttackCollider[1];
         attackController.StrongAttackBaseDamage = 30f;
+
+        Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+        Vector3 AttackPoint = targetTF.normalized * 2f*transform.localScale.z;
+        agent.SetDestination(AttackPoint);
 
         yield return new WaitForSeconds(0.5f);
         HulkAnimator.SetTrigger("StrongAttack");
@@ -255,8 +301,6 @@ public class AiTest : MonoBehaviour
         PatternOn = false;
     }
 
-    #endregion
-
     public void ToggleRagdoll(bool isRagdoll)
     {
         foreach (var c in ragdollColliders)
@@ -283,15 +327,6 @@ public class AiTest : MonoBehaviour
             agent.isStopped = true;
         }
     }
-
-    private void StopLook()
-    {
-        if (agent != null)
-        {
-            agent.updateRotation = false;
-        }
-    }
-
     private void RestartChase()
     {
         if (agent != null)
@@ -299,13 +334,16 @@ public class AiTest : MonoBehaviour
             agent.isStopped = false;
         }
     }
-    private void RestartLook()
+
+    private void LookOff()
     {
-        if (agent != null)
-        {
-            agent.updateRotation = true;
-        }
+        isLook = false;
     }
+    private void LookOn()
+    {
+        isLook = true;
+    }
+
     private void JumpEffectOn()
     {
         JumpLandingEffect.SetActive(true);
@@ -314,6 +352,7 @@ public class AiTest : MonoBehaviour
     {
         JumpLandingEffect.SetActive(false);
     }
+
     private void AniSpeed(float speed)
     {
         HulkAnimator.SetFloat("AniSpeed", speed);
