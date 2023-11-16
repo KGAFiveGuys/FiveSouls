@@ -187,7 +187,7 @@ public class SFXManager : MonoBehaviour
 
     private static int BGMTurnCounter = 0;
     private static int SFXTurnCounter = 0;
-    private void PlayLoop(SoundEffectSO bgm)
+    public void PlayLoop(SoundEffectSO bgm)
     {
         if (bgm == null)
             return;
@@ -204,7 +204,7 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    private void PlayWhole(SoundEffectSO sfx)
+    public void PlayWhole(SoundEffectSO sfx)
     {
         if (sfx == null)
             return;
@@ -221,7 +221,7 @@ public class SFXManager : MonoBehaviour
         }
     }
 
-    private void PlayPartial(SoundEffectSO sfx, float duration)
+    public void PlayPartial(SoundEffectSO sfx, float duration)
     {
         if (sfx == null)
             return;

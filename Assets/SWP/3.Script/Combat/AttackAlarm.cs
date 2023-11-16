@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RedAlarm : MonoBehaviour
+public class AttackAlarm : MonoBehaviour
 {
     [Header("알람설정")]
     [SerializeField] private GameObject AlarmUI;
@@ -13,7 +13,7 @@ public class RedAlarm : MonoBehaviour
     private PlayerController playerController;
     private float flowTime;
 
-    public static RedAlarm Instance = null;
+    public static AttackAlarm Instance = null;
     private void Awake()
     {
         if (Instance == null)
@@ -49,7 +49,16 @@ public class RedAlarm : MonoBehaviour
         }
     }
 
-    public IEnumerator StrongAlarm()
+    public void RedAlarm()
+    {
+        StartCoroutine(StrongAlarm());
+    }
+    public void YellowAlarm()
+    {
+        StartCoroutine(WeakAlarm());
+    }
+
+    private IEnumerator StrongAlarm()
     {
         if (playerController.LockedOnEnemy != null)
         {
@@ -70,7 +79,8 @@ public class RedAlarm : MonoBehaviour
             AlarmUI.SetActive(false);
         }
     }
-    public IEnumerator WeakAlarm()
+
+    private IEnumerator WeakAlarm()
     {
         if (playerController.LockedOnEnemy != null)
         {
