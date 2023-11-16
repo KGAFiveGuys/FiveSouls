@@ -24,6 +24,7 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private float playerBackgroundDelay_OnDead = .3f;
     [SerializeField] private float playerBackgroundLerpDuration_OnDead = .3f;
     [SerializeField] private AnimationCurve playerBackgroundLerpIntensity_OnDead;
+    [SerializeField] private GameObject gameOverUI;
 
     private Health _playerHealth;
     private Stamina _playerStamina;
@@ -59,9 +60,10 @@ public class PlayerHUDController : MonoBehaviour
     {
 		#region Player
 		_playerHealth.OnHealthChanged += ChangePlayerHealth;
+        _playerStamina.OnStaminaChanged += ChangePlayerStamina;
+        _playerHealth.OnDead += ShowGameOver;
         _playerHealth.OnDead += ResetPlayerHealthNStamina;
         _playerHealth.OnDead += HideEnemyHealthNFury;
-        _playerStamina.OnStaminaChanged += ChangePlayerStamina;
         _playerController.OnLockOn += ShowEnemyHealthNFury;
         _playerController.OnLockOff += HideEnemyHealthNFury;
         #endregion
@@ -72,6 +74,7 @@ public class PlayerHUDController : MonoBehaviour
         #region Player
         _playerHealth.OnHealthChanged -= ChangePlayerHealth;
         _playerStamina.OnStaminaChanged -= ChangePlayerStamina;
+        _playerHealth.OnDead -= ShowGameOver;
         _playerHealth.OnDead -= ResetPlayerHealthNStamina;
         _playerHealth.OnDead -= HideEnemyHealthNFury;
         _playerController.OnLockOn -= ShowEnemyHealthNFury;
@@ -107,6 +110,11 @@ public class PlayerHUDController : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    private void ShowGameOver()
+    {
+        gameOverUI.SetActive(true);
     }
 
     private void ResetPlayerHealthNStamina()
