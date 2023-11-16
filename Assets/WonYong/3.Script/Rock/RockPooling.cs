@@ -38,7 +38,7 @@ public class RockPooling : MonoBehaviour
 
     private IEnumerator Rock_Creat_co()
     {
-
+        yield return new WaitForSeconds(2.5f);
         foreach (var rock in poolRock)
         {
             if (rock != null && !rock.activeSelf)
@@ -50,7 +50,7 @@ public class RockPooling : MonoBehaviour
                 if (rb != null)
                 {
                     Vector3 forceDirection = -(transform.right + transform.up * 4);
-                    float forceMagnitude = 15f;
+                    float forceMagnitude = Random.Range(4f, 8f);
                     rb.AddForce(forceDirection * forceMagnitude, ForceMode.Impulse);
                 }
 

@@ -179,10 +179,7 @@ public class MutantController : MonoBehaviour
     }
 
     private void Update()
-    {
-        //print(distance);
-        print("isAction : " + isAction);
-        
+    {        
         if(health_m.CurrentHP <= 0)
         {
             agent.enabled = false;
@@ -614,7 +611,6 @@ public class MutantController : MonoBehaviour
                 transform.LookAt(player.transform);
                 if (!isAction)
                 {
-                    print("들어옴?");
                     ThrowRock_anim();   
                 }
             }
@@ -777,11 +773,8 @@ public class MutantController : MonoBehaviour
         {
             isAction = true;
             agent.enabled = false;
-            print("smash_co");
-            print(isAction);
             AnimationClip SmashAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Smash_Strong");
             float SmashAnimationTime = SmashAnimation.length;
-            print("SmashTime" + SmashAnimationTime);
             while (SmashAnimationTime < 0)
             {
 
@@ -805,7 +798,6 @@ public class MutantController : MonoBehaviour
         float Rock_Time = PickAnimation.length + ThrowAnimation.length;
         while (Rock_Time < 0)
         {
-            print("Rock_Time" + Rock_Time);
             Rock_Time -= Time.deltaTime;
             yield return null;
         }
@@ -822,7 +814,6 @@ public class MutantController : MonoBehaviour
 
         while (SwingAnimationTime < 0)
         {
-            print("SwingAnimationTime : " + SwingAnimationTime);
             SwingAnimationTime -= Time.deltaTime;
             yield return null;
         }
@@ -895,15 +886,14 @@ private void Dash_Att()
             if (!isDash && currentRock == null)
             {
                 // 돌을 생성하고 손 위치에 놓기
+                isAction = true;
+                agent.enabled = false;
                 Vector3 offset = new Vector3(-1.35f, -0.21f, -0.56f); //간격조절
                 GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);                
                 newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
   
                 AnimationClip throwAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
                 float waitTime = throwAnimation.length;
-
-                isAction = true;
-                agent.enabled = false;
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
                 StartCoroutine(Rock_Cool_co());
             }
