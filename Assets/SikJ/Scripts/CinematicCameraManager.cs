@@ -9,28 +9,38 @@ public class CinematicCameraManager : MonoBehaviour
     [SerializeField] private CinemachineSmoothPath track;
     [SerializeField] private CinemachineDollyCart cart;
 
+    [SerializeField] private AnimationCurve SpeedOverPath;
+
     private PlayerController playerController;
+    private CinemachineVirtualCamera virtualCamera;
     private void Awake()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
     }
 
-    private void Start()
+    private void OnTriggerEnter(Collider other)
     {
-        playerController.ControlState = ControlState.Uncontrollable;
-        StartCoroutine(StartCinematic(1f));
-    }
-
-    private IEnumerator StartCinematic(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        camera.SetActive(true);
-        cart.m_Speed = 25f;
-
-        // Wait until finish
-        while (camera.transform.position != track.transform.position + track.m_Waypoints[track.m_Waypoints.Length - 1].position)
+        if (other.gameObject.CompareTag("Player"))
         {
+            playerController.MoveDirection = Vector3.zero;
+            playerController.ControlState = ControlState.Uncontrollable;
+            StartCoroutine(StartCinematic());
+        }
+    }
+
+    [SerializeField] private float minSpeed = 10f;
+    [SerializeField] private float maxSpeed = 30f;
+    private IEnumerator StartCinematic()
+    {
+        camera.SetActive(true);
+
+        var trackEndPosition = track.transform.position + track.m_Waypoints[track.m_Waypoints.Length - 1].position;
+        while (camera.transform.position != trackEndPosition)
+        {
+            float travelRate = cart.m_Position / track.PathLength;
+            cart.m_Speed = minSpeed + (maxSpeed - minSpeed) * SpeedOverPath.Evaluate(travelRate);
+
             yield return null;
         }
 

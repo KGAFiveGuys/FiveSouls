@@ -359,7 +359,7 @@ public class PlayerController : MonoBehaviour
         if (!Camera.main.GetComponent<CinemachineBrain>().IsBlending)
             VC_Default.GetComponent<CinemachineFreeLook>().Follow.position = Camera.main.transform.position;
     }
-    Vector3 moveDirection;
+    public Vector3 MoveDirection { get; set; }
     private void Move()
     {
         if (ControlState.Equals(ControlState.Uncontrollable))
@@ -374,14 +374,14 @@ public class PlayerController : MonoBehaviour
 
         if (IsLockOn)
         {
-            moveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
+            MoveDirection = new Vector3(DesiredMove.x, 0, DesiredMove.y);
 
-            if (IsGoingToStair(moveDirection, out bool isGrounded))
+            if (IsGoingToStair(MoveDirection, out bool isGrounded))
 			{
                 _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
 
                 if (isGrounded)
-                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+                    MoveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
 			else
 			{
@@ -389,7 +389,7 @@ public class PlayerController : MonoBehaviour
                 _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
-            _rigidbody.MovePosition(transform.position + (currentSpeed * moveDirection.magnitude) * Time.deltaTime * moveDirection);
+            _rigidbody.MovePosition(transform.position + (currentSpeed * MoveDirection.magnitude) * Time.deltaTime * MoveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
@@ -420,31 +420,31 @@ public class PlayerController : MonoBehaviour
             Vector3 cameraToPlayer = (playerGroundPos - cameraGroundPos);
             var forward = cameraToPlayer.normalized;
             var right = Vector3.Cross(Vector3.up, forward);
-            moveDirection = forward * DesiredMove.y;
-            moveDirection += right * DesiredMove.x;
+            MoveDirection = forward * DesiredMove.y;
+            MoveDirection += right * DesiredMove.x;
 
-            transform.LookAt(transform.position + moveDirection * currentSpeed);
+            transform.LookAt(transform.position + MoveDirection * currentSpeed);
 
-            if (IsGoingToStair(moveDirection, out bool isGrounded))
+            if (IsGoingToStair(MoveDirection, out bool isGrounded))
 			{
                 _constantForce.force = isGrounded ? Physics.gravity * 1000 : Physics.gravity * 4000;
 
 				if (DesiredMove != Vector2.zero && isGrounded)
-                    moveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
+                    MoveDirection += Vector3.up * defualtUpForce / (currentSpeed / walkSpeed);
             }
             else
             {
                 _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
-            _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * moveDirection);
+            _rigidbody.MovePosition(transform.position + currentSpeed * Time.deltaTime * MoveDirection);
 
             if (IsRun)
                 _stamina.Consume(_stamina.RunCostPerSeconds * Time.deltaTime);
 
             Debug.DrawLine(
                 transform.position,                                 // start
-                transform.position + moveDirection * currentSpeed,  // end
+                transform.position + MoveDirection * currentSpeed,  // end
                 Color.green                                         // color
             );
         }
@@ -503,16 +503,16 @@ public class PlayerController : MonoBehaviour
     private void Animate()
     {
         // Move
-        _animator.SetFloat(moveMagnitude_hash, moveDirection.magnitude);
+        _animator.SetFloat(moveMagnitude_hash, MoveDirection.magnitude);
         if (IsLockOn)
         {
-            _animator.SetFloat(moveX_hash, moveDirection.x);
-            _animator.SetFloat(moveY_hash, moveDirection.z);
+            _animator.SetFloat(moveX_hash, MoveDirection.x);
+            _animator.SetFloat(moveY_hash, MoveDirection.z);
         }
         else
         {
             _animator.SetFloat(moveX_hash, 0);
-            _animator.SetFloat(moveY_hash, moveDirection.magnitude);
+            _animator.SetFloat(moveY_hash, MoveDirection.magnitude);
         }
 
         // Run
@@ -588,7 +588,7 @@ public class PlayerController : MonoBehaviour
         
         // 마지막 이동정보 저장
         float lastSpeed = IsRun ? runSpeed : walkSpeed;
-        Vector3 lastMovement = moveDirection * lastSpeed;
+        Vector3 lastMovement = MoveDirection * lastSpeed;
 
         isJumping = true;
         IsRun = false;
@@ -672,7 +672,7 @@ public class PlayerController : MonoBehaviour
     {
         if (ControlState == ControlState.Uncontrollable
             || _stamina.CurrentStamina < _stamina.RollThreshold
-            || moveDirection.magnitude < .25f)
+            || MoveDirection.magnitude < .25f)
             return;
 
         var isRoll = context.ReadValueAsButton();
