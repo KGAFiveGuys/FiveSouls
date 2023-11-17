@@ -263,17 +263,24 @@ public class PlayerController : MonoBehaviour
         #endregion
     }
 
+    private void FixedUpdate()
+    {
+        Move();
+    }
+
     private void Update()
     {
         SetDefaultCameraPosition();
         CheckLockOnPointDistance();
-        ShowLockOnPoint();
         LookLockOnPoint();
-        
-        Move();
         Animate();
     }
-    
+
+    private void LateUpdate()
+    {
+        ShowLockOnPoint();
+    }
+
     private void CheckLockOnPointDistance()
     {
         if (!IsLockOn)
