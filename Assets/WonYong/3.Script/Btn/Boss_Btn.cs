@@ -41,18 +41,4 @@ public class Boss_Btn : MonoBehaviour
 
         }
     }
-
-
-
-    
-
-    private void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-
-    }
 }

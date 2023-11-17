@@ -14,9 +14,9 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float Swing_dmg;
     [SerializeField] private float Dash_dmg;
     [SerializeField] private float Howing_dmg;
-    //뮤턴트 사망시 엘베로 가는길에 있는 돌
-    [Header("보스사망시 제거할 돌&dolly_camera")]
-    [SerializeField] private GameObject Block_Rock;
+    //뮤턴트 사망시 켜줄 카메라
+    [Header("보스 사망시 켜줄 door")]
+    [SerializeField] private Animator door;
     [SerializeField] private GameObject On_Clear_DollyCamera_;
     
 
@@ -34,7 +34,7 @@ public class MutantController : MonoBehaviour
     [SerializeField] private Transform throwPosition; // 던질 위치
     [SerializeField] private float throwForce = 10.0f; // 던질 힘
     [SerializeField] private float addForceDuration = .5f; // 던지는 힘을 누적할 시간
-    
+
 
 
     private GameObject currentRock;
@@ -212,6 +212,7 @@ public class MutantController : MonoBehaviour
             Judgement_MonAction();
         }
 
+
     }
     private void Timer()
     {
@@ -309,6 +310,13 @@ public class MutantController : MonoBehaviour
         ragdollTest.canceled += OnRagdollCanceled;
         ragdollTest.Enable();
         #endregion
+        health_m.OnDead += OpenDoor;
+    }
+
+    private  void OpenDoor()
+    {
+        door.enabled = true;
+
     }
 
     private void OnDisable()
@@ -352,6 +360,7 @@ public class MutantController : MonoBehaviour
         ragdollTest.canceled -= OnRagdollCanceled;
         ragdollTest.Disable();
         #endregion
+        health_m.OnDead -= OpenDoor;
     }
 
     private Vector2 desiredMove;
@@ -608,7 +617,11 @@ public class MutantController : MonoBehaviour
                 attackController.AttackCollider = dashAttackCollider;
                 attackController.StrongAttackBaseDamage = Dash_dmg;
                 AttackAlarm.Instance.RedAlarm();
-                Dash_Att();
+                if (!isDie)
+                {
+                    Dash_Att();
+                }
+
             }
         }
         else if (distance <= 20f && distance > 10f)
@@ -726,7 +739,7 @@ public class MutantController : MonoBehaviour
     //하울링(즉사)
     private void Howilng_att()
     {
-        if (time >= Howing_cool && !isHowling)
+        if (time >= Howing_cool && !isHowling && !isDie)
         {
             isHowling = true;
             attackController.ChangeAttackType(AttackType.Strong);
@@ -968,7 +981,9 @@ private void Dash_Att()
     {
         if(health_m.CurrentHP <= 0 && !isDie)
         {
+            isDie = true;
             ToggleRagdoll(true);
+            StartCoroutine(Clear_DollyCamera_co());
         }
     }
 
@@ -989,18 +1004,11 @@ private void Dash_Att()
     {
         StrongParticle.SetActive(false);
     }
-    //보스사망시 돌제거
-    private void Remove_Block_Rock()
-    {
-        Block_Rock.SetActive(false);
-    }
-
-    private IEnumerator On_Clear_DollyCamera_co()
+    private IEnumerator Clear_DollyCamera_co()
     {
         On_Clear_DollyCamera_.SetActive(true);
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3f);
         On_Clear_DollyCamera_.SetActive(false);
     }
-
 
 }
