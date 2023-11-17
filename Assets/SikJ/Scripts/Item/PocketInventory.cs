@@ -43,10 +43,10 @@ public class PocketInventory : MonoBehaviour
         TryGetComponent(out playerStamina);
         TryGetComponent(out playerAttackController);
 
-        Pocket pocket1 = new Pocket(healthRegenBoostPotion, 0);
-        Pocket pocket2 = new Pocket(staminaRegenBoostPotion, 0);
-        Pocket pocket3 = new Pocket(baseDamageBoostPotion, 0);
-        Pocket pocket4 = new Pocket(counterDamageBoostPotion, 0);
+        Pocket pocket1 = new Pocket(healthRegenBoostPotion, 1);
+        Pocket pocket2 = new Pocket(staminaRegenBoostPotion, 1);
+        Pocket pocket3 = new Pocket(baseDamageBoostPotion, 1);
+        Pocket pocket4 = new Pocket(counterDamageBoostPotion, 1);
         pocketList.Add(pocket1);
         pocketList.Add(pocket2);
         pocketList.Add(pocket3);

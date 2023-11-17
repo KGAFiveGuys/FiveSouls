@@ -20,6 +20,8 @@ public enum ControlState
 [RequireComponent(typeof(ConstantForce))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private PocketInventoryManager _inventoryManager;
+
     [field:Header("State")]
     [field:SerializeField] public ControlState ControlState { get; set; } = ControlState.Controllable;
     public bool IsLockOn => LockOnTargetPoint != null;
@@ -121,6 +123,7 @@ public class PlayerController : MonoBehaviour
     private readonly int isRoll_hash = Animator.StringToHash("isRoll");
     private readonly int isWeakHit_hash = Animator.StringToHash("isWeakHit");
     private readonly int isStrongHit_hash = Animator.StringToHash("isStrongHit");
+    private readonly int isDrinkPotion_hash = Animator.StringToHash("isDrinkPotion");
     #endregion
     private ConstantForce _constantForce;
 
@@ -186,6 +189,7 @@ public class PlayerController : MonoBehaviour
         _health.OnDead += Die;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
+        _inventoryManager.OnUseItem += DrinkPotion;
     }
 
     private void OnDisable()
@@ -232,6 +236,25 @@ public class PlayerController : MonoBehaviour
         _health.OnDead -= Die;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
+        _inventoryManager.OnUseItem -= DrinkPotion;
+    }
+
+    private void DrinkPotion()
+    {
+        if (IsDead
+            || ControlState == ControlState.Uncontrollable)
+            return;
+
+        IsRun = false;
+        ControlState = ControlState.Uncontrollable;
+        MoveDirection = Vector2.zero;
+        _animator.SetTrigger(isDrinkPotion_hash);
+        StartCoroutine(CancelDrinkPotion());
+    }
+    private IEnumerator CancelDrinkPotion()
+    {
+        yield return new WaitForSeconds(2.1f);
+        ControlState = ControlState.Controllable;
     }
 
     private void Start()
@@ -726,7 +749,7 @@ public class PlayerController : MonoBehaviour
     }
     private IEnumerator CancelWeakAttack()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.72f);
         ControlState = ControlState.Controllable;
         _animator.SetBool(isWeakAttack_hash, false);
     }
@@ -956,6 +979,7 @@ public class PlayerController : MonoBehaviour
         OnPickUpItem?.Invoke();
     }
     #endregion
+    
     #region talkToNPC_Action
     private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
     {

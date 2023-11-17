@@ -21,6 +21,8 @@ public class PocketInventoryManager : MonoBehaviour
     public InputAction select;
     public InputAction use;
 
+    public event Action OnUseItem;
+
     private void Awake()
     {
         if (_instance == null)
@@ -78,5 +80,6 @@ public class PocketInventoryManager : MonoBehaviour
     private void UseItem()
     {
         playerPocketInventory.UseCurrentItem();
+        OnUseItem?.Invoke();
     }
 }
