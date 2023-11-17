@@ -6,6 +6,7 @@ public class FireBallSpawner : MonoBehaviour
 {
     public GameObject[] FireBall_prefabs;
     public GameObject target_obj;
+    public GameObject FireBallobjects;
 
     [Header("파이어볼 관련")]
     public float FireBall_Speed = 2f;
@@ -29,7 +30,7 @@ public class FireBallSpawner : MonoBehaviour
             for(int i =0;i < m_shotCountEveryInterval;i++)
             {
                 int rand = Random.Range(0, 4);
-                GameObject Fireball = Instantiate(FireBall_prefabs[rand],gameObject.transform.position,Quaternion.identity,gameObject.transform);
+                GameObject Fireball = Instantiate(FireBall_prefabs[rand],gameObject.transform.position,Quaternion.identity, FireBallobjects.transform);
                 Fireball.GetComponent<FireballMove>().Init(this.gameObject.transform, target_obj.transform, FireBall_Speed, FireBall_distanceStart, FireBall_distanceEnd);
 
                 _shotcount--;

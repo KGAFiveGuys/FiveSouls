@@ -34,8 +34,10 @@ public class WizardControl : MonoBehaviour
 {
 
     private float Dist;//플레이어와 보스와의 거리
-    private Animator Wizard_anim;
+    public Animator Wizard_anim;
     private float AttackTime = 0;
+    [SerializeField] private AudioClip BossClip;
+    [SerializeField] private AudioSource bgm;
     [SerializeField] private Health health; 
     [SerializeField]private float ThunderDelay = 0.5f;
     [SerializeField]private ThunderBoltCircle thunderBoltCircle;
@@ -103,6 +105,8 @@ public class WizardControl : MonoBehaviour
             Wizard_anim.SetBool("Ready",true);
             ReadyEffect.SetActive(true);
             MagicImage.SetActive(true);
+            bgm.clip = BossClip;
+            bgm.Play();
         }
         
     }
@@ -124,6 +128,7 @@ public class WizardControl : MonoBehaviour
     }
     private IEnumerator UseThunderbolt()
     {
+        wizardinfo.status = Status.Attack;
         int count = 0;
         float time = 0;
         float Lasttime = 0;
@@ -140,13 +145,13 @@ public class WizardControl : MonoBehaviour
             }
             yield return null;
         }
-        
+        wizardinfo.status = Status.Ready;
     }
     private void ClosePattern()
     {
         var collisionModule = shadowburst.collision;
         collisionModule.enabled = true;
-        shadowburst.Play();
+        shadowburst.gameObject.SetActive(true);
         Debug.DrawRay(transform.position, -transform.forward * 20f, Color.blue);
         //if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 20f))
         //{
@@ -214,9 +219,18 @@ public class WizardControl : MonoBehaviour
     public void Die()
     {
         wizardinfo.status = Status.Death;
+        bgm.Stop();
         Wizard_anim.SetBool("Ready", false);
         Wizard_anim.SetTrigger("Die");
         ReadyEffect.SetActive(false);
         MagicImage.SetActive(false);
+    }
+    public void StartStormMove()
+    {
+        megapattern.MoveStorm();
+    }
+    public void StopStormMove()
+    {
+        StartCoroutine(megapattern.StopMoveStorm_Co());
     }
 }

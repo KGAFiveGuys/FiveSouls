@@ -8,7 +8,7 @@ public class StormMove : MonoBehaviour
     public float acceleration = 1f; // 가속도
 
     private float currentSpeed;
-    public float rotationSpeed = 90.0f; // 회전 속도 (각도/초)
+    public float rotationSpeed = 15.0f; // 회전 속도 (각도/초)
 
     private void OnEnable()
     {

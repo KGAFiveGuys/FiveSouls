@@ -77,7 +77,7 @@ public class FireballMove : MonoBehaviour
             FireBall_timerCurrent += Time.deltaTime * currentSpeed;
 
             DistanceOfTarget = Vector3.Distance(Targetplayer.transform.position, transform.position);
-            if (DistanceOfTarget <= 3f && status.Equals(FireBallStatus.Chase))
+            if (DistanceOfTarget <= 13f && status.Equals(FireBallStatus.Chase))
             {
                 status = FireBallStatus.Find;
                 DistVector = Targetplayer.transform.position - transform.position;
