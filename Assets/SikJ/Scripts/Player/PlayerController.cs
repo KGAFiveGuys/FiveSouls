@@ -660,6 +660,7 @@ public class PlayerController : MonoBehaviour
         {
             _animator.SetBool(isBlock_hash, false);
             ControlState = ControlState.Controllable;
+            isBlocking = false;
         }
     }
     private void RevertToDefault()
