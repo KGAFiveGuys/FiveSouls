@@ -8,10 +8,13 @@ public class Boss_Btn : MonoBehaviour
     [SerializeField] private GameObject boss;
     [Header("bossOn=>rockpool Off")]
     [SerializeField] private GameObject RockPool;
+    [SerializeField] private GameObject[] Particle;
+    private ParticleSystem particleSystem_;
     public Material objectMaterial;
     private void Awake()
     {
         objectMaterial = TryGetComponent(out Renderer renderer) ? renderer.material : null;
+        particleSystem_ = GetComponent<ParticleSystem>();
     }
 
     public static bool Boss_btn = false;
@@ -22,14 +25,34 @@ public class Boss_Btn : MonoBehaviour
             Boss_btn = true;
             if (Boss_btn)
             {
-                // 부모 오브젝트에서 자식 오브젝트를 찾아서 활성화합니다.
                 boss_btn.SetActive(true);
                 boss.SetActive(true);
                 RockPool.SetActive(false);
                 objectMaterial.color = Color.red;
+                if (particleSystem_ != null)
+                {
+                    ParticleSystem.MainModule mainModule = particleSystem_.main;
+
+                    // 색상 변경
+                    mainModule.startColor = Color.red; 
+                }
 
             }
 
         }
+    }
+
+
+
+    
+
+    private void Start()
+    {
+
+    }
+
+    private void Update()
+    {
+
     }
 }
