@@ -14,6 +14,11 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float Swing_dmg;
     [SerializeField] private float Dash_dmg;
     [SerializeField] private float Howing_dmg;
+    //뮤턴트 사망시 엘베로 가는길에 있는 돌
+    [Header("보스사망시 제거할 돌&dolly_camera")]
+    [SerializeField] private GameObject Block_Rock;
+    [SerializeField] private GameObject On_Clear_DollyCamera_;
+    
 
     //뮤턴트 포지션 체크용
     private GameObject Mutant;
@@ -984,4 +989,18 @@ private void Dash_Att()
     {
         StrongParticle.SetActive(false);
     }
+    //보스사망시 돌제거
+    private void Remove_Block_Rock()
+    {
+        Block_Rock.SetActive(false);
+    }
+
+    private IEnumerator On_Clear_DollyCamera_co()
+    {
+        On_Clear_DollyCamera_.SetActive(true);
+        yield return new WaitForSeconds(5f);
+        On_Clear_DollyCamera_.SetActive(false);
+    }
+
+
 }
