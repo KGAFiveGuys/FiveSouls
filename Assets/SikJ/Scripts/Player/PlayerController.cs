@@ -12,7 +12,6 @@ public enum ControlState
 }
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(AttackController))]
 [RequireComponent(typeof(BlockController))]
 [RequireComponent(typeof(Health))]
@@ -1045,6 +1044,9 @@ public class PlayerController : MonoBehaviour
 
         ToggleRagdoll(true);
         StartCoroutine(DropEquipments(true));
+
+        gameObject.layer = LayerMask.NameToLayer("Ghost");
+        _constantForce.force = Vector3.zero;
     }
     public void ToggleRagdoll(bool isRagdoll)
     {
