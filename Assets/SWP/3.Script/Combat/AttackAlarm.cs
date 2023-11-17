@@ -12,6 +12,7 @@ public class AttackAlarm : MonoBehaviour
     [SerializeField] private int MultiNum;
     private PlayerController playerController;
     private float flowTime;
+    private float Acolor;
 
     public static AttackAlarm Instance = null;
     private void Awake()
@@ -62,8 +63,9 @@ public class AttackAlarm : MonoBehaviour
     {
         if (playerController.LockedOnEnemy != null)
         {
+            Acolor = 255f;
             AlarmUI.SetActive(true);
-            AlarmColor.color = Color.red;
+            AlarmColor.color = new Color(255, 0, 0, Acolor);
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var startScale = Vector3.one;
             var endScale = Vector3.one * MultiNum;
@@ -72,7 +74,9 @@ public class AttackAlarm : MonoBehaviour
             {
                 flowTime += Time.deltaTime;
                 rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
-                
+                Acolor -= 40f;
+                AlarmColor.color = new Color(255, 0, 0, Acolor);
+
                 yield return null;
             }
             yield return null;
@@ -84,8 +88,9 @@ public class AttackAlarm : MonoBehaviour
     {
         if (playerController.LockedOnEnemy != null)
         {
+            Acolor = 255f;
             AlarmUI.SetActive(true);
-            AlarmColor.color = Color.yellow;
+            AlarmColor.color = new Color(255, 255, 0, Acolor);
             var rectTransform = AlarmUI.GetComponent<RectTransform>();
             var startScale = Vector3.one;
             var endScale = Vector3.one * MultiNum;
@@ -94,6 +99,8 @@ public class AttackAlarm : MonoBehaviour
             {
                 flowTime += Time.deltaTime;
                 rectTransform.localScale = Vector3.Lerp(startScale, endScale, flowTime / Timer);
+                Acolor -= 40f;
+                AlarmColor.color = new Color(255, 255, 0, Acolor);
                 yield return null;
             }
             yield return null;
