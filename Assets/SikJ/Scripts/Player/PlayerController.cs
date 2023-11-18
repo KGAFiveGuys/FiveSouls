@@ -19,7 +19,7 @@ public enum ControlState
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(ConstantForce))]
 public class PlayerController : MonoBehaviour
-{
+{   
     [SerializeField] private PocketInventoryManager _inventoryManager;
 
     [field:Header("State")]
@@ -124,8 +124,10 @@ public class PlayerController : MonoBehaviour
     private readonly int isWeakHit_hash = Animator.StringToHash("isWeakHit");
     private readonly int isStrongHit_hash = Animator.StringToHash("isStrongHit");
     private readonly int isDrinkPotion_hash = Animator.StringToHash("isDrinkPotion");
+    private readonly int isCancelPotion_hash = Animator.StringToHash("isCancelPotion");
     #endregion
     private ConstantForce _constantForce;
+    private PocketInventory _pocketInventory;
 
     public event Action OnRoll;
     public event Action OnJump;
@@ -143,6 +145,7 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _stamina);
         TryGetComponent(out _animator);
         TryGetComponent(out _constantForce);
+        TryGetComponent(out _pocketInventory);
     }
 
     private void OnEnable()
@@ -239,25 +242,44 @@ public class PlayerController : MonoBehaviour
         _inventoryManager.OnUseItem -= DrinkPotion;
     }
 
-    private void DrinkPotion()
+
+    public bool IsDrinkPotion { get; set; } = false;
+	#region DrinkPotion
+	private void DrinkPotion()
     {
         if (IsDead
+            || IsDrinkPotion
             || ControlState == ControlState.Uncontrollable)
             return;
 
         IsRun = false;
+        IsDrinkPotion = true;
         _animator.SetTrigger(isDrinkPotion_hash);
-        //StartCoroutine(CancelDrinkPotion());
-        //ControlState = ControlState.Uncontrollable;
-        //MoveDirection = Vector2.zero;
-    }
+		StartCoroutine(CancelDrinkPotion());
+	}
     private IEnumerator CancelDrinkPotion()
     {
-        yield return new WaitForSeconds(2.1f);
-        ControlState = ControlState.Controllable;
-    }
+        // 포션 사용이 중단되었는지 확인
+        float elapsedTime = 0f;
+		while (elapsedTime < 2.1f)
+		{
+            elapsedTime += Time.deltaTime;
 
-    private void Start()
+			if (!IsDrinkPotion)
+			{
+
+                yield break;
+            }
+
+            yield return null;
+		}
+        
+        _pocketInventory.UseCurrentItem();
+        IsDrinkPotion = false;
+    }
+	#endregion
+
+	private void Start()
     {
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
@@ -565,7 +587,8 @@ public class PlayerController : MonoBehaviour
     private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina == 0)
+        if (_stamina.CurrentStamina == 0
+            || IsDrinkPotion)
             return;
 
         if (currentCheckMovingEnoughToRun != null)
@@ -611,6 +634,7 @@ public class PlayerController : MonoBehaviour
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
         if (ControlState == ControlState.Uncontrollable
+            || IsDrinkPotion
             || isJumping
             || _stamina.CurrentStamina < _stamina.JumpThreshold)
             return;
@@ -701,6 +725,7 @@ public class PlayerController : MonoBehaviour
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
         if (ControlState == ControlState.Uncontrollable
+            || IsDrinkPotion
             || _stamina.CurrentStamina < _stamina.RollThreshold
             || MoveDirection.magnitude < .25f)
             return;
@@ -737,6 +762,7 @@ public class PlayerController : MonoBehaviour
             return;
         
         if (ControlState == ControlState.Uncontrollable
+            || IsDrinkPotion
             || _stamina.CurrentStamina < _stamina.WeakAttackThreshold)
             return;
 
@@ -762,6 +788,7 @@ public class PlayerController : MonoBehaviour
             return;
 
         if (ControlState == ControlState.Uncontrollable
+            || IsDrinkPotion
             || _stamina.CurrentStamina < _stamina.StrongAttackThreshold)
             return;
 
@@ -973,6 +1000,7 @@ public class PlayerController : MonoBehaviour
     private void OnPickUpItemPerformed(InputAction.CallbackContext context)
     {
         if (IsDead
+            || IsDrinkPotion
             || ControlState == ControlState.Uncontrollable)
             return;
 
@@ -984,6 +1012,7 @@ public class PlayerController : MonoBehaviour
     private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
     {
         if (IsDead
+            || IsDrinkPotion
             || ControlState == ControlState.Uncontrollable)
             return;
 
@@ -1047,6 +1076,8 @@ public class PlayerController : MonoBehaviour
     }
     private void InterruptAllActions()
     {
+        IsDrinkPotion = false;
+        _animator.SetTrigger(isCancelPotion_hash);
         _animator.SetBool(isWeakAttack_hash, false);
         _animator.SetBool(isStrongAttack_hash, false);
         _animator.SetBool(isCounterAttack_hash, false);

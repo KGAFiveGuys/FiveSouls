@@ -17,6 +17,7 @@ public class PocketInventoryManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentPocketName;
 
     private PocketInventory playerPocketInventory;
+    private PlayerController playerController;
 
     public InputAction select;
     public InputAction use;
@@ -35,7 +36,9 @@ public class PocketInventoryManager : MonoBehaviour
             Destroy(this);
         }
 
-        playerPocketInventory = GameObject.FindGameObjectWithTag("Player").GetComponent<PocketInventory>();
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        playerPocketInventory = playerObj.GetComponent<PocketInventory>();
+        playerController = playerObj.GetComponent<PlayerController>();
     }
 
     private void OnEnable()
@@ -79,7 +82,6 @@ public class PocketInventoryManager : MonoBehaviour
     }
     private void UseItem()
     {
-        playerPocketInventory.UseCurrentItem();
         OnUseItem?.Invoke();
     }
 }
