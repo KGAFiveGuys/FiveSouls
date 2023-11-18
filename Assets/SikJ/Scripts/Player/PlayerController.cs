@@ -246,10 +246,10 @@ public class PlayerController : MonoBehaviour
             return;
 
         IsRun = false;
-        ControlState = ControlState.Uncontrollable;
-        MoveDirection = Vector2.zero;
         _animator.SetTrigger(isDrinkPotion_hash);
-        StartCoroutine(CancelDrinkPotion());
+        //StartCoroutine(CancelDrinkPotion());
+        //ControlState = ControlState.Uncontrollable;
+        //MoveDirection = Vector2.zero;
     }
     private IEnumerator CancelDrinkPotion()
     {
