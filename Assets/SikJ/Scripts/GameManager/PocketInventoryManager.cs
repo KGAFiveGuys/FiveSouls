@@ -64,6 +64,22 @@ public class PocketInventoryManager : MonoBehaviour
         currentPocket.sprite = itemInfo.image;
         currentPocketCount.text = $"{count:#0}";
         currentPocketName.text = itemInfo.Name;
+
+        var originPocketColor = currentPocket.color;
+        var originPocketCount = currentPocketCount.color;
+        var originPocketName = currentPocketName.color;
+        if (count > 0)
+		{
+            currentPocket.color = new Color(originPocketColor.r, originPocketColor.g, originPocketColor.b, 1);
+            currentPocketCount.color = new Color(originPocketColor.r, originPocketColor.g, originPocketColor.b, 1);
+            currentPocketName.color = new Color(originPocketName.r, originPocketName.g, originPocketName.b, 1);
+        }
+		else
+		{
+            currentPocket.color = new Color(originPocketColor.r, originPocketColor.g, originPocketColor.b, .25f);
+            currentPocketCount.color = new Color(originPocketColor.r, originPocketColor.g, originPocketColor.b, .25f);
+            currentPocketName.color = new Color(originPocketName.r, originPocketName.g, originPocketName.b, .25f);
+        }
     }
 
     private void OnSelectPerformed(InputAction.CallbackContext obj)

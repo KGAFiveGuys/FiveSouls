@@ -53,6 +53,11 @@ public class PocketInventory : MonoBehaviour
         pocketList.Add(pocket4);
     }
 
+	private void Start()
+	{
+        ChangeSelection(0);
+    }
+
 	public void StoreItem(ItemSO itemSO)
 	{
 		for (int i = 0; i < pocketList.Count; i++)
