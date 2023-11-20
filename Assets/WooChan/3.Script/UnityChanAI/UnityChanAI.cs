@@ -14,6 +14,14 @@ public class UnityChanAI : MonoBehaviour
     private Animator animator;
     private Fury fury;
 
+    [SerializeField] private Health _Health;
+    private bool isDie = false;
+    [SerializeField] private GameObject Eye_L;
+    [SerializeField] private GameObject Eye_R;
+    [SerializeField] private GameObject Hand_L;
+    [SerializeField] private GameObject Hand_R;
+
+
     [SerializeField] private Health p_Health;
     [SerializeField] private GameObject Sword;
     [SerializeField] private Material SwordMaterial;
@@ -100,7 +108,8 @@ public class UnityChanAI : MonoBehaviour
 
     private void Start()
     {
-        P_layer = LayerMask.GetMask("Player");
+        P_layer = LayerMask.GetMask("Player", "Ghost");
+
         MiddlePatternTime = Random.Range(3, 5);
         NearPatternTime = Random.Range(1f, 2f);
 
@@ -126,6 +135,16 @@ public class UnityChanAI : MonoBehaviour
 
     private void Update()
     {
+        if (_Health.CurrentHP <=0 && !isDie)
+        {
+            isDie = true;
+            isMotion = true;
+            animator.SetTrigger("Die");
+            Eye_L.SetActive(false);
+            Eye_R.SetActive(false);
+            Hand_L.SetActive(false);
+            Hand_R.SetActive(false);
+        }
         if (fury.Flag && !isFury && p_Health.CurrentHP > 0 && !isMotion)
         {
             StopAllCoroutines();
