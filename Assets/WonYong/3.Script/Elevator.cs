@@ -69,5 +69,6 @@ public class Elevator : MonoBehaviour
             yield return null;
         }
         currentMove = null;
+        elevatorButton.ToggleButtonLight();
     }
 }

@@ -34,7 +34,7 @@ public class Elevator_btn : MonoBehaviour
         }
     }
 
-    private void ToggleButtonLight()
+    public void ToggleButtonLight()
     {
         Aura1.material = eleva_btn ? AuraMat1_Active : AuraMat1_Inactive;
         Aura2.material = eleva_btn ? AuraMat2_Active : AuraMat2_Inactive;

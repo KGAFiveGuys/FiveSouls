@@ -370,7 +370,7 @@ public class PlayerController : MonoBehaviour
         isLockOnPointChangable = false;
 
         TargetGroup.RemoveMember(LockOnTargetPoint.transform);
-        LockOnTargetPoint = null;
+            LockOnTargetPoint = null;
 
         from.StopTransitionCheck();
         from.IsLockedOn = false;
