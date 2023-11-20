@@ -68,7 +68,6 @@ public class Elevator : MonoBehaviour
             elevatorPlatform.rotation *= Quaternion.Euler(0f, rotationAmount, 0f);
             yield return null;
         }
-        elevatorButton.objectMaterial.color = Color.red;
         currentMove = null;
     }
 }
