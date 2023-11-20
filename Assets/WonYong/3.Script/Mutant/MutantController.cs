@@ -14,11 +14,13 @@ public class MutantController : MonoBehaviour
     [SerializeField] private float Swing_dmg;
     [SerializeField] private float Dash_dmg;
     [SerializeField] private float Howing_dmg;
-    //뮤턴트 사망시 엘베로 가는길에 있는 돌
-    [Header("보스사망시 제거할 돌&dolly_camera")]
-    [SerializeField] private GameObject Block_Rock;
+    //뮤턴트 사망시 켜줄 카메라
+    [Header("보스 사망시 켜줄 door")]
+    [SerializeField] private Animator door;
     [SerializeField] private GameObject On_Clear_DollyCamera_;
-    
+    //뮤턴트 소리
+    [Header("Sound")]
+    [SerializeField] private SoundEffectSO Dash_sound;
 
     //뮤턴트 포지션 체크용
     private GameObject Mutant;
@@ -34,7 +36,7 @@ public class MutantController : MonoBehaviour
     [SerializeField] private Transform throwPosition; // 던질 위치
     [SerializeField] private float throwForce = 10.0f; // 던질 힘
     [SerializeField] private float addForceDuration = .5f; // 던지는 힘을 누적할 시간
-    
+
 
 
     private GameObject currentRock;
@@ -212,6 +214,7 @@ public class MutantController : MonoBehaviour
             Judgement_MonAction();
         }
 
+
     }
     private void Timer()
     {
@@ -309,6 +312,13 @@ public class MutantController : MonoBehaviour
         ragdollTest.canceled += OnRagdollCanceled;
         ragdollTest.Enable();
         #endregion
+        health_m.OnDead += OpenDoor;
+    }
+
+    private  void OpenDoor()
+    {
+        door.enabled = true;
+
     }
 
     private void OnDisable()
@@ -352,6 +362,7 @@ public class MutantController : MonoBehaviour
         ragdollTest.canceled -= OnRagdollCanceled;
         ragdollTest.Disable();
         #endregion
+        health_m.OnDead -= OpenDoor;
     }
 
     private Vector2 desiredMove;
@@ -608,7 +619,12 @@ public class MutantController : MonoBehaviour
                 attackController.AttackCollider = dashAttackCollider;
                 attackController.StrongAttackBaseDamage = Dash_dmg;
                 AttackAlarm.Instance.RedAlarm();
-                Dash_Att();
+                if (!isDie)
+                {
+                   //SFXManager.Instance.PlayWhole(Dash_sound);
+                    Dash_Att();
+                }
+
             }
         }
         else if (distance <= 20f && distance > 10f)
@@ -618,7 +634,6 @@ public class MutantController : MonoBehaviour
                 transform.LookAt(player.transform);
                 if (!isAction)
                 {
-                    AttackAlarm.Instance.YellowAlarm();
                     ThrowRock_anim();   
                 }
             }
@@ -726,7 +741,7 @@ public class MutantController : MonoBehaviour
     //하울링(즉사)
     private void Howilng_att()
     {
-        if (time >= Howing_cool && !isHowling)
+        if (time >= Howing_cool && !isHowling && !isDie)
         {
             isHowling = true;
             attackController.ChangeAttackType(AttackType.Strong);
@@ -847,6 +862,7 @@ private void Dash_Att()
             isDash = true;
             StartCoroutine(MoveForward());
             StartCoroutine(Dash_Cool_co());
+            
         }
     }
 
@@ -888,7 +904,8 @@ private void Dash_Att()
     //돌생성
     private void PickUpRock()
     {
-
+        agent.enabled = false;
+        AttackAlarm.Instance.YellowAlarm();
         if (cool_Rock == 0)
         {
             isRock = true;
@@ -897,13 +914,12 @@ private void Dash_Att()
             {
                 // 돌을 생성하고 손 위치에 놓기
                 isAction = true;
-                agent.enabled = false;
                 Vector3 offset = new Vector3(-1.35f, -0.21f, -0.56f); //간격조절
                 GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);                
                 newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
-  
+
                 AnimationClip throwAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
-                float waitTime = throwAnimation.length;
+                float waitTime = throwAnimation.length * (1 / 1.5f);
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
                 StartCoroutine(Rock_Cool_co());
             }
@@ -914,6 +930,7 @@ private void Dash_Att()
     {
         isRock = false;
         yield return new WaitForSeconds(time);
+        //yield return new WaitForSeconds(throwAnimation.length);
         isAction = false;
         agent.enabled = true;
         rock.transform.parent = null;
@@ -943,7 +960,9 @@ private void Dash_Att()
             yield return null;
         }
 
+
     }
+
     // 춤추기 
     private void Dance()
     {
@@ -968,7 +987,9 @@ private void Dash_Att()
     {
         if(health_m.CurrentHP <= 0 && !isDie)
         {
+            isDie = true;
             ToggleRagdoll(true);
+            StartCoroutine(Clear_DollyCamera_co());
         }
     }
 
@@ -989,18 +1010,11 @@ private void Dash_Att()
     {
         StrongParticle.SetActive(false);
     }
-    //보스사망시 돌제거
-    private void Remove_Block_Rock()
-    {
-        Block_Rock.SetActive(false);
-    }
-
-    private IEnumerator On_Clear_DollyCamera_co()
+    private IEnumerator Clear_DollyCamera_co()
     {
         On_Clear_DollyCamera_.SetActive(true);
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3f);
         On_Clear_DollyCamera_.SetActive(false);
     }
-
 
 }

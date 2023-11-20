@@ -12,7 +12,7 @@ public class Dolly_camera_off : MonoBehaviour
     Vector3 targetPosition = new Vector3(401.7f, -702.9f, 961.7f);
     float positionThreshold = 1f;
 
-    private void Awake()
+    private void OnEnable()
     {
         player = GameObject.Find("Player");
         col.isTrigger = false;
@@ -25,8 +25,9 @@ public class Dolly_camera_off : MonoBehaviour
 
     private void Update()
     {
+              
         float distance = Vector3.Distance(dollyCart.transform.position, targetPosition);
-
+        //Mathf.Epsilon 매ㅐㅐㅐㅐ우작은수
         if (distance < positionThreshold)
         {
             player.SetActive(true);
