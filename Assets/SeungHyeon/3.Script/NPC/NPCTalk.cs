@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,10 +17,10 @@ public class NPCTalk : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         dialogueIcon = GetComponent<ShowDialogueIcon>();
-        npcid = this.GetComponent<NPCID>();
-        npcmove = this.GetComponent<NPCMove>();
-        npc_agent = this.GetComponent<NavMeshAgent>();
-        NPC_Anim = this.GetComponent<Animator>();
+        npcid = GetComponent<NPCID>();
+        npcmove = GetComponent<NPCMove>();
+        npc_agent = GetComponent<NavMeshAgent>();
+        NPC_Anim = GetComponent<Animator>();
         if(npc_agent == null)
         {
             MoveCharacter = false;
@@ -35,12 +35,7 @@ public class NPCTalk : MonoBehaviour
         if (!IsTalking)
         {
             IsTalking = true;
-            player.ToggleTargetGroupCamera(true, gameObject);
-            var transposer = player.VC_LockOn
-                            .GetComponent<CinemachineVirtualCamera>()
-                            .GetCinemachineComponent<CinemachineTransposer>();
-            transposer.m_FollowOffset += dialogueCameraOffset;
-            player.TargetGroup.m_Targets[0].radius = 20f;
+            player.ToggleDialogueCamera(true, gameObject);
         }
 
         if (XmlTest.instance.DialogueBox.activeSelf)
@@ -66,6 +61,7 @@ public class NPCTalk : MonoBehaviour
         XmlTest.instance.DisplayDialogue(npcid.CharacterID);
         
         player.MoveDirection = Vector3.zero;
+        player.gameObject.transform.LookAt(gameObject.transform);
         player.ControlState = ControlState.Uncontrollable;
     }
     public void EndTalkNpc()
@@ -73,12 +69,7 @@ public class NPCTalk : MonoBehaviour
         if (IsTalking)
         {
             IsTalking = false;
-            var transposer = player.VC_LockOn
-                            .GetComponent<CinemachineVirtualCamera>()
-                            .GetCinemachineComponent<CinemachineTransposer>();
-            transposer.m_FollowOffset -= dialogueCameraOffset;
-            player.TargetGroup.m_Targets[0].radius = 50f;
-            player.ToggleTargetGroupCamera(false, gameObject);
+            player.ToggleDialogueCamera(false);
         }
 
         XmlTest.instance.dialogueindex = 0;

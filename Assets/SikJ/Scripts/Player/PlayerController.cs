@@ -55,12 +55,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0f, 90f)] private float runBehindAngle = 50f;
     #endregion
 
+    [Header("Dialogue with NPC")]
+    public CinemachineVirtualCamera VC_Dialogue;
+
     [Header("LockOnEnemy")]
     #region LockOnEnemy
     [SerializeField] private GameObject UI_lockOnPoint;
     [SerializeField] private GameObject VC_Default;
-    public GameObject VC_LockOn;
-    public CinemachineTargetGroup TargetGroup;
+    [SerializeField] private GameObject VC_LockOn;
+    [SerializeField] private CinemachineTargetGroup TargetGroup;
     [SerializeField] private AnimationCurve resetRotationIntensity;
     [SerializeField] private float resetRotationTime = .5f;
     [SerializeField] private float enemyDetectDistance = 60f;
@@ -441,7 +444,6 @@ public class PlayerController : MonoBehaviour
             }
 			else
 			{
-                //_constantForce.force = Vector3.zero;
                 _constantForce.force = isGrounded ? Physics.gravity * 500 : Physics.gravity * 4000;
             }
 
@@ -721,11 +723,13 @@ public class PlayerController : MonoBehaviour
             isBlocking = false;
         }
     }
+
     private void RevertToDefault()
     {
         _animator.SetBool(isBlock_hash, false);
         ControlState = ControlState.Controllable;
     }
+
     #region roll_Action
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
@@ -918,7 +922,7 @@ public class PlayerController : MonoBehaviour
         return targetPoint != null;
     }
 
-    public void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
+    private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
     {
         if (isTurnOn)
         {
@@ -935,11 +939,6 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(LerpDefaultCameraFollowPosition());
 				StartCoroutine(LerpDefaultCameraLookAtPosition());
 			}
-            else
-            {
-                if (target != null)
-                    TargetGroup.RemoveMember(target.transform);
-            }
 
             VC_LockOn.SetActive(false);
         }
@@ -1025,6 +1024,12 @@ public class PlayerController : MonoBehaviour
             return;
 
         OnTalkToNPC?.Invoke();
+    }
+
+    public void ToggleDialogueCamera(bool isOn, GameObject target = null)
+	{
+        VC_Dialogue.LookAt = isOn && target != null ? target.transform : null;
+        VC_Dialogue.gameObject.SetActive(isOn);
     }
     #endregion
     #region rotate_Action
@@ -1124,7 +1129,6 @@ public class PlayerController : MonoBehaviour
             TargetGroup.RemoveMember(playerSpine.transform);
             TargetGroup.AddMember(transform, 30, 50f);
         }
-
     }
     public void ToggleRagdoll(bool isRagdoll)
     {
