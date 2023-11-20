@@ -918,7 +918,7 @@ public class PlayerController : MonoBehaviour
         return targetPoint != null;
     }
 
-    private void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
+    public void ToggleTargetGroupCamera(bool isTurnOn, GameObject target = null)
     {
         if (isTurnOn)
         {
@@ -932,9 +932,14 @@ public class PlayerController : MonoBehaviour
             if (IsLockOn)
             {
                 TargetGroup.RemoveMember(LockOnTargetPoint.transform);
-				StartCoroutine(LerpDefaultCameraFollowPosition());
+                StartCoroutine(LerpDefaultCameraFollowPosition());
 				StartCoroutine(LerpDefaultCameraLookAtPosition());
 			}
+            else
+            {
+                if (target != null)
+                    TargetGroup.RemoveMember(target.transform);
+            }
 
             VC_LockOn.SetActive(false);
         }
@@ -1012,13 +1017,11 @@ public class PlayerController : MonoBehaviour
         OnPickUpItem?.Invoke();
     }
     #endregion
-    
     #region talkToNPC_Action
     private void OnTalkToNPCPerformed(InputAction.CallbackContext context)
     {
         if (IsDead
-            || IsDrinkPotion
-            || ControlState == ControlState.Uncontrollable)
+            || IsDrinkPotion)
             return;
 
         OnTalkToNPC?.Invoke();

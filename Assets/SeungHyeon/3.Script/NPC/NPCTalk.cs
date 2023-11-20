@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Cinemachine;
 
 public class NPCTalk : MonoBehaviour
 {
     private NPCID npcid;
     private PlayerController player;
+    private ShowDialogueIcon dialogueIcon;
     private Animator NPC_Anim;
     private NavMeshAgent npc_agent;
     private NPCMove npcmove;
@@ -14,6 +16,7 @@ public class NPCTalk : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        dialogueIcon = GetComponent<ShowDialogueIcon>();
         npcid = this.GetComponent<NPCID>();
         npcmove = this.GetComponent<NPCMove>();
         npc_agent = this.GetComponent<NavMeshAgent>();
@@ -24,9 +27,22 @@ public class NPCTalk : MonoBehaviour
             return;
         }
     }
+
+    [SerializeField] private float dialogueCameraOffset = 10f;
+    public bool IsTalking { get; set; } = false;
     public void TalkNpc()
     {
-        if(XmlTest.instance.DialogueBox.activeSelf)
+        if (!IsTalking)
+        {
+            IsTalking = true;
+            player.ToggleTargetGroupCamera(true, gameObject);
+            var transposer = GameObject.FindGameObjectWithTag("VCLockOn")
+                            .GetComponent<CinemachineVirtualCamera>()
+                            .GetCinemachineComponent<CinemachineTransposer>();
+            transposer.m_FollowOffset += Vector3.up * dialogueCameraOffset;
+        }
+
+        if (XmlTest.instance.DialogueBox.activeSelf)
         {
             XmlTest.instance.dialogueindex++;
             if (XmlTest.instance.dialogueindex > XmlTest.instance.dialogues.Count - 1)
@@ -47,28 +63,49 @@ public class NPCTalk : MonoBehaviour
             NPC_Anim.SetTrigger("Talk");
         }
         XmlTest.instance.DisplayDialogue(npcid.CharacterID);
+        
+        player.MoveDirection = Vector3.zero;
+        player.ControlState = ControlState.Uncontrollable;
     }
     public void EndTalkNpc()
     {
+        if (IsTalking)
+        {
+            IsTalking = false;
+            var transposer = GameObject.FindGameObjectWithTag("VCLockOn")
+                            .GetComponent<CinemachineVirtualCamera>()
+                            .GetCinemachineComponent<CinemachineTransposer>();
+            transposer.m_FollowOffset += Vector3.down * dialogueCameraOffset;
+            player.ToggleTargetGroupCamera(false, gameObject);
+        }
+
         XmlTest.instance.dialogueindex = 0;
         if(MoveCharacter)
         {
             npc_agent.speed = 10;
         }
         XmlTest.instance.DialogueBox.SetActive(false);
-        player.OnTalkToNPC -= TalkNpc;
+        dialogueIcon.EndDialogue();
+
+        player.ControlState = ControlState.Controllable;
     }
-    private void OnTriggerEnter(Collider other)
+
+    private bool isSubscribed = false;
+    private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")
+            && !isSubscribed)
         {
+            isSubscribed = true;
             player.OnTalkToNPC += TalkNpc;
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")
+            && isSubscribed)
         {
+            isSubscribed = false;
             player.OnTalkToNPC -= TalkNpc;
         }
     }

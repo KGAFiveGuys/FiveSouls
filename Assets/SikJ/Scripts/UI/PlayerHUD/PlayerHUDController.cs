@@ -45,6 +45,7 @@ public class PlayerHUDController : MonoBehaviour
     #endregion
     [Header("On PickUp Item Appeared")]
     public GameObject pickUpIcon;
+    public GameObject dialogueIcon;
 
     private void Awake()
     {

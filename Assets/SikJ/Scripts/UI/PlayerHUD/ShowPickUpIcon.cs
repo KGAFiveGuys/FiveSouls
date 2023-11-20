@@ -25,12 +25,6 @@ public class ShowPickUpIcon : MonoBehaviour
             pickUpIcon = playerHUDController.pickUpIcon;
     }
 
-    private void Update()
-    {
-        //if (CurrentFocusedItem != null)
-        //    Debug.Log(CurrentFocusedItem.gameObject.name);
-    }
-
     private void OnTriggerStay(Collider other)
     {
         if (!other.CompareTag("Player"))
@@ -68,7 +62,7 @@ public class ShowPickUpIcon : MonoBehaviour
             return true;
         }
 
-        // 현재 Focus된 대상이 내가 아닌 경우
+        // 현재 Focus된 대상이 나보다 먼 경우
         var focusedItemDistance = Vector3.Distance(
             playerController.gameObject.transform.position, 
             CurrentFocusedItem.gameObject.transform.position
