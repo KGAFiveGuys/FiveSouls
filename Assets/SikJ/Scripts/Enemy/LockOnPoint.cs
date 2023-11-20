@@ -22,7 +22,7 @@ public class LockOnPoint : MonoBehaviour
     private void Awake()
     {
         LockOnCollider = GetComponent<Collider>();
-        EnemyObject = transform.parent.gameObject;
+        EnemyObject = transform.root.gameObject;
         _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 

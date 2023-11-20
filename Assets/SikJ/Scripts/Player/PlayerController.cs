@@ -363,7 +363,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isLockOnPointChangable = false;
     public bool TryChangeLockOnPoint(LockOnPoint from, LockOnPoint to)
     {
-        if (!isLockOnPointChangable)
+        if (!isLockOnPointChangable
+            || LockOnTargetPoint == null)
             return false;
 
         isLockOnPointChangable = false;
