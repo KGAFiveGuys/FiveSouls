@@ -18,7 +18,9 @@ public class MutantController : MonoBehaviour
     [Header("보스 사망시 켜줄 door")]
     [SerializeField] private Animator door;
     [SerializeField] private GameObject On_Clear_DollyCamera_;
-    
+    //뮤턴트 소리
+    [Header("Sound")]
+    [SerializeField] private SoundEffectSO Dash_sound;
 
     //뮤턴트 포지션 체크용
     private GameObject Mutant;
@@ -619,6 +621,7 @@ public class MutantController : MonoBehaviour
                 AttackAlarm.Instance.RedAlarm();
                 if (!isDie)
                 {
+                   //SFXManager.Instance.PlayWhole(Dash_sound);
                     Dash_Att();
                 }
 
@@ -631,7 +634,6 @@ public class MutantController : MonoBehaviour
                 transform.LookAt(player.transform);
                 if (!isAction)
                 {
-                    AttackAlarm.Instance.YellowAlarm();
                     ThrowRock_anim();   
                 }
             }
@@ -860,6 +862,7 @@ private void Dash_Att()
             isDash = true;
             StartCoroutine(MoveForward());
             StartCoroutine(Dash_Cool_co());
+            
         }
     }
 
@@ -901,7 +904,8 @@ private void Dash_Att()
     //돌생성
     private void PickUpRock()
     {
-
+        agent.enabled = false;
+        AttackAlarm.Instance.YellowAlarm();
         if (cool_Rock == 0)
         {
             isRock = true;
@@ -910,13 +914,12 @@ private void Dash_Att()
             {
                 // 돌을 생성하고 손 위치에 놓기
                 isAction = true;
-                agent.enabled = false;
                 Vector3 offset = new Vector3(-1.35f, -0.21f, -0.56f); //간격조절
                 GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);                
                 newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
-  
+
                 AnimationClip throwAnimation = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Throw_Rock");
-                float waitTime = throwAnimation.length;
+                float waitTime = throwAnimation.length * (1 / 1.5f);
                 StartCoroutine(DetachRockAfterTime(newRock, waitTime));
                 StartCoroutine(Rock_Cool_co());
             }
@@ -927,6 +930,7 @@ private void Dash_Att()
     {
         isRock = false;
         yield return new WaitForSeconds(time);
+        //yield return new WaitForSeconds(throwAnimation.length);
         isAction = false;
         agent.enabled = true;
         rock.transform.parent = null;
@@ -956,7 +960,9 @@ private void Dash_Att()
             yield return null;
         }
 
+
     }
+
     // 춤추기 
     private void Dance()
     {

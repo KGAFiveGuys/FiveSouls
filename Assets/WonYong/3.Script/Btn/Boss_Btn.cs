@@ -9,6 +9,8 @@ public class Boss_Btn : MonoBehaviour
     [Header("bossOn=>rockpool Off")]
     [SerializeField] private GameObject RockPool;
     [SerializeField] private GameObject[] Particle;
+    [Header("BGM")]
+    [SerializeField] private SoundEffectSO BGM;
     private ParticleSystem particleSystem_;
     public Material objectMaterial;
     private void Awake()
@@ -25,6 +27,7 @@ public class Boss_Btn : MonoBehaviour
             Boss_btn = true;
             if (Boss_btn)
             {
+                SFXManager.Instance.PlayLoop(BGM);
                 boss_btn.SetActive(true);
                 boss.SetActive(true);
                 RockPool.SetActive(false);
