@@ -7,6 +7,7 @@ public class NPCTalk : MonoBehaviour
 {
     private NPCID npcid;
     private PlayerController player;
+    private Animator NPC_Anim;
     private NavMeshAgent npc_agent;
     private NPCMove npcmove;
     [SerializeField]private bool MoveCharacter = true;
@@ -16,6 +17,7 @@ public class NPCTalk : MonoBehaviour
         npcid = this.GetComponent<NPCID>();
         npcmove = this.GetComponent<NPCMove>();
         npc_agent = this.GetComponent<NavMeshAgent>();
+        NPC_Anim = this.GetComponent<Animator>();
         if(npc_agent == null)
         {
             MoveCharacter = false;
@@ -36,8 +38,15 @@ public class NPCTalk : MonoBehaviour
         if (MoveCharacter)
         {
             npc_agent.speed = 0;
-            XmlTest.instance.DisplayDialogue(npcid.CharacterID);
         }
+        var targetPos = player.transform.position;
+        var lookAtPos = new Vector3(targetPos.x, transform.position.y, targetPos.z);
+        transform.LookAt(lookAtPos);
+        if (!NPC_Anim.GetCurrentAnimatorStateInfo(0).IsName("Talk"))
+        {
+            NPC_Anim.SetTrigger("Talk");
+        }
+        XmlTest.instance.DisplayDialogue(npcid.CharacterID);
     }
     public void EndTalkNpc()
     {
@@ -45,9 +54,9 @@ public class NPCTalk : MonoBehaviour
         if(MoveCharacter)
         {
             npc_agent.speed = 10;
-            XmlTest.instance.DialogueBox.SetActive(false);
-            player.OnTalkToNPC -= TalkNpc;
         }
+        XmlTest.instance.DialogueBox.SetActive(false);
+        player.OnTalkToNPC -= TalkNpc;
     }
     private void OnTriggerEnter(Collider other)
     {

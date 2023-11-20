@@ -51,6 +51,7 @@ public class WizardControl : MonoBehaviour
     [SerializeField] private float BackwardForce = 100f;
     [SerializeField] private Rigidbody Wizard_rb;
     [SerializeField] private GameObject MagicImage;
+    [SerializeField] private Portal portal;
 
     [Header("¿Ã∆Â∆Æ")]
     [SerializeField] private AttackEffect[] Attack_effect;
@@ -64,6 +65,7 @@ public class WizardControl : MonoBehaviour
 
     private void Awake()
     {
+        portal = FindObjectOfType<Portal>();
         health = GetComponentInParent<Health>();
         wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
         fireBallSpawner = FindObjectOfType<FireBallSpawner>();
@@ -224,6 +226,8 @@ public class WizardControl : MonoBehaviour
         Wizard_anim.SetTrigger("Die");
         ReadyEffect.SetActive(false);
         MagicImage.SetActive(false);
+        portal.Portal_Obj.SetActive(true);
+        portal.Portal_col.enabled = true;
     }
     public void StartStormMove()
     {
