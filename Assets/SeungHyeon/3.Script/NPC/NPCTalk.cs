@@ -96,7 +96,8 @@ public class NPCTalk : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player")
-            && isSubscribed)
+            && isSubscribed
+            && !IsTalking)
         {
             isSubscribed = false;
             player.OnTalkToNPC -= TalkNpc;
