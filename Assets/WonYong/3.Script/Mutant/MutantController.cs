@@ -163,6 +163,8 @@ public class MutantController : MonoBehaviour
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
     #endregion
 
+
+    Vector3 Short_position;
     private void Awake()
     {
         TryGetComponent(out Mutant);
@@ -198,6 +200,8 @@ public class MutantController : MonoBehaviour
         Howilng_att();
         //distance °è»ê¿ë
         player.transform.position = player.transform.position;
+        Short_position = new Vector3(player.transform.position.x, player.transform.position.y + 4f, player.transform.position.z);
+
         Move_ToPlayer();
         Rotate(); 
         if(distance >= 2.5f)
@@ -631,7 +635,10 @@ public class MutantController : MonoBehaviour
         {
             if (!isDash )
             {
-                transform.LookAt(player.transform);
+                if (!isDie)
+                {
+                    transform.LookAt(player.transform);
+                }
                 if (!isAction)
                 {
                     ThrowRock_anim();   
@@ -679,9 +686,13 @@ public class MutantController : MonoBehaviour
                 }
             }
         }
-        else if(distance < 5f)
+        else if(distance < 5f && distance > 1f)
         {
-            transform.LookAt(player.transform);
+            if (!isDie)
+            {
+                
+                transform.LookAt(player.transform);
+            }
         }
     }
 
