@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Portal : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class Portal : MonoBehaviour
     {
         if(other.tag.Equals("Player"))
         {
-            Debug.Log("텔레포트 이동");
+            SceneManager.LoadScene("CutScene");
         }
     }
 }
