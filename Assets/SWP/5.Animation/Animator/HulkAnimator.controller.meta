@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: 57cc90cd76b27234ea2c9f83ab85f9f6
+<<<<<<< Updated upstream:Assets/SWP/5.Animation/Animator/HulkAnimator 1.controller.meta
+guid: 93749555cbbfa6143b7601c25bf71f80
+=======
+guid: af9bb266f705831478c5544e0105f1ac
+>>>>>>> Stashed changes:Assets/SWP/5.Animation/Animator/BossAnimator.controller.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 9100000

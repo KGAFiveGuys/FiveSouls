@@ -15,7 +15,6 @@ public class AiTest : MonoBehaviour
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
 
     [Header("Hulk Field")]
-    [SerializeField] private LayerMask TargetMask;
     [SerializeField] private float detectRange = 30f;
     [SerializeField]private float distance = 100f;
     private float AdDistance = 5f;
@@ -78,9 +77,6 @@ public class AiTest : MonoBehaviour
         TryGetComponent(out bossHealth);
         TryGetComponent(out attackController);
     }
-    private void Start()
-    {
-    }
 
     private void FixedUpdate()
     {
@@ -118,15 +114,20 @@ public class AiTest : MonoBehaviour
 
     private void GetTargetDistance()
     {
-        Collider[] colls = Physics.OverlapSphere(transform.position, detectRange, TargetMask);
-        if (colls.Length > 0)
+        Collider[] colls = Physics.OverlapSphere(transform.position, detectRange);
+        foreach (var col in colls)
         {
-            Target = colls[0].transform;
-            Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
-            Vector3 currentTF = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-            distance = Vector3.Distance(targetTF, currentTF);
+            if (col.gameObject.CompareTag("Player"))
+            {
+                Target = col.transform;
+                Vector3 targetTF = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+                Vector3 currentTF = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                distance = Vector3.Distance(targetTF, currentTF);
+                break;
+            }
+            HulkAnimator.SetBool("HasTarget", isTarget);
+            
         }
-        HulkAnimator.SetBool("HasTarget", isTarget);
     }
     private IEnumerator TimeFlowCo()
     {
