@@ -100,6 +100,7 @@ public class PocketInventory : MonoBehaviour
             pocketList[currentIndex] = temp;
 
             OnItemUsed?.Invoke(pocketList[currentIndex].itemInfo);
+            SFXManager.Instance.OnPlayerDrinkPotionSuccess();
         }
         else
         {

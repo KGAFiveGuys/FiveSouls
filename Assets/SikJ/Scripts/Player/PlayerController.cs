@@ -252,6 +252,7 @@ public class PlayerController : MonoBehaviour
             || ControlState == ControlState.Uncontrollable)
             return;
 
+        SFXManager.Instance.OnPlayerDrinkPotionCast();
         IsRun = false;
         IsDrinkPotion = true;
         _animator.SetTrigger(isDrinkPotion_hash);
@@ -267,7 +268,6 @@ public class PlayerController : MonoBehaviour
 
 			if (!IsDrinkPotion)
 			{
-
                 yield break;
             }
 

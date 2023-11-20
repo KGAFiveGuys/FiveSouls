@@ -48,6 +48,9 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private SoundEffectSO SFX_playerDead1;
     [SerializeField] private SoundEffectSO SFX_playerDead2;
     [SerializeField] private SoundEffectSO SFX_playerEquipmentFall;
+    // Drink Potion
+    [SerializeField] private SoundEffectSO SFX_playerDrinkPotionCast;
+    [SerializeField] private SoundEffectSO SFX_playerDrinkPotionSuccess;
 
     [Header("Player Locomotion")]
     [SerializeField] private SoundEffectSO SFX_playerRoll;
@@ -62,6 +65,7 @@ public class SFXManager : MonoBehaviour
     private AttackController _playerAttackController;
     private BlockController _playerBlockController;
     private Health _playerHealth;
+    private PocketInventory _pocketInventory;
 
     // Player Locomotion
     private event Action PlayerRollSFX = null;
@@ -92,6 +96,8 @@ public class SFXManager : MonoBehaviour
     private event Action PlayerDeadSFX = null;
     public void OnPlayerEquipmentFall() => PlayWhole(SFX_playerEquipmentFall);
     public void OnWoodenCrateBreaked() => PlayWhole(SFX_woodenPropBreaked);
+    public void OnPlayerDrinkPotionCast() => PlayWhole(SFX_playerDrinkPotionCast);
+    public void OnPlayerDrinkPotionSuccess() => PlayWhole(SFX_playerDrinkPotionSuccess);
 
     private void Awake()
     {
@@ -110,6 +116,7 @@ public class SFXManager : MonoBehaviour
         _playerAttackController = playerObj.GetComponent<AttackController>();
         _playerBlockController = playerObj.GetComponent<BlockController>();
         _playerHealth = playerObj.GetComponent<Health>();
+        _pocketInventory = playerObj.GetComponent<PocketInventory>();
     }
 
     #region BGM
