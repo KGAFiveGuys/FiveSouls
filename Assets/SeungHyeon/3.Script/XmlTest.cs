@@ -30,7 +30,7 @@ public class XmlTest : MonoBehaviour
     }
     private void Start()
     {
-        string xmlFilePath = "C:/Users/KGA/Desktop/gitHub/FiveSouls/Assets/SeungHyeon/Resources/Character.xml";
+        string xmlFilePath = "./Assets/SeungHyeon/Resources/Character.xml";
         XmlDocument xmlDoc = new XmlDocument();
         xmlDoc.Load(xmlFilePath);
 
