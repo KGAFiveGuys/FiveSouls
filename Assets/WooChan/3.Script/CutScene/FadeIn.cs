@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class FadeIn : MonoBehaviour
 {
@@ -33,7 +34,11 @@ public class FadeIn : MonoBehaviour
             TargetColor.a += Time.deltaTime * FadeSpeed;
             yield return null;
         }
+        SceneManager.LoadScene("WooChan");
         yield break;
     }
-
+    public void FadeOut()
+    {
+        StartCoroutine(StartFadeOut());
+    }
 }

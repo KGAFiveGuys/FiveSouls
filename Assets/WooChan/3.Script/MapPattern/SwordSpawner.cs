@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SwordSpawner : MonoBehaviour
 {
+    [SerializeField] private Health _Health;
+
     [SerializeField] private GameObject Sword1;
     [SerializeField] private GameObject Sword2;
     [SerializeField] private GameObject Sword3;
@@ -31,93 +33,95 @@ public class SwordSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (startFire)
+        if (_Health.CurrentHP > 0)
         {
-            for (int i = 0; i < Fires.Length; i++)
+            if (startFire)
             {
-                Fires[i].SetActive(true);
-            }
-        }
-        if (startExplosion)
-        {
-            for (int i = 0; i < Explosions.Length; i++)
-            {
-                Explosions[i].SetActive(true);
-                Meshs[i].enabled = false;
-            }
-            DeleteTime += Time.deltaTime;
-            if (DeleteTime > 0.8f)
-            {
-                Sword1.SetActive(false);
-                Sword2.SetActive(false);
-                Sword3.SetActive(false);
-                Sword4.SetActive(false);
-                Sword5.SetActive(false);
-                StartTime = 0f;
-                FireTime = 0f;
-                ExplosionTime = 0f;
-                DeleteTime = 0f;
-                startFire = false;
-                startExplosion = false;
                 for (int i = 0; i < Fires.Length; i++)
                 {
-                    Fires[i].SetActive(false);
-                    Explosions[i].SetActive(false);
-                    Meshs[i].enabled = true;
+                    Fires[i].SetActive(true);
                 }
             }
-        }
-
-        if (!Sword5.activeSelf)
-        {
-            StartTime += Time.deltaTime;
-            if (StartTime > SpawnTime)
+            if (startExplosion)
             {
-                if (!Sword1.activeSelf)
+                for (int i = 0; i < Explosions.Length; i++)
                 {
-                    Sword1.SetActive(true);
-                    ExplosionCollider[0].enabled = true;
+                    Explosions[i].SetActive(true);
+                    Meshs[i].enabled = false;
                 }
-                else if (!Sword2.activeSelf)
+                DeleteTime += Time.deltaTime;
+                if (DeleteTime > 0.8f)
                 {
-                    Sword2.SetActive(true);
-                    ExplosionCollider[1].enabled = true;
+                    Sword1.SetActive(false);
+                    Sword2.SetActive(false);
+                    Sword3.SetActive(false);
+                    Sword4.SetActive(false);
+                    Sword5.SetActive(false);
+                    StartTime = 0f;
+                    FireTime = 0f;
+                    ExplosionTime = 0f;
+                    DeleteTime = 0f;
+                    startFire = false;
+                    startExplosion = false;
+                    for (int i = 0; i < Fires.Length; i++)
+                    {
+                        Fires[i].SetActive(false);
+                        Explosions[i].SetActive(false);
+                        Meshs[i].enabled = true;
+                    }
                 }
-                else if (!Sword3.activeSelf)
-                {
-                    Sword3.SetActive(true);
-                    ExplosionCollider[2].enabled = true;
-                }
-                else if (!Sword4.activeSelf)
-                {
-                    Sword4.SetActive(true);
-                    ExplosionCollider[3].enabled = true;
-                }
-                else if (!Sword5.activeSelf)
-                {
-                    Sword5.SetActive(true);
-                    ExplosionCollider[4].enabled = true;
-                }
-                StartTime = 0f;
             }
-        }
 
-        if (Sword5.activeSelf)
-        {
-            FireTime += Time.deltaTime;
-            if(FireTime > StartFire)
+            if (!Sword5.activeSelf)
             {
-                startFire = true;
-                ExplosionTime += Time.deltaTime;
-                if(ExplosionTime > StartExplosion)
+                StartTime += Time.deltaTime;
+                if (StartTime > SpawnTime)
                 {
-                    startExplosion = true;
+                    if (!Sword1.activeSelf)
+                    {
+                        Sword1.SetActive(true);
+                        ExplosionCollider[0].enabled = true;
+                    }
+                    else if (!Sword2.activeSelf)
+                    {
+                        Sword2.SetActive(true);
+                        ExplosionCollider[1].enabled = true;
+                    }
+                    else if (!Sword3.activeSelf)
+                    {
+                        Sword3.SetActive(true);
+                        ExplosionCollider[2].enabled = true;
+                    }
+                    else if (!Sword4.activeSelf)
+                    {
+                        Sword4.SetActive(true);
+                        ExplosionCollider[3].enabled = true;
+                    }
+                    else if (!Sword5.activeSelf)
+                    {
+                        Sword5.SetActive(true);
+                        ExplosionCollider[4].enabled = true;
+                    }
+                    StartTime = 0f;
                 }
             }
+
+            if (Sword5.activeSelf)
+            {
+                FireTime += Time.deltaTime;
+                if (FireTime > StartFire)
+                {
+                    startFire = true;
+                    ExplosionTime += Time.deltaTime;
+                    if (ExplosionTime > StartExplosion)
+                    {
+                        startExplosion = true;
+                    }
+                }
+            }
+
+
         }
-
-
     }
-
 }
 

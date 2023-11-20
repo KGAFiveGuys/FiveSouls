@@ -33,14 +33,14 @@ public class UnityChanCutScene : MonoBehaviour
         }
         else if(transform.position.y <= 0)
         {
-            transform.position = new Vector3(0, 0, 30);
+            transform.position = new Vector3(0, 0, 50);
             
         }
     }
 
     private void StartCutScene()
     {
-        animator.SetTrigger("CutScene");
+        animator.SetTrigger("FallingStart");
     }
 
     private void Falling()
