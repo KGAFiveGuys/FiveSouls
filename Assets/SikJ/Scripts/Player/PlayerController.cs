@@ -59,8 +59,8 @@ public class PlayerController : MonoBehaviour
     #region LockOnEnemy
     [SerializeField] private GameObject UI_lockOnPoint;
     [SerializeField] private GameObject VC_Default;
-    [SerializeField] private GameObject VC_LockOn;
-    [SerializeField] private CinemachineTargetGroup TargetGroup;
+    public GameObject VC_LockOn;
+    public CinemachineTargetGroup TargetGroup;
     [SerializeField] private AnimationCurve resetRotationIntensity;
     [SerializeField] private float resetRotationTime = .5f;
     [SerializeField] private float enemyDetectDistance = 60f;

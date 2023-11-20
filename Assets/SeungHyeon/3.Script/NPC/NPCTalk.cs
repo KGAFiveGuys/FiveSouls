@@ -28,7 +28,7 @@ public class NPCTalk : MonoBehaviour
         }
     }
 
-    [SerializeField] private float dialogueCameraOffset = 10f;
+    [SerializeField] private Vector3 dialogueCameraOffset = new Vector3(0, 10f, 10f);
     public bool IsTalking { get; set; } = false;
     public void TalkNpc()
     {
@@ -36,10 +36,11 @@ public class NPCTalk : MonoBehaviour
         {
             IsTalking = true;
             player.ToggleTargetGroupCamera(true, gameObject);
-            var transposer = GameObject.FindGameObjectWithTag("VCLockOn")
+            var transposer = player.VC_LockOn
                             .GetComponent<CinemachineVirtualCamera>()
                             .GetCinemachineComponent<CinemachineTransposer>();
-            transposer.m_FollowOffset += Vector3.up * dialogueCameraOffset;
+            transposer.m_FollowOffset += dialogueCameraOffset;
+            player.TargetGroup.m_Targets[0].radius = 20f;
         }
 
         if (XmlTest.instance.DialogueBox.activeSelf)
@@ -72,10 +73,11 @@ public class NPCTalk : MonoBehaviour
         if (IsTalking)
         {
             IsTalking = false;
-            var transposer = GameObject.FindGameObjectWithTag("VCLockOn")
+            var transposer = player.VC_LockOn
                             .GetComponent<CinemachineVirtualCamera>()
                             .GetCinemachineComponent<CinemachineTransposer>();
-            transposer.m_FollowOffset += Vector3.down * dialogueCameraOffset;
+            transposer.m_FollowOffset -= dialogueCameraOffset;
+            player.TargetGroup.m_Targets[0].radius = 50f;
             player.ToggleTargetGroupCamera(false, gameObject);
         }
 
