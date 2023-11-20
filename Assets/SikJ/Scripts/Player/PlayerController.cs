@@ -81,6 +81,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     [Header("Ragdoll")]
+    [SerializeField] private GameObject playerSpine;
     [SerializeField] private List<Collider> ragdollColliders = new List<Collider>();
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
 
@@ -281,6 +282,9 @@ public class PlayerController : MonoBehaviour
 
 	private void Start()
     {
+        var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
+
         swordOriginPos = sword.localPosition;
         swordOriginRot = sword.localRotation;
         #region Set weapon colliders & rigidbodies
@@ -1097,11 +1101,26 @@ public class PlayerController : MonoBehaviour
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
 
+        ChangeTargetGroupFocus(true);
         ToggleRagdoll(true);
         StartCoroutine(DropEquipments(true));
 
         gameObject.layer = LayerMask.NameToLayer("Ghost");
         _constantForce.force = Vector3.zero;
+    }
+    public void ChangeTargetGroupFocus(bool isDead)
+    {
+        if (isDead)
+        {
+            TargetGroup.RemoveMember(transform);
+            TargetGroup.AddMember(playerSpine.transform, 30, 50f);
+        }
+        else
+        {
+            TargetGroup.RemoveMember(playerSpine.transform);
+            TargetGroup.AddMember(transform, 30, 50f);
+        }
+
     }
     public void ToggleRagdoll(bool isRagdoll)
     {
@@ -1180,6 +1199,7 @@ public class PlayerController : MonoBehaviour
     #endregion
     public void Revive()
     {
+        ChangeTargetGroupFocus(true);
         ToggleRagdoll(false);
         StartCoroutine(DropEquipments(false));
         IsRun = false;

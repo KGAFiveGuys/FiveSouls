@@ -300,4 +300,17 @@ public class SFXManager : MonoBehaviour
         }
         audioSource.volume = 1f;
     }
+
+    public void StopAllBGM(float delay)
+    {
+        StartCoroutine(Delay(delay));
+
+        foreach (var audioSource in BGM_AudioSources)
+            audioSource.Stop();
+    }
+
+    private IEnumerator Delay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+    }
 }
