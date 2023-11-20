@@ -434,7 +434,7 @@ public class UnityChanAI : MonoBehaviour
             ResetPos();
             isIdle = false;
             int Ran = Random.Range(0, 5);
-            if (Ran == 0 || Ran == 1)
+            if (Ran == 0 || Ran == 1 || Ran == 4)
             {
                 isWalk = true;
             }
@@ -446,10 +446,10 @@ public class UnityChanAI : MonoBehaviour
             {
                 isWalk_L = true;
             }
-            else if (Ran == 4)
-            {
-                isIdle = true;
-            }
+            //else if (Ran == 4)
+            //{
+            //    isIdle = true;
+            //}
             StartCoroutine(MoveDelay_co());
         }
     }
@@ -904,12 +904,14 @@ public class UnityChanAI : MonoBehaviour
     }
     private void AuraOff()
     {
-        Aura1.SetActive(false);
-        Aura2.SetActive(false);
-        Aura3.SetActive(false);
+
         Aura1.transform.parent = Aura1Parent;
         Aura2.transform.parent = Aura2Parent;
         Aura3.transform.parent = Aura3Parent;
+        Aura1.SetActive(false);
+        Aura2.SetActive(false);
+        Aura3.SetActive(false);
+
     }
     private void AnimatorSpeed(float Speed)
     {
