@@ -17,7 +17,6 @@ public class MegaPattern : MonoBehaviour
     public List<List<GameObject>> Fireobjectpool;
     public List<GameObject> StormObjectpool;
 
-
     Vector3[] Thunderdirections;
     Vector3[] Firedirections;
     Vector3 Stormdirections;
@@ -91,6 +90,7 @@ public class MegaPattern : MonoBehaviour
             Vector3 eulerRotation = new Vector3(0, yawAngle, 0); // Yaw 각도로 오일러 회전 벡터 생성
             Quaternion rotation = Quaternion.Euler(eulerRotation); // Quaternion으로 변환
             StormObjectpool[i].transform.rotation = rotation; // 로테이션 설정
+            StormObjectpool[i].GetComponent<StormMove>().enabled = false;
         }
     }
     GameObject GetObjectFromPool(int poolIndex)
@@ -130,15 +130,35 @@ public class MegaPattern : MonoBehaviour
     }
     public IEnumerator MegaStormPatternUse()
     {
-        for(int i = 0;i<StormObjectpool.Count;i++)
+        foreach (Vector3 direction in Thunderdirections)
         {
+            int i = 0;
+            // 중심 위치에서 방향 벡터를 사용하여 새로운 위치 계산
+            Vector3 spawnPosition = centerTransform.position + direction * spawnDirection;
+            StormObjectpool[i].transform.position = spawnPosition;
+            i++;
+        }
+        for (int i = 0;i<StormObjectpool.Count;i++)
+        {
+
             StormObjectpool[i].SetActive(true);
         }
+        yield return new WaitForSeconds(2f);
+        wizard.Wizard_anim.SetTrigger("Storm");
+    }
+    public void MoveStorm()
+    {
+        for(int i = 0;i<StormObjectpool.Count;i++)
+        {
+            StormObjectpool[i].GetComponent<StormMove>().enabled = true;
+        }
+    }
+    public IEnumerator StopMoveStorm_Co()
+    {
         yield return new WaitForSeconds(2f);
         for (int i = 0; i < StormObjectpool.Count; i++)
         {
             StormObjectpool[i].SetActive(false);
-
         }
         wizard.wizardinfo.status = Status.Ready;
     }
