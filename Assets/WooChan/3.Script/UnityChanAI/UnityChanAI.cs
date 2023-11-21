@@ -170,7 +170,6 @@ public class UnityChanAI : MonoBehaviour
         MiddlePattern();
         FarPattern();
         MustDiePattern();
-
     }
 
     private void SearchPlayer()
@@ -726,7 +725,7 @@ public class UnityChanAI : MonoBehaviour
     }
     private IEnumerator CartWheelDelay()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         CartWheelNext = false;
         isMotion = false;
         yield break;
@@ -776,7 +775,7 @@ public class UnityChanAI : MonoBehaviour
     private IEnumerator AdvPunchDelay()
     {
         AdvPunch_T1 = true;
-        float Ran = Random.Range(0.2f, 0.5f);
+        float Ran = Random.Range(0.5f, 1f);
         yield return new WaitForSeconds(Ran);
 
         animator.SetTrigger("AdvancePunch2");
@@ -904,14 +903,18 @@ public class UnityChanAI : MonoBehaviour
     }
     private void AuraOff()
     {
-
         Aura1.transform.parent = Aura1Parent;
         Aura2.transform.parent = Aura2Parent;
         Aura3.transform.parent = Aura3Parent;
+        Aura1.transform.localPosition = Vector3.zero;
+        Aura2.transform.localPosition = Vector3.zero;
+        Aura3.transform.localPosition = Vector3.zero;
+        Aura1.transform.localRotation = Quaternion.identity;
+        Aura2.transform.localRotation = Quaternion.identity;
+        Aura3.transform.localRotation = Quaternion.identity;
         Aura1.SetActive(false);
         Aura2.SetActive(false);
         Aura3.SetActive(false);
-
     }
     private void AnimatorSpeed(float Speed)
     {
