@@ -253,7 +253,8 @@ public class PlayerController : MonoBehaviour
     {
         if (IsDead
             || IsDrinkPotion
-            || ControlState == ControlState.Uncontrollable)
+            || ControlState == ControlState.Uncontrollable
+            || _pocketInventory.CurrentPocket.count == 0)
             return;
 
         SFXManager.Instance.OnPlayerDrinkPotionCast();
