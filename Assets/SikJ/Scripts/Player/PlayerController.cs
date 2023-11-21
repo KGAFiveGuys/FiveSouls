@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     public InputAction lockOn;
     public InputAction pickUpItem;
     public InputAction talkToNPC;
+    public InputAction toggleSetting;
 
     [Header("PlayerMove")]
     #region PlayerMove
@@ -139,6 +140,7 @@ public class PlayerController : MonoBehaviour
     public event Action OnLockOff;
     public event Action OnPickUpItem;
     public event Action OnTalkToNPC;
+    public event Action OnToggleSetting;
 
     private void Awake()
     {
@@ -190,6 +192,9 @@ public class PlayerController : MonoBehaviour
 
         talkToNPC.performed += OnTalkToNPCPerformed;
         talkToNPC.Enable();
+
+        toggleSetting.performed += OnToggleSettingPerformed;
+        toggleSetting.Enable();
         #endregion
         _health.OnAttackHit += OnWeakHit;
         _health.OnAttackHit += OnStrongHit;
@@ -237,6 +242,9 @@ public class PlayerController : MonoBehaviour
 
         talkToNPC.performed -= OnTalkToNPCPerformed;
         talkToNPC.Disable();
+
+        toggleSetting.performed -= OnToggleSettingPerformed;
+        toggleSetting.Disable();
         #endregion
         _health.OnAttackHit -= OnWeakHit;
         _health.OnAttackHit -= OnStrongHit;
@@ -1042,6 +1050,12 @@ public class PlayerController : MonoBehaviour
     {
         DesiredRotate = Vector2.zero;
         isLockOnPointChangable = true;
+    }
+    #endregion
+    #region toggleSetting_Action
+    private void OnToggleSettingPerformed(InputAction.CallbackContext context)
+    {
+        OnToggleSetting?.Invoke();
     }
     #endregion
 

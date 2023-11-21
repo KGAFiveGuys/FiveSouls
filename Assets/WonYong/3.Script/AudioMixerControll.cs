@@ -6,14 +6,15 @@ using UnityEngine.Audio;
 
 public class AudioMixerControll : MonoBehaviour
 {
-    
     [SerializeField] private AudioMixer audioMixer;
     [SerializeField] private Slider Master;
     [SerializeField] private Slider BGM;
     [SerializeField] private Slider SFX;
     [SerializeField] private GameObject AudioSourcePrefab;
     [SerializeField] private GameObject Sound_UI;
+    private PlayerController playerController;
     bool isSound = false;
+
     public static AudioMixerControll instance = null;
     private void Awake()
     {
@@ -30,15 +31,19 @@ public class AudioMixerControll : MonoBehaviour
             Destroy(this);
         }
 
+        playerController = FindObjectOfType<PlayerController>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            toggle_Sound();
-        }
+        playerController.OnToggleSetting += toggle_Sound;
     }
+
+    private void OnDisable()
+    {
+        playerController.OnToggleSetting -= toggle_Sound;
+    }
+
     private void toggle_Sound()
     {
         isSound = !isSound;
