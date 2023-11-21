@@ -12,6 +12,8 @@ public class AudioMixerControll : MonoBehaviour
     [SerializeField] private Slider BGM;
     [SerializeField] private Slider SFX;
     [SerializeField] private GameObject AudioSourcePrefab;
+    [SerializeField] private GameObject Sound_UI;
+    bool isSound = false;
     public static AudioMixerControll instance = null;
     private void Awake()
     {
@@ -28,6 +30,19 @@ public class AudioMixerControll : MonoBehaviour
             Destroy(this);
         }
 
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            toggle_Sound();
+        }
+    }
+    private void toggle_Sound()
+    {
+        isSound = !isSound;
+        Sound_UI.SetActive(isSound);
     }
 
     public void SetMasterVolume(float volume)
