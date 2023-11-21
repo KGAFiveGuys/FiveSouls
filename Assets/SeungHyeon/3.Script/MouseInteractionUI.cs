@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class MouseInteractionUI : MonoBehaviour
 {
     [SerializeField] private InputAction mouseInput;
+    [SerializeField] private Vector2 moveLimit = Vector2.one * 40f;
     private RectTransform rectTransform;
 
     private void Awake()
@@ -48,6 +49,12 @@ public class MouseInteractionUI : MonoBehaviour
     {
         var startPos = rectTransform.anchoredPosition;
         var endPos = startPos - mouseDelta * lerpDistance;
+        
+        // Limit end position
+        if (Mathf.Abs(endPos.x) > moveLimit.x)
+            endPos.x = endPos.x > 0 ? moveLimit.x : -moveLimit.x;
+        else if (Mathf.Abs(endPos.y) > moveLimit.y)
+            endPos.y = endPos.y > 0 ? moveLimit.y : -moveLimit.y;
 
         float elapsedTime = 0f;
         while (elapsedTime < lerpDuration)
