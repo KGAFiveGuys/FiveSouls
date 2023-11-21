@@ -43,8 +43,10 @@ public class AttackAlarm : MonoBehaviour
     {
         if (playerController.LockedOnEnemy != null)
         {
-            var pos = playerController.LockOnTargetPoint.transform.position;
-            AlarmUI.transform.position = new Vector3(pos.x, pos.y, pos.z);
+            var lockOnPos = playerController.LockOnTargetPoint.transform.position;
+            AlarmUI.transform.position = new Vector3(lockOnPos.x, lockOnPos.y, lockOnPos.z);
+            var playerPos = playerController.gameObject.transform.position;
+            AlarmUI.transform.LookAt(new Vector3(playerPos.x, transform.position.y, playerPos.z));
         }
     }
 
