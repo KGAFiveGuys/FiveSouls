@@ -7,7 +7,8 @@ using Cinemachine;
 public class NPCTalk : MonoBehaviour
 {
     private NPCID npcid;
-    private PlayerController player;
+    private PlayerController playerController;
+    private PlayerHUDController PlayerHUD;
     private ShowDialogueIcon dialogueIcon;
     private Animator NPC_Anim;
     private NavMeshAgent npc_agent;
@@ -15,7 +16,8 @@ public class NPCTalk : MonoBehaviour
     [SerializeField]private bool MoveCharacter = true;
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        PlayerHUD = FindObjectOfType<PlayerHUDController>();
         dialogueIcon = GetComponent<ShowDialogueIcon>();
         npcid = GetComponent<NPCID>();
         npcmove = GetComponent<NPCMove>();
@@ -35,7 +37,8 @@ public class NPCTalk : MonoBehaviour
         if (!IsTalking)
         {
             IsTalking = true;
-            player.ToggleDialogueCamera(true, gameObject);
+            PlayerHUD.FadeOutPlayerHUD();
+            playerController.ToggleDialogueCamera(true, gameObject);
         }
 
         if (XmlTest.instance.DialogueBox.activeSelf)
@@ -51,7 +54,7 @@ public class NPCTalk : MonoBehaviour
         {
             npc_agent.speed = 0;
         }
-        var targetPos = player.transform.position;
+        var targetPos = playerController.transform.position;
         var lookAtPos = new Vector3(targetPos.x, transform.position.y, targetPos.z);
         transform.LookAt(lookAtPos);
         if (!NPC_Anim.GetCurrentAnimatorStateInfo(0).IsName("Talk"))
@@ -60,16 +63,17 @@ public class NPCTalk : MonoBehaviour
         }
         XmlTest.instance.DisplayDialogue(npcid.CharacterID);
         
-        player.MoveDirection = Vector3.zero;
-        player.gameObject.transform.LookAt(gameObject.transform);
-        player.ControlState = ControlState.Uncontrollable;
+        playerController.MoveDirection = Vector3.zero;
+        playerController.gameObject.transform.LookAt(gameObject.transform);
+        playerController.ControlState = ControlState.Uncontrollable;
     }
     public void EndTalkNpc()
     {
         if (IsTalking)
         {
             IsTalking = false;
-            player.ToggleDialogueCamera(false);
+            playerController.ToggleDialogueCamera(false);
+            PlayerHUD.FadeInPlayerHUD();
         }
 
         XmlTest.instance.dialogueindex = 0;
@@ -80,7 +84,7 @@ public class NPCTalk : MonoBehaviour
         XmlTest.instance.DialogueBox.SetActive(false);
         dialogueIcon.EndDialogue();
 
-        player.ControlState = ControlState.Controllable;
+        playerController.ControlState = ControlState.Controllable;
     }
 
     private bool isSubscribed = false;
@@ -90,7 +94,7 @@ public class NPCTalk : MonoBehaviour
             && !isSubscribed)
         {
             isSubscribed = true;
-            player.OnTalkToNPC += TalkNpc;
+            playerController.OnTalkToNPC += TalkNpc;
         }
     }
     private void OnTriggerExit(Collider other)
@@ -100,7 +104,7 @@ public class NPCTalk : MonoBehaviour
             && !IsTalking)
         {
             isSubscribed = false;
-            player.OnTalkToNPC -= TalkNpc;
+            playerController.OnTalkToNPC -= TalkNpc;
         }
     }
 }

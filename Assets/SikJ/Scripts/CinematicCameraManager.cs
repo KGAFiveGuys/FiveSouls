@@ -12,10 +12,12 @@ public class CinematicCameraManager : MonoBehaviour
     [SerializeField] private AnimationCurve SpeedOverPath;
 
     private PlayerController playerController;
+    private PlayerHUDController playerHUD;
     private CinemachineVirtualCamera virtualCamera;
     private void Awake()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        playerHUD = FindObjectOfType<PlayerHUDController>();
         virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
     }
 
@@ -33,6 +35,7 @@ public class CinematicCameraManager : MonoBehaviour
     [SerializeField] private float maxSpeed = 30f;
     private IEnumerator StartCinematic()
     {
+        playerHUD.FadeOutPlayerHUD();
         camera.SetActive(true);
 
         var trackEndPosition = track.transform.position + track.m_Waypoints[track.m_Waypoints.Length - 1].position;
@@ -45,6 +48,7 @@ public class CinematicCameraManager : MonoBehaviour
         }
 
         camera.SetActive(false);
+        playerHUD.FadeInPlayerHUD();
         playerController.ControlState = ControlState.Controllable;
     }
 }

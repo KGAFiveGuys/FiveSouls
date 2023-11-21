@@ -2,11 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerHUDController : MonoBehaviour
 {
-	#region Player
-	[Header("Player Health")]
+    public GameObject playerStatusUI;
+    private Vector2 playerStatusUIOrigin;
+    [SerializeField] private List<Image> playerStatusUIImages = new List<Image>();
+    [SerializeField] private List<TextMeshProUGUI> playerStatusUITexts = new List<TextMeshProUGUI>();
+
+    public GameObject pocketInventoryUI;
+    private Vector2 pocketInventoryUIOrigin;
+    [SerializeField] private List<Image> pocketInventoryUIImages = new List<Image>();
+    [SerializeField] private List<TextMeshProUGUI> pocketInventoryUITexts = new List<TextMeshProUGUI>();
+
+    #region Player
+    [Header("Player Health")]
     [SerializeField] private Slider playerForegroundHealth;
     [SerializeField] private Slider playerBackgroundHealth;
     [SerializeField] private float playerBackgroundHealthDelay = 1f;
@@ -43,10 +54,13 @@ public class PlayerHUDController : MonoBehaviour
 
     private Health _lockedOnEnemyHealth = null;
     #endregion
+
     [Header("On PickUp Item Appeared")]
     public GameObject pickUpIcon;
-    public GameObject dialogueIcon;
 
+    [Header("On Interactable NPC Appeared")]
+    public GameObject dialogueIcon;
+    
     private void Awake()
     {
 		#region Player
@@ -55,6 +69,9 @@ public class PlayerHUDController : MonoBehaviour
         _playerStamina = playerObj.GetComponent<Stamina>();
         _playerController = playerObj.GetComponent<PlayerController>();
         #endregion
+
+        playerStatusUIOrigin = playerStatusUI.GetComponent<RectTransform>().anchoredPosition;
+        pocketInventoryUIOrigin = pocketInventoryUI.GetComponent<RectTransform>().anchoredPosition;
     }
 
 	private void OnEnable()
@@ -95,8 +112,127 @@ public class PlayerHUDController : MonoBehaviour
         #endregion
     }
 
-	#region Player
-	private IEnumerator currentCheckPlayerStamina;
+    #region Fade In/Out PlayerHUD
+    public void FadeInPlayerHUD()
+    {
+        StartCoroutine(StartFadeIn());
+    }
+
+    public void FadeOutPlayerHUD()
+    {
+        StartCoroutine(StartFadeOut());
+    }
+
+    [Header("Fade In/Out")]
+    [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] private AnimationCurve fadeInSpeedOverTime;
+    [SerializeField] private AnimationCurve fadeOutSpeedOverTime;
+    private IEnumerator StartFadeIn()
+    {
+        var status = playerStatusUI.GetComponent<RectTransform>();
+        var statusStartPos = status.anchoredPosition;
+        var statusEndPos = playerStatusUIOrigin;
+
+        var inventory = pocketInventoryUI.GetComponent<RectTransform>();
+        var inventoryStartPos = inventory.anchoredPosition;
+        var inventoryEndPos = pocketInventoryUIOrigin;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            var currentFadeRate = fadeInSpeedOverTime.Evaluate(elapsedTime / fadeDuration);
+
+            // Fade In
+            status.anchoredPosition = Vector2.Lerp(statusStartPos, statusEndPos, currentFadeRate);
+            inventory.anchoredPosition = Vector2.Lerp(inventoryStartPos, inventoryEndPos, currentFadeRate);
+
+            // Make Opaque
+            foreach (var image in playerStatusUIImages)
+            {
+                var startColor = image.color;
+                var endColor = new Color(image.color.r, image.color.g, image.color.b, 1);
+                image.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var text in playerStatusUITexts)
+            {
+                var startColor = text.color;
+                var endColor = new Color(text.color.r, text.color.g, text.color.b, 1);
+                text.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var image in pocketInventoryUIImages)
+            {
+                var startColor = image.color;
+                var endColor = new Color(image.color.r, image.color.g, image.color.b, 1);
+                image.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var text in pocketInventoryUITexts)
+            {
+                var startColor = text.color;
+                var endColor = new Color(text.color.r, text.color.g, text.color.b, 1);
+                text.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+
+            yield return null;
+        }
+        status.anchoredPosition = statusEndPos;
+        inventory.anchoredPosition = inventoryEndPos;
+    }
+    private IEnumerator StartFadeOut()
+    {
+        var status = playerStatusUI.GetComponent<RectTransform>();
+        var statusStartPos = playerStatusUIOrigin;
+        var statusEndPos = status.anchoredPosition * 2;
+
+        var inventory = pocketInventoryUI.GetComponent<RectTransform>();
+        var inventoryStartPos = pocketInventoryUIOrigin;
+        var inventoryEndPos = inventory.anchoredPosition * 2;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            var currentFadeRate = fadeOutSpeedOverTime.Evaluate(elapsedTime / fadeDuration);
+
+            // Fade Out
+            status.anchoredPosition = Vector2.Lerp(statusStartPos, statusEndPos, currentFadeRate);
+            inventory.anchoredPosition = Vector2.Lerp(inventoryStartPos, inventoryEndPos, currentFadeRate);
+
+            // Make Transparent
+            foreach (var image in playerStatusUIImages)
+            {
+                var startColor = image.color;
+                var endColor = new Color(image.color.r, image.color.g, image.color.b, 0);
+                image.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var text in playerStatusUITexts)
+            {
+                var startColor = text.color;
+                var endColor = new Color(text.color.r, text.color.g, text.color.b, 0);
+                text.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var image in pocketInventoryUIImages)
+            {
+                var startColor = image.color;
+                var endColor = new Color(image.color.r, image.color.g, image.color.b, 0);
+                image.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+            foreach (var text in pocketInventoryUITexts)
+            {
+                var startColor = text.color;
+                var endColor = new Color(text.color.r, text.color.g, text.color.b, 0);
+                text.color = Color.Lerp(startColor, endColor, currentFadeRate);
+            }
+
+            yield return null;
+        }
+        status.anchoredPosition = statusEndPos;
+        inventory.anchoredPosition = inventoryEndPos;
+    }
+    #endregion
+
+    #region Player
+    private IEnumerator currentCheckPlayerStamina;
     private IEnumerator CheckStaminaBackground()
     {
         while (true)
