@@ -208,6 +208,10 @@ public class MutantController : MonoBehaviour
         {
             mutantAnimator.SetBool("isTarget", isTarget);
         }
+        if(distance >=30 && !isAction)
+        {
+            agent.enabled = true;
+        }
 
         if (Input.GetKeyDown(KeyCode.F1))
         {
@@ -896,7 +900,7 @@ private void Dash_Att()
     //돌던지기 애니메이션 출력
     private void ThrowRock_anim()
     {
-            mutantAnimator.SetTrigger("ThrowRock");
+        mutantAnimator.SetTrigger("ThrowRock");
     }
 
     //쿨관리
@@ -912,10 +916,16 @@ private void Dash_Att()
 
     }
 
+    public void togle_Action()
+    {
+        agent.enabled = false;
+        isAction = true;
+    }
     //돌생성
     private void PickUpRock()
     {
         agent.enabled = false;
+        isAction = true;
         AttackAlarm.Instance.YellowAlarm();
         if (cool_Rock == 0)
         {
@@ -924,7 +934,6 @@ private void Dash_Att()
             if (!isDash && currentRock == null)
             {
                 // 돌을 생성하고 손 위치에 놓기
-                isAction = true;
                 Vector3 offset = new Vector3(-1.35f, -0.21f, -0.56f); //간격조절
                 GameObject newRock = Instantiate(rockPrefab, handPosition.position, Quaternion.identity);                
                 newRock.transform.parent = handPosition; // 돌을 손 아래로 이동
@@ -942,8 +951,7 @@ private void Dash_Att()
         isRock = false;
         yield return new WaitForSeconds(time);
         //yield return new WaitForSeconds(throwAnimation.length);
-        isAction = false;
-        agent.enabled = true;
+        
         rock.transform.parent = null;
         Rigidbody rb = rock.GetComponent<Rigidbody>();
         
@@ -970,6 +978,10 @@ private void Dash_Att()
 
             yield return null;
         }
+        AnimationClip Get_Rock = mutantAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == "Get_Rock");
+        yield return new WaitForSeconds(Get_Rock.length);
+        isAction = false;
+        agent.enabled = true;
 
 
     }
