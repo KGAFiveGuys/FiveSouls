@@ -5,6 +5,7 @@ using UnityEngine;
 public class SwordSpawner : MonoBehaviour
 {
     [SerializeField] private Health _Health;
+    [SerializeField] private Health _BossHealth;
 
     [SerializeField] private GameObject Sword1;
     [SerializeField] private GameObject Sword2;
@@ -33,7 +34,7 @@ public class SwordSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (_Health.CurrentHP > 0)
+        if (_Health.CurrentHP > 0 && _BossHealth.CurrentHP > 0)
         {
             if (startFire)
             {
