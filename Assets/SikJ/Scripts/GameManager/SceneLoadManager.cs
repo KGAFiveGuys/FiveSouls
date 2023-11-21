@@ -8,7 +8,7 @@ public class SceneLoadManager : MonoBehaviour
     private static SceneLoadManager _instance = null;
     public static SceneLoadManager Instance => _instance;
 
-    public int CurrentSceneIndex { get; set; } = 1;
+    public int CurrentSceneIndex { get; set; } = 3;
 
     private void Awake()
     {
