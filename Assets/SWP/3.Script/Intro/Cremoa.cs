@@ -16,10 +16,9 @@ public class Cremoa : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isOver = true;
-
-            if (isOver)
+            if (!isOver)
             {
+                isOver = true;
                 playerController.MoveDirection = Vector3.zero;
                 playerController.ControlState = ControlState.Uncontrollable;
             }

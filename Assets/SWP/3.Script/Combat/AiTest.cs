@@ -107,8 +107,15 @@ public class AiTest : MonoBehaviour
         JudgeAttack();
         if (isAttack)
         {
-            SelectAttackType();
-            StartCoroutine(AttackCo());
+            if (!isFar && !isMiddle && !isClose)
+            {
+                SelectAttackType();
+                StartCoroutine(AttackCo());
+            }
+            else
+            {
+                Navi();
+            }
         }
     }
 
