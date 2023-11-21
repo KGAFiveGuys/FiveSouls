@@ -5,11 +5,13 @@ using UnityEngine;
 public class IntroControl : MonoBehaviour
 {
     [SerializeField] private Animator HulkAni;
-    [SerializeField] private Animator IntroAni;
+    [SerializeField] private Animator BallAni;
     [SerializeField] private Animator PrayerAni;
     [SerializeField] private GameObject HulkBoss;
     [SerializeField] private GameObject BossBall;
     [SerializeField] private GameObject SparkEffect;
+    [SerializeField] private GameObject camera;
+    private AudioSource audioSource;
     private Cremoa cremoa;
     private PlayerController playerController;
     private bool isStart = false;
@@ -21,6 +23,7 @@ public class IntroControl : MonoBehaviour
     {
         cremoa = FindObjectOfType<Cremoa>();
         playerController = FindObjectOfType<PlayerController>();
+        audioSource = transform.GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -31,6 +34,7 @@ public class IntroControl : MonoBehaviour
             if (!isStart)
             {
                 isStart = true;
+                camera.SetActive(true);
                 StartCoroutine(PrayEndCo());
             }
         }
@@ -47,9 +51,10 @@ public class IntroControl : MonoBehaviour
 
     private IEnumerator PrayEndCo()
     {
+        audioSource.Play();
         BossBall.SetActive(true);
         yield return new WaitForSeconds(2f);
-        IntroAni.SetBool("isPray", cremoa.isOver);
+        BallAni.SetBool("isPray", cremoa.isOver);
 
         yield return new WaitForSeconds(5f);
         PrayerAni.SetBool("isStart", cremoa.isOver);
@@ -61,15 +66,18 @@ public class IntroControl : MonoBehaviour
         isGen = true;
 
         yield return new WaitForSeconds(1.5f);        
-        IntroAni.SetBool("isGen", isGen);
+        BallAni.SetBool("isGen", isGen);
 
-        yield return new WaitForSeconds(1.9f);
+        yield return new WaitForSeconds(1f);
         HulkBoss.SetActive(true);
         HulkAni.SetTrigger("isBorn");
+
+        yield return new WaitForSeconds(1f);
         BossBall.SetActive(false);
+        camera.SetActive(false);
         playerController.ControlState = ControlState.Controllable;
 
-         yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(3f);
         HulkAni.ResetTrigger("isBorn");
     }
 
