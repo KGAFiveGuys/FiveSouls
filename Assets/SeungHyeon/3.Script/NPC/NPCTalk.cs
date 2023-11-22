@@ -44,7 +44,7 @@ public class NPCTalk : MonoBehaviour
         if (XmlTest.instance.DialogueBox.activeSelf)
         {
             XmlTest.instance.dialogueindex++;
-            if (XmlTest.instance.dialogueindex > XmlTest.instance.dialogues.Count - 1)
+            if (XmlTest.instance.dialogueindex > XmlTest.instance.dialogues[npcid.CharacterID].Texts.Count - 1)
             {
                 EndTalkNpc();
                 return;
@@ -69,14 +69,13 @@ public class NPCTalk : MonoBehaviour
     }
     public void EndTalkNpc()
     {
+        XmlTest.instance.dialogueindex = 0;
         if (IsTalking)
         {
             IsTalking = false;
             playerController.ToggleDialogueCamera(false);
             PlayerHUD.FadeInPlayerHUD();
         }
-
-        XmlTest.instance.dialogueindex = 0;
         if(MoveCharacter)
         {
             npc_agent.speed = 10;
