@@ -10,6 +10,8 @@ public class SceneLoadManager : MonoBehaviour
 
     public int CurrentSceneIndex { get; set; } = 3;
 
+    private PlayerController playerController;
+
     private void Awake()
     {
         if (_instance == null)
@@ -21,15 +23,19 @@ public class SceneLoadManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        playerController = FindObjectOfType<PlayerController>();
     }
 
     private void Start()
     {
+        SFXManager.Instance.OnBaseScene_Started();
         SceneManager.LoadScene(CurrentSceneIndex, LoadSceneMode.Additive);
     }
 
     public void LoadNextScene()
     {
+        SFXManager.Instance.StopAllBGM(0);
         StartCoroutine(LoadSceneAsync());
     }
 
@@ -46,5 +52,7 @@ public class SceneLoadManager : MonoBehaviour
         {
             yield return null;
         }
+
+        playerController.SetRespawnManager();
     }
 }

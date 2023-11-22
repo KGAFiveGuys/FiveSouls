@@ -54,7 +54,6 @@ public class AiTest : MonoBehaviour
     [SerializeField] private GameObject Curtain;
 
 
-
     private void OnDrawGizmos()
     {
         //Å½Áö¹üÀ§
@@ -70,15 +69,25 @@ public class AiTest : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, stopdistance * transform.localScale.x);
     }
 
+    private PlayerHUDController playerHUDController;
+
     private void Awake()
     {
         TryGetComponent(out agent);
         TryGetComponent(out HulkAnimator);
         TryGetComponent(out bossHealth);
         TryGetComponent(out attackController);
+
+        playerHUDController = FindObjectOfType<PlayerHUDController>();
     }
 
-    private void FixedUpdate()
+    
+	private void Start()
+	{
+        bossHealth.OnDead += playerHUDController.ShowEnemyDied;
+    }
+
+	private void FixedUpdate()
     {
         GetTargetDistance();
     }

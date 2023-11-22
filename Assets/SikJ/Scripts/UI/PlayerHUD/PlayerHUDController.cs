@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class PlayerHUDController : MonoBehaviour
 {
+    public InputAction restart;
+
     public GameObject playerStatusUI;
     private Vector2 playerStatusUIOrigin;
     [SerializeField] private List<Image> playerStatusUIImages = new List<Image>();
@@ -36,6 +39,7 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private float playerBackgroundLerpDuration_OnDead = .3f;
     [SerializeField] private AnimationCurve playerBackgroundLerpIntensity_OnDead;
     [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private GameObject gameRestartUI;
 
     private Health _playerHealth;
     private Stamina _playerStamina;
@@ -51,8 +55,9 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private float enemyBackgroundHealthLerpDuration = .5f;
     [SerializeField] private AnimationCurve enemyBackgroundHealthLerpIntensity;
     [Header("Enemy Fury")]
-
     private Health _lockedOnEnemyHealth = null;
+    [Header("Enemy Died")]
+    [SerializeField] private GameObject enemyDied;
     #endregion
 
     [Header("On PickUp Item Appeared")]
@@ -80,11 +85,18 @@ public class PlayerHUDController : MonoBehaviour
 		_playerHealth.OnHealthChanged += ChangePlayerHealth;
         _playerStamina.OnStaminaChanged += ChangePlayerStamina;
         _playerHealth.OnDead += ShowGameOver;
+        _playerHealth.OnDead += ShowRestart;
         _playerHealth.OnDead += ResetPlayerHealthNStamina;
         _playerHealth.OnDead += HideEnemyHealthNFury;
+        _playerHealth.OnRevive += HideGameOver;
+        _playerHealth.OnRevive += HideRestart;
+        _playerHealth.OnRevive += RestoreResetPlayerHealthNStamina;
         _playerController.OnLockOn += ShowEnemyHealthNFury;
         _playerController.OnLockOff += HideEnemyHealthNFury;
         #endregion
+
+        restart.performed += RestartGame;
+        restart.Enable();
     }
 
 	private void OnDisable()
@@ -93,11 +105,18 @@ public class PlayerHUDController : MonoBehaviour
         _playerHealth.OnHealthChanged -= ChangePlayerHealth;
         _playerStamina.OnStaminaChanged -= ChangePlayerStamina;
         _playerHealth.OnDead -= ShowGameOver;
+        _playerHealth.OnDead -= ShowRestart;
         _playerHealth.OnDead -= ResetPlayerHealthNStamina;
         _playerHealth.OnDead -= HideEnemyHealthNFury;
+        _playerHealth.OnRevive -= HideGameOver;
+        _playerHealth.OnRevive -= HideRestart;
+        _playerHealth.OnRevive -= RestoreResetPlayerHealthNStamina;
         _playerController.OnLockOn -= ShowEnemyHealthNFury;
         _playerController.OnLockOff -= HideEnemyHealthNFury;
         #endregion
+
+        restart.performed -= RestartGame;
+        restart.Disable();
     }
 
 	private void Start()
@@ -249,9 +268,16 @@ public class PlayerHUDController : MonoBehaviour
         }
     }
 
-    private void ShowGameOver()
+    private void RestoreResetPlayerHealthNStamina()
     {
-        gameOverUI.SetActive(true);
+        playerForegroundHealth.value = _playerHealth.CurrentHP / _playerHealth.MaxHP;
+        playerBackgroundHealth.value = playerForegroundHealth.value;
+
+        playerForegroundStamina.value = _playerStamina.CurrentStamina / _playerStamina.MaxStamina;
+        playerBackgroundStamina.value = playerForegroundStamina.value;
+
+        currentCheckPlayerStamina = CheckStaminaBackground();
+        StartCoroutine(currentCheckPlayerStamina);
     }
 
     private void ResetPlayerHealthNStamina()
@@ -480,4 +506,44 @@ public class PlayerHUDController : MonoBehaviour
         currentSetEnemyBackgroundHealth = null;
     }
     #endregion
+
+    private void RestartGame(InputAction.CallbackContext context)
+	{
+        if (!_playerController.IsDead)
+            return;
+
+        _playerHealth.Revive();
+	}
+
+    private void ShowGameOver()
+    {
+        gameOverUI.SetActive(true);
+    }
+
+    private void HideGameOver()
+	{
+        gameOverUI.SetActive(false);
+    }
+
+    private void ShowRestart()
+    {
+        gameRestartUI.SetActive(true);
+    }
+
+    private void HideRestart()
+    {
+        gameRestartUI.SetActive(false);
+    }
+
+    public void ShowEnemyDied()
+	{
+        enemyDied.SetActive(true);
+        StartCoroutine(HideEnemyDied(2f));
+	}
+
+    private IEnumerator HideEnemyDied(float delay)
+	{
+        yield return new WaitForSeconds(delay);
+        enemyDied.SetActive(false);
+	}
 }

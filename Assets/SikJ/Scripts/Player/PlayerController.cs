@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour
     private ConstantForce _constantForce;
     private PocketInventory _pocketInventory;
     private AudioMixerControll _audioMixerControll;
-
+    private RespawnManager respawnManager;
     public event Action OnRoll;
     public event Action OnJump;
     public event Action OnLockOn;
@@ -161,6 +161,11 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _pocketInventory);
 
         _audioMixerControll = FindObjectOfType<AudioMixerControll>();
+    }
+
+    public void SetRespawnManager()
+    {
+        respawnManager = FindObjectOfType<RespawnManager>();
     }
 
     private void OnEnable()
@@ -208,6 +213,7 @@ public class PlayerController : MonoBehaviour
         _health.OnAttackHit += OnWeakHit;
         _health.OnAttackHit += OnStrongHit;
         _health.OnDead += Die;
+        _health.OnRevive += Revive;
         _blockController.OnKnockBackFinished += RecoverAfterKnockBack;
         _blockController.OnBlockFailed += RevertToDefault;
         _inventoryManager.OnUseItem += DrinkPotion;
@@ -258,11 +264,11 @@ public class PlayerController : MonoBehaviour
         _health.OnAttackHit -= OnWeakHit;
         _health.OnAttackHit -= OnStrongHit;
         _health.OnDead -= Die;
+        _health.OnRevive -= Revive;
         _blockController.OnKnockBackFinished -= RecoverAfterKnockBack;
         _blockController.OnBlockFailed -= RevertToDefault;
         _inventoryManager.OnUseItem -= DrinkPotion;
     }
-
 
     public bool IsDrinkPotion { get; set; } = false;
 	#region DrinkPotion
@@ -383,9 +389,13 @@ public class PlayerController : MonoBehaviour
 
         UI_lockOnPoint.SetActive(false);
         ToggleTargetGroupCamera(false);
-        LockOnTargetPoint.IsLockedOn = false;
-        LockOnTargetPoint.StopTransitionCheck();
-        LockOnTargetPoint = null;
+
+		if (LockOnTargetPoint != null) 
+		{
+            LockOnTargetPoint.IsLockedOn = false;
+            LockOnTargetPoint.StopTransitionCheck();
+            LockOnTargetPoint = null;
+        }
     }
     private void LockOnPoint(LockOnPoint target)
     {
@@ -1250,10 +1260,27 @@ public class PlayerController : MonoBehaviour
     #endregion
     public void Revive()
     {
-        ChangeTargetGroupFocus(true);
+        respawnManager.LoadSaveData();
+
+        _constantForce.force = Physics.gravity * 500;
+        gameObject.layer = LayerMask.NameToLayer("Player");
         ToggleRagdoll(false);
         StartCoroutine(DropEquipments(false));
+
+        ResetTargetGroup();
+        UnlockOnPoint();
+
+        // VC Default √ ±‚»≠
+        gameObject.transform.GetChild(1).transform.localPosition = Vector3.zero; // LookFollow
+        gameObject.transform.GetChild(2).transform.localPosition = Vector3.zero; // LookAt
+
         IsRun = false;
+        IsDead = false;
+    }
+    public void ResetTargetGroup()
+    {
+        TargetGroup.m_Targets = new CinemachineTargetGroup.Target[0];
+        TargetGroup.AddMember(transform, 30, 50f);
     }
 
     private void OnDrawGizmos()

@@ -21,6 +21,7 @@ public class SFXManager : MonoBehaviour
 
     #region BGM List
     [Header("Back Ground Music")]
+    [SerializeField] private SoundEffectSO BGM_baseScene;
     [SerializeField] private SoundEffectSO BGM_bossFight1;
     [SerializeField] private SoundEffectSO BGM_bossFight2;
     [SerializeField] private SoundEffectSO BGM_bossFight3;
@@ -126,6 +127,7 @@ public class SFXManager : MonoBehaviour
     }
 
     #region BGM
+    public void OnBaseScene_Started() => PlayLoop(BGM_baseScene);
     public void OnBossFight1_Started() => PlayLoop(BGM_bossFight1);
     public void OnBossFight2_Started() => PlayLoop(BGM_bossFight2);
     public void OnBossFight3_Started() => PlayLoop(BGM_bossFight3);
@@ -219,6 +221,7 @@ public class SFXManager : MonoBehaviour
         for (int i = 0; i < BGM_AudioSourceCount; i++)
         {
             var audioSource = BGM_AudioSources[BGMTurnCounter];
+            audioSource.loop = true;
             if (!audioSource.isPlaying)
             {
                 StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));

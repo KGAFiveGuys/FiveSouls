@@ -60,7 +60,14 @@ public class Stamina : MonoBehaviour
                 currentRegen = null;
             }
         };
-	}
+
+        playerHealth.OnRevive += () =>
+        {
+            CurrentStamina = MaxStamina;
+            currentRegen = ReGenerateStamina();
+            StartCoroutine(currentRegen);
+        };
+    }
 
 	private void OnEnable()
 	{

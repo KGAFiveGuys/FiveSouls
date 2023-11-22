@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public struct Pocket
 {
     public ItemSO itemInfo;
@@ -26,10 +27,10 @@ public class PocketInventory : MonoBehaviour
     [SerializeField] ItemSO baseDamageBoostPotion;
     [SerializeField] ItemSO counterDamageBoostPotion;
 
-    private List<Pocket> pocketList = new List<Pocket>();
+	public List<Pocket> PocketList { get; set; } = new List<Pocket>();
 
     private int currentIndex = 0;
-    public Pocket CurrentPocket => pocketList[currentIndex];
+    public Pocket CurrentPocket => PocketList[currentIndex];
 
     public event Action<ItemSO> OnItemUsed;
 
@@ -52,26 +53,36 @@ public class PocketInventory : MonoBehaviour
         Pocket pocket2 = new Pocket(staminaRegenBoostPotion, staminaPotionCount);
         Pocket pocket3 = new Pocket(baseDamageBoostPotion, baseDamagePotionCount);
         Pocket pocket4 = new Pocket(counterDamageBoostPotion, counterDamagePotionCount);
-        pocketList.Add(pocket1);
-        pocketList.Add(pocket2);
-        pocketList.Add(pocket3);
-        pocketList.Add(pocket4);
+        PocketList.Add(pocket1);
+        PocketList.Add(pocket2);
+        PocketList.Add(pocket3);
+        PocketList.Add(pocket4);
     }
 
-	private void Start()
+	private void OnEnable()
+	{
+		playerHealth.OnRevive += ResetSelection;
+    }
+
+    private void OnDisable()
+    {
+        playerHealth.OnRevive -= ResetSelection;
+    }
+
+    private void Start()
 	{
         ChangeSelection(0);
     }
 
 	public void StoreItem(ItemSO itemSO)
 	{
-		for (int i = 0; i < pocketList.Count; i++)
+		for (int i = 0; i < PocketList.Count; i++)
 		{
-            if (pocketList[i].itemInfo == itemSO)
+            if (PocketList[i].itemInfo == itemSO)
 			{
-                var targetPocket = pocketList[i];
+                var targetPocket = PocketList[i];
                 targetPocket.count++;
-                pocketList[i] = targetPocket;
+                PocketList[i] = targetPocket;
                 break;
             }
         }
@@ -85,12 +96,18 @@ public class PocketInventory : MonoBehaviour
 
         // Prevent index out of range exception
         if (currentIndex > 0)
-            currentIndex %= pocketList.Count;
+            currentIndex %= PocketList.Count;
         else if (currentIndex < 0)
-            currentIndex += pocketList.Count;
+            currentIndex += PocketList.Count;
 
-        var currentPocket = pocketList[currentIndex];
+        var currentPocket = PocketList[currentIndex];
         pocketInventoryControlManager.ChangePocketInfo(currentPocket.itemInfo, currentPocket.count);
+    }
+
+    private void ResetSelection()
+	{
+        currentIndex = 0;
+        ChangeSelection(0);
     }
 
     public void UseCurrentItem()
@@ -98,13 +115,13 @@ public class PocketInventory : MonoBehaviour
 		if (CurrentPocket.count == 0)
             return;
 		
-        if(TryUse(pocketList[currentIndex]))
+        if(TryUse(PocketList[currentIndex]))
 		{
-            var temp = pocketList[currentIndex];
+            var temp = PocketList[currentIndex];
             temp.count--;
-            pocketList[currentIndex] = temp;
+            PocketList[currentIndex] = temp;
 
-            OnItemUsed?.Invoke(pocketList[currentIndex].itemInfo);
+            OnItemUsed?.Invoke(PocketList[currentIndex].itemInfo);
             SFXManager.Instance.OnPlayerDrinkPotionSuccess();
         }
         else

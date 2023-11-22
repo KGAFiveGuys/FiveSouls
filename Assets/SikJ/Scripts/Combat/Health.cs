@@ -19,6 +19,7 @@ public class Health : MonoBehaviour
     /// </summary>
     public event Action<AttackType> OnAttackHit;
     public event Action OnDead;
+    public event Action OnRevive;
 
     private void Awake()
     {
@@ -27,7 +28,17 @@ public class Health : MonoBehaviour
 
     private void OnEnable()
     {
-        OnDead += () => gameObject.layer = LayerMask.NameToLayer("Ghost");
+        OnDead += SetPlayerGhost;
+    }
+
+	private void OnDisable()
+	{
+        OnDead -= SetPlayerGhost;
+    }
+
+    public void SetPlayerGhost()
+	{
+        gameObject.layer = LayerMask.NameToLayer("Ghost");
     }
 
     public void GetDamage(AttackType type, float damage, bool isBlocked)
@@ -48,5 +59,11 @@ public class Health : MonoBehaviour
     {
         CurrentHP = Mathf.Min(MaxHP, CurrentHP + amount);
         OnHealthChanged?.Invoke();
+    }
+
+    public void Revive()
+	{
+        CurrentHP = MaxHP * .8f;
+        OnRevive?.Invoke();
     }
 }
