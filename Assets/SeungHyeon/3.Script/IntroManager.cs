@@ -15,7 +15,6 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Start_btn = null;
     [SerializeField] private TextMeshProUGUI Exit_btn = null;
     [SerializeField] private bool Start_check = false;
-    [SerializeField] private RectTransform LastTransform;
 
     private void Start()
     {
@@ -40,28 +39,31 @@ public class IntroManager : MonoBehaviour
             title.color = new Color(title.color.r, title.color.g, title.color.b, title.color.a + (Time.deltaTime / t));
             yield return null;
         }
-        while (title.rectTransform.position.y <= LastTransform.position.y)
-        {
-            title.rectTransform.position = new Vector3(title.rectTransform.position.x, title.rectTransform.position.y + 0.1f);
-            yield return null;
-        }
+        yield return new WaitForSeconds(2f);
+        //while (title.rectTransform.position.y <= LastTransform.position.y)
+        //{
+        //    title.rectTransform.position = new Vector3(title.rectTransform.position.x, title.rectTransform.position.y + 0.1f);
+        //    yield return null;
+        //}
 
-        while (start_btn.color.a < 1.0f)
-        {
-            start_btn.color = new Color(start_btn.color.r, start_btn.color.g, start_btn.color.b, start_btn.color.a + (Time.deltaTime / t));
-            yield return null;
-        }
+        //while (start_btn.color.a < 1.0f)
+        //{
+        //    start_btn.color = new Color(start_btn.color.r, start_btn.color.g, start_btn.color.b, start_btn.color.a + (Time.deltaTime / t));
+        //    yield return null;
+        //}
 
-        while (exit_btn.color.a < 1.0f)
-        {
-            exit_btn.color = new Color(exit_btn.color.r, exit_btn.color.g, exit_btn.color.b, exit_btn.color.a + (Time.deltaTime / t));
-            yield return null;
-        }
+        //while (exit_btn.color.a < 1.0f)
+        //{
+        //    exit_btn.color = new Color(exit_btn.color.r, exit_btn.color.g, exit_btn.color.b, exit_btn.color.a + (Time.deltaTime / t));
+        //    yield return null;
+        //}
         while(light.color.a < 1.0f)
         {
             light.color = new Color(light.color.r, light.color.g, light.color.b, light.color.a + (Time.deltaTime / t));
             yield return null;
         }
+        start_btn.color = new Color(1, 1, 1, 1);
+        exit_btn.color = new Color(1, 1, 1, 1);
         //스프라이트 바꾸고 파티클 실행
         i.color = new Color(1, 1, 1, 1);
         i.sprite = BackGround_Sprite;
@@ -71,5 +73,6 @@ public class IntroManager : MonoBehaviour
             light.color = new Color(light.color.r, light.color.g, light.color.b, light.color.a - (Time.deltaTime / t) * 2f);
             yield return null;
         }
+        light.gameObject.SetActive(false);
     }
 }
