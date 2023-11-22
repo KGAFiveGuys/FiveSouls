@@ -121,6 +121,8 @@ public class SFXManager : MonoBehaviour
         _playerBlockController = playerObj.GetComponent<BlockController>();
         _playerHealth = playerObj.GetComponent<Health>();
         _pocketInventory = playerObj.GetComponent<PocketInventory>();
+
+        CreateAudioSources();
     }
 
     #region BGM
@@ -188,10 +190,6 @@ public class SFXManager : MonoBehaviour
         _playerHealth.OnDead += PlayerDeadSFX;
     }
 
-    private void Start()
-    {
-        CreateAudioSources();
-    }
     private void CreateAudioSources()
     {
         for (int i = 0; i < BGM_AudioSourceCount; i++)
