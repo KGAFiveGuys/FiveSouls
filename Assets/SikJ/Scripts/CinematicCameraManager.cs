@@ -16,12 +16,10 @@ public class CinematicCameraManager : MonoBehaviour
 
     private PlayerController playerController;
     private PlayerHUDController playerHUD;
-    private CinemachineVirtualCamera virtualCamera;
     private void Awake()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         playerHUD = FindObjectOfType<PlayerHUDController>();
-        virtualCamera = camera.GetComponent<CinemachineVirtualCamera>();
     }
 
     private void OnEnable()

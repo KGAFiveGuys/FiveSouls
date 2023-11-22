@@ -91,7 +91,8 @@ public class AudioMixerControll : MonoBehaviour
         if (!IsSetting)
             return;
 
-        ChangeSliderColor(Color.white);
+        if (Gamepad.current != null)
+            ChangeSliderColor(Color.white);
 
         var isDown = context.ReadValueAsButton();
 
@@ -105,7 +106,8 @@ public class AudioMixerControll : MonoBehaviour
         else if (currnetSliderIndex < 0)
             currnetSliderIndex += sliderList.Count;
 
-        ChangeSliderColor(Color.green);
+        if (Gamepad.current != null)
+            ChangeSliderColor(Color.green);
     }
 
     [SerializeField] private float valueChangeModifier = 1f;
@@ -134,8 +136,11 @@ public class AudioMixerControll : MonoBehaviour
         IsSetting = !IsSetting;
         if (IsSetting)
         {
-            currnetSliderIndex = 0;
-            ChangeSliderColor(Color.green);
+            if (Gamepad.current != null)
+            {
+                currnetSliderIndex = 0;
+                ChangeSliderColor(Color.green);
+            }
 
             playerController.MoveDirection = Vector3.zero;
             playerController.ControlState = ControlState.Uncontrollable;
@@ -143,7 +148,10 @@ public class AudioMixerControll : MonoBehaviour
         }
         else
         {
-            ChangeSliderColor(Color.white);
+            if (Gamepad.current != null)
+            {
+                ChangeSliderColor(Color.white);
+            }
 
             playerHUD.FadeInPlayerHUD();
             playerController.ControlState = ControlState.Controllable;

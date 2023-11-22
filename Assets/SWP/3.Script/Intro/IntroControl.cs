@@ -14,6 +14,7 @@ public class IntroControl : MonoBehaviour
     private AudioSource audioSource;
     private Cremoa cremoa;
     private PlayerController playerController;
+    private PlayerHUDController playerHUD;
     private bool isStart = false;
     private bool isGen = false;
     private float Timer = 3f;
@@ -23,6 +24,7 @@ public class IntroControl : MonoBehaviour
     {
         cremoa = FindObjectOfType<Cremoa>();
         playerController = FindObjectOfType<PlayerController>();
+        playerHUD = FindObjectOfType<PlayerHUDController>();
         audioSource = transform.GetComponent<AudioSource>();
     }
 
@@ -34,6 +36,7 @@ public class IntroControl : MonoBehaviour
             if (!isStart)
             {
                 isStart = true;
+                playerHUD.FadeOutPlayerHUD();
                 camera.SetActive(true);
                 StartCoroutine(PrayEndCo());
             }
@@ -76,6 +79,7 @@ public class IntroControl : MonoBehaviour
         yield return new WaitForSeconds(1f);
         BossBall.SetActive(false);
         camera.SetActive(false);
+        playerHUD.FadeInPlayerHUD();
         playerController.ControlState = ControlState.Controllable;
 
         yield return new WaitForSeconds(3f);
