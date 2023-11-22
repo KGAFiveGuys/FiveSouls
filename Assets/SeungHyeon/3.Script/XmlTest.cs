@@ -9,6 +9,8 @@ public class XmlTest : MonoBehaviour
     private static XmlTest _instance = null;
     public static XmlTest instance => _instance;
 
+    string filename = "Character.xml";
+
     public GameObject DialogueBox;
     public Text CharacterName;
     // Start is called before the first frame update
@@ -30,7 +32,7 @@ public class XmlTest : MonoBehaviour
     }
     private void Start()
     {
-        string xmlFilePath = "./Assets/SeungHyeon/Resources/Character.xml";
+        string xmlFilePath = Application.dataPath + "/StreamingAssets/" + filename;
         XmlDocument xmlDoc = new XmlDocument();
         xmlDoc.Load(xmlFilePath);
 

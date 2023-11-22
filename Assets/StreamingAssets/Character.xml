@@ -1,0 +1,16 @@
+﻿<dialogues>
+  <dialogue id="1">
+    <character>그림자</character>
+    <text>반갑군</text>
+    <text>이곳에 온 이상 저 앞에 보스를 죽여야만 다음층으로 넘어갈 수 있다.</text>
+    <text>그것은 다음 층도 마찬가지지</text>
+    <text>R3(WheelClick)를 누르게 되면 보스에게 락온이 될거다.</text>
+    <text>노란 공격은 가드로 막을 수 있고 카운터공격을 할 수 있다.</text>
+    <text>붉은 공격은 가드로 막을 수 없으니 회피를 잘 사용해야 할거야.</text>
+    <text>그럼 무운을 빌지</text>
+  </dialogue>
+  <dialogue id="2">
+    <character>테스트2</character>
+    <text>안녕하세요 테스트2 입니다.</text>
+  </dialogue>
+</dialogues>
