@@ -44,6 +44,8 @@ public class AudioMixerControll : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+
         for (int i = 0; i < Sound_UI.transform.childCount; i++)
         {
             var slider = Sound_UI.transform.GetChild(i).GetComponent<Slider>();
@@ -91,8 +93,7 @@ public class AudioMixerControll : MonoBehaviour
         if (!IsSetting)
             return;
 
-        if (Gamepad.current != null)
-            ChangeSliderColor(Color.white);
+        ChangeSliderColor(Color.white);
 
         var isDown = context.ReadValueAsButton();
 
@@ -106,8 +107,7 @@ public class AudioMixerControll : MonoBehaviour
         else if (currnetSliderIndex < 0)
             currnetSliderIndex += sliderList.Count;
 
-        if (Gamepad.current != null)
-            ChangeSliderColor(Color.green);
+        ChangeSliderColor(Color.green);
     }
 
     [SerializeField] private float valueChangeModifier = 1f;
@@ -134,13 +134,12 @@ public class AudioMixerControll : MonoBehaviour
     private void toggle_Sound()
     {
         IsSetting = !IsSetting;
+        Cursor.visible = IsSetting;
+
         if (IsSetting)
         {
-            if (Gamepad.current != null)
-            {
-                currnetSliderIndex = 0;
-                ChangeSliderColor(Color.green);
-            }
+            currnetSliderIndex = 0;
+            ChangeSliderColor(Color.green);
 
             playerController.MoveDirection = Vector3.zero;
             playerController.ControlState = ControlState.Uncontrollable;
@@ -148,10 +147,7 @@ public class AudioMixerControll : MonoBehaviour
         }
         else
         {
-            if (Gamepad.current != null)
-            {
-                ChangeSliderColor(Color.white);
-            }
+            ChangeSliderColor(Color.white);
 
             playerHUD.FadeInPlayerHUD();
             playerController.ControlState = ControlState.Controllable;
@@ -177,6 +173,9 @@ public class AudioMixerControll : MonoBehaviour
 
     public void ChangeSliderColor(Color color)
     {
+        if (Gamepad.current == null)
+            return;
+
         ColorBlock temp = sliderList[currnetSliderIndex].colors;
         temp.normalColor = color;
         sliderList[currnetSliderIndex].colors = temp;

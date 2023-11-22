@@ -17,7 +17,6 @@ public class PocketInventoryManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentPocketName;
 
     private PocketInventory playerPocketInventory;
-    private PlayerController playerController;
 
     public InputAction select;
     public InputAction use;
@@ -38,7 +37,6 @@ public class PocketInventoryManager : MonoBehaviour
 
         var playerObj = GameObject.FindGameObjectWithTag("Player");
         playerPocketInventory = playerObj.GetComponent<PocketInventory>();
-        playerController = playerObj.GetComponent<PlayerController>();
     }
 
     private void OnEnable()

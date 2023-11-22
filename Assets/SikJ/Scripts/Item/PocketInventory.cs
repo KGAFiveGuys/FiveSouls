@@ -37,16 +37,21 @@ public class PocketInventory : MonoBehaviour
     private Stamina playerStamina;
     private AttackController playerAttackController;
 
+    [SerializeField] private int healthPotionCount = 1;
+    [SerializeField] private int staminaPotionCount = 1;
+    [SerializeField] private int baseDamagePotionCount = 1;
+    [SerializeField] private int counterDamagePotionCount = 1;
+
     private void Awake()
     {
         TryGetComponent(out playerHealth);
         TryGetComponent(out playerStamina);
         TryGetComponent(out playerAttackController);
 
-        Pocket pocket1 = new Pocket(healthRegenBoostPotion, 1);
-        Pocket pocket2 = new Pocket(staminaRegenBoostPotion, 1);
-        Pocket pocket3 = new Pocket(baseDamageBoostPotion, 1);
-        Pocket pocket4 = new Pocket(counterDamageBoostPotion, 1);
+        Pocket pocket1 = new Pocket(healthRegenBoostPotion, healthPotionCount);
+        Pocket pocket2 = new Pocket(staminaRegenBoostPotion, staminaPotionCount);
+        Pocket pocket3 = new Pocket(baseDamageBoostPotion, baseDamagePotionCount);
+        Pocket pocket4 = new Pocket(counterDamageBoostPotion, counterDamagePotionCount);
         pocketList.Add(pocket1);
         pocketList.Add(pocket2);
         pocketList.Add(pocket3);

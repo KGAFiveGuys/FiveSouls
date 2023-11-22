@@ -84,17 +84,20 @@ public class AiTest : MonoBehaviour
     }
     private void Update()
     {
-        agent.stoppingDistance = stopdistance * transform.localScale.x;
+        if (isDead)
+            return;
 
         if (bossHealth.CurrentHP <= 0)
         {
-            if (isDead)
-                return;
-
             isDead = true;
+            StopAllCoroutines();
             Curtain.SetActive(!isDead);
             ToggleRagdoll(isDead);
+            return;
         }
+
+        agent.stoppingDistance = stopdistance * transform.localScale.x;
+
         //±¤ÆøÈ­ ÆÐÅÏ
         if (bossHealth.CurrentHP <= (bossHealth.MaxHP * 0.5f) && isAngry)
         {
