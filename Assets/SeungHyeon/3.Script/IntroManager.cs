@@ -64,6 +64,7 @@ public class IntroManager : MonoBehaviour
         }
         start_btn.color = new Color(1, 1, 1, 1);
         exit_btn.color = new Color(1, 1, 1, 1);
+
         //스프라이트 바꾸고 파티클 실행
         i.color = new Color(1, 1, 1, 1);
         i.sprite = BackGround_Sprite;
@@ -74,5 +75,7 @@ public class IntroManager : MonoBehaviour
             yield return null;
         }
         light.gameObject.SetActive(false);
+
+        Cursor.visible = true;
     }
 }

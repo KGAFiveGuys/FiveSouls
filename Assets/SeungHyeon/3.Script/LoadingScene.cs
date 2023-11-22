@@ -12,6 +12,8 @@ public class LoadingScene : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+
         StartCoroutine(FadeTextToFullAlpha(1.5f, image, text));
     }
     public IEnumerator FadeTextToFullAlpha(float t, Image i, TextMeshProUGUI j)
