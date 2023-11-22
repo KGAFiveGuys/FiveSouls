@@ -55,7 +55,7 @@ public class GamePadVibrationManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            DontDestroyOnLoad(this);
+            //DontDestroyOnLoad(this);
         }
         else if (_instance != null && _instance != this)
         {
@@ -179,5 +179,8 @@ public class GamePadVibrationManager : MonoBehaviour
             yield return null;
         }
         Gamepad.current.SetMotorSpeeds(0, 0);
+
+        currentVibration = null;
+        currentPriority = 10;
     }
 }

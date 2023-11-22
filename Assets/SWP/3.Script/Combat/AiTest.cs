@@ -374,7 +374,7 @@ public class AiTest : MonoBehaviour
                 HulkAnimator.SetInteger("AttackNum", 1);
                 HulkAnimator.SetTrigger("NormalAttack");
 
-                yield return new WaitForSeconds(4f);
+                yield return new WaitForSeconds(5.5f);
                 HulkAnimator.ResetTrigger("NormalAttack");
                 break;
             case 4:
