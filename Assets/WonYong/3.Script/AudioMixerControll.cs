@@ -13,7 +13,8 @@ public class AudioMixerControll : MonoBehaviour
     [SerializeField] private GameObject AudioSourcePrefab;
     [SerializeField] private GameObject Sound_UI;
     private PlayerController playerController;
-    bool isSound = false;
+    private PlayerHUDController playerHUD;
+    public bool IsSetting { get; set; } = false;
 
     public static AudioMixerControll instance = null;
     private void Awake()
@@ -32,6 +33,7 @@ public class AudioMixerControll : MonoBehaviour
         }
 
         playerController = FindObjectOfType<PlayerController>();
+        playerHUD = FindObjectOfType<PlayerHUDController>();
     }
 
     private void OnEnable()
@@ -46,8 +48,20 @@ public class AudioMixerControll : MonoBehaviour
 
     private void toggle_Sound()
     {
-        isSound = !isSound;
-        Sound_UI.SetActive(isSound);
+        IsSetting = !IsSetting;
+        if (IsSetting)
+        {
+            playerController.MoveDirection = Vector3.zero;
+            playerController.ControlState = ControlState.Uncontrollable;
+            playerHUD.FadeOutPlayerHUD();
+        }
+        else
+        {
+            playerHUD.FadeInPlayerHUD();
+            playerController.ControlState = ControlState.Controllable;
+        }
+
+        Sound_UI.SetActive(IsSetting);
     }
 
     public void SetMasterVolume(float volume)

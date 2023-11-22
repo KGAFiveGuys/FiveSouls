@@ -43,6 +43,12 @@ public class PlayerController : MonoBehaviour
     public InputAction talkToNPC;
     public InputAction toggleSetting;
 
+    [Header("PlayerCamera")]
+    [SerializeField] private float gamepadYAxisSpeed = 4f;
+    [SerializeField] private float gamepadXAxisSpeed = 300f;
+    [SerializeField] private float mouseYAxisSpeed = 2f;
+    [SerializeField] private float mouseXAxisSpeed = 180f;
+
     [Header("PlayerMove")]
     #region PlayerMove
     [SerializeField] private float walkSpeed = 10f;
@@ -133,6 +139,7 @@ public class PlayerController : MonoBehaviour
     #endregion
     private ConstantForce _constantForce;
     private PocketInventory _pocketInventory;
+    private AudioMixerControll _audioMixerControll;
 
     public event Action OnRoll;
     public event Action OnJump;
@@ -152,6 +159,8 @@ public class PlayerController : MonoBehaviour
         TryGetComponent(out _animator);
         TryGetComponent(out _constantForce);
         TryGetComponent(out _pocketInventory);
+
+        _audioMixerControll = FindObjectOfType<AudioMixerControll>();
     }
 
     private void OnEnable()
@@ -330,6 +339,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        SetCameraSpeed();
         SetDefaultCameraPosition();
         CheckLockOnPointDistance();
         LookLockOnPoint();
@@ -341,6 +351,22 @@ public class PlayerController : MonoBehaviour
         ShowLockOnPoint();
     }
 
+    private void SetCameraSpeed()
+    {
+        if (_audioMixerControll == null)
+            return;
+
+        if (_audioMixerControll.IsSetting)
+        {
+            VC_Default.GetComponent<CinemachineFreeLook>().m_YAxis.m_MaxSpeed = 0f;
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.m_MaxSpeed = 0f;
+        }
+        else
+        {
+            VC_Default.GetComponent<CinemachineFreeLook>().m_YAxis.m_MaxSpeed = Gamepad.current != null ? gamepadYAxisSpeed : mouseYAxisSpeed;
+            VC_Default.GetComponent<CinemachineFreeLook>().m_XAxis.m_MaxSpeed = Gamepad.current != null ? gamepadXAxisSpeed : mouseXAxisSpeed;
+        }
+    }
     private void CheckLockOnPointDistance()
     {
         if (!IsLockOn)
@@ -603,7 +629,8 @@ public class PlayerController : MonoBehaviour
     private IEnumerator currentCheckMovingEnoughToRun = null;
     private void OnRunPerformed(InputAction.CallbackContext context)
     {
-        if (_stamina.CurrentStamina == 0
+        if (ControlState == ControlState.Uncontrollable
+            || _stamina.CurrentStamina == 0
             || IsDrinkPotion)
             return;
 
@@ -860,7 +887,8 @@ public class PlayerController : MonoBehaviour
     #region lockOn_Action
     private void OnLockOnPerformed(InputAction.CallbackContext context)
     {
-        if (IsDead)
+        if (_audioMixerControll.IsSetting
+            || IsDead)
             return;
 
         var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();

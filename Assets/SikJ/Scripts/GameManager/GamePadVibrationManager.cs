@@ -109,18 +109,33 @@ public class GamePadVibrationManager : MonoBehaviour
     
     private void UnsubscribePlayerEvents()
     {
-        _playerController.OnRoll -= PlayerRollVibration;
-        _playerController.OnJump -= PlayerJumpVibration;
-        _playerAttackController.OnWeakAttackCast -= PlayerWeakAttackCastVibration;
-        _playerAttackController.OnWeakAttackHit -= PlayerWeakAttackHitVibration;
-        _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastVibration;
-        _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitVibration;
-        _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastVibration;
-        _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitVibration;
-        _playerBlockController.OnBlockCast -= PlayerBlockCastVibration;
-        _playerBlockController.OnBlockSucceed -= PlayerBlockSucceedVibration;
-        _playerBlockController.OnBlockFailed -= PlayerBlockFailedVibration;
-        _playerHealth.OnDead -= PlayerDeadVibration;
+        if (_playerController != null)
+        {
+            _playerController.OnRoll -= PlayerRollVibration;
+            _playerController.OnJump -= PlayerJumpVibration;
+        }
+
+        if (_playerAttackController != null)
+        {
+            _playerAttackController.OnWeakAttackCast -= PlayerWeakAttackCastVibration;
+            _playerAttackController.OnWeakAttackHit -= PlayerWeakAttackHitVibration;
+            _playerAttackController.OnStrongAttackCast -= PlayerStrongAttackCastVibration;
+            _playerAttackController.OnStrongAttackHit -= PlayerStrongAttackHitVibration;
+            _playerAttackController.OnCounterAttackCast -= PlayerCounterAttackCastVibration;
+            _playerAttackController.OnCounterAttackHit -= PlayerCounterAttackHitVibration;
+        }
+
+        if (_playerBlockController != null)
+        {
+            _playerBlockController.OnBlockCast -= PlayerBlockCastVibration;
+            _playerBlockController.OnBlockSucceed -= PlayerBlockSucceedVibration;
+            _playerBlockController.OnBlockFailed -= PlayerBlockFailedVibration;
+        }
+
+        if (_playerHealth != null)
+        {
+            _playerHealth.OnDead -= PlayerDeadVibration;
+        }
     }
 
     private void OnDestroy()

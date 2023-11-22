@@ -107,8 +107,8 @@ public class WizardControl : MonoBehaviour
             Wizard_anim.SetBool("Ready",true);
             ReadyEffect.SetActive(true);
             MagicImage.SetActive(true);
-            bgm.clip = BossClip;
-            bgm.Play();
+            bgm.Stop();
+            SFXManager.Instance.OnBossFight3_Started();
         }
         
     }

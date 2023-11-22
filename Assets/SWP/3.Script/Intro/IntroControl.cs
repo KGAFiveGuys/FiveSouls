@@ -70,6 +70,7 @@ public class IntroControl : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         HulkBoss.SetActive(true);
+        SFXManager.Instance.OnBossFight1_Started();
         HulkAni.SetTrigger("isBorn");
 
         yield return new WaitForSeconds(1f);
@@ -80,5 +81,4 @@ public class IntroControl : MonoBehaviour
         yield return new WaitForSeconds(3f);
         HulkAni.ResetTrigger("isBorn");
     }
-
 }
