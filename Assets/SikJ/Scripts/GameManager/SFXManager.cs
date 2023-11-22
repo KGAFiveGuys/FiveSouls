@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class SFXManager : MonoBehaviour
 {
     public static SFXManager _instance = null;
     public static SFXManager Instance => _instance;
+
+    [SerializeField] private AudioMixerGroup BGMGroup;
+    [SerializeField] private AudioMixerGroup SFXGroup;
 
     [SerializeField] private GameObject AudioSourcePrefab;
     [SerializeField] private int BGM_AudioSourceCount = 3;
@@ -193,13 +197,17 @@ public class SFXManager : MonoBehaviour
         for (int i = 0; i < BGM_AudioSourceCount; i++)
         {
             GameObject gameObject = Instantiate(AudioSourcePrefab, transform);
-            BGM_AudioSources.Add(gameObject.GetComponent<AudioSource>());
+            var audio = gameObject.GetComponent<AudioSource>();
+            audio.outputAudioMixerGroup = BGMGroup;
+            BGM_AudioSources.Add(audio);
         }
 
         for (int i = 0; i < SFX_AudioSourceCount; i++)
         {
             GameObject gameObject = Instantiate(AudioSourcePrefab, transform);
-            SFX_AudioSources.Add(gameObject.GetComponent<AudioSource>());
+            var audio = gameObject.GetComponent<AudioSource>();
+            audio.outputAudioMixerGroup = SFXGroup;
+            SFX_AudioSources.Add(audio);
         }
     }
 
