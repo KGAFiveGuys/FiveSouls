@@ -28,6 +28,8 @@ public class AiTest : MonoBehaviour
     private NavMeshAgent agent;
     private Health bossHealth;
     private AttackController attackController;
+    private Vector3 BossSpawnPos;
+    private Quaternion BossSpawnRot;
     //보스상태
     private bool isDead = false;
     private bool isTarget
@@ -53,6 +55,10 @@ public class AiTest : MonoBehaviour
     [SerializeField] private GameObject JumpLandingEffect;
     [SerializeField] private GameObject Curtain;
 
+    private PlayerHUDController playerHUDController;
+    private PlayerController playerController;
+    private Health playerHealth;
+
 
     private void OnDrawGizmos()
     {
@@ -69,7 +75,6 @@ public class AiTest : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, stopdistance * transform.localScale.x);
     }
 
-    private PlayerHUDController playerHUDController;
 
     private void Awake()
     {
@@ -79,10 +84,31 @@ public class AiTest : MonoBehaviour
         TryGetComponent(out attackController);
 
         playerHUDController = FindObjectOfType<PlayerHUDController>();
+        playerController = FindObjectOfType<PlayerController>();
+        BossSpawnPos = transform.position;
+        BossSpawnRot = transform.rotation;
+        playerHealth = playerController.gameObject.GetComponent<Health>();
     }
 
-    
-	private void Start()
+    private void OnEnable()
+    {
+        playerHealth.OnRevive += BossSetting;
+    }
+
+    private void BossSetting()
+    {
+        transform.position = BossSpawnPos;
+        transform.rotation = BossSpawnRot;
+        bossHealth.CurrentHP = bossHealth.MaxHP;
+    }
+
+    private void OnDisable()
+    {
+        playerHealth.OnRevive -= BossSetting;
+    }
+
+
+    private void Start()
 	{
         bossHealth.OnDead += playerHUDController.ShowEnemyDied;
     }
