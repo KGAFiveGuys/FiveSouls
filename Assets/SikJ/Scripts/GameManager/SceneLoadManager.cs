@@ -41,6 +41,9 @@ public class SceneLoadManager : MonoBehaviour
 
     private IEnumerator LoadSceneAsync()
     {
+        playerController.gameObject.GetComponent<Rigidbody>().useGravity = false;
+        playerController.gameObject.GetComponent<ConstantForce>().enabled = false;
+
         AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(CurrentSceneIndex++);
         while (!asyncUnload.isDone)
         {
@@ -52,6 +55,9 @@ public class SceneLoadManager : MonoBehaviour
         {
             yield return null;
         }
+
+        playerController.gameObject.GetComponent<Rigidbody>().useGravity = true;
+        playerController.gameObject.GetComponent<ConstantForce>().enabled = true;
 
         playerController.SetRespawnManager();
     }

@@ -32,11 +32,12 @@ public class AttackEffect
 
 public class WizardControl : MonoBehaviour
 {
-
+    [SerializeField] private GameObject BossPrefab;
     private float Dist;//플레이어와 보스와의 거리
     public Animator Wizard_anim;
     private float AttackTime = 0;
     [SerializeField] private AudioClip BossClip;
+    [SerializeField] private AudioClip VillageClip;
     [SerializeField] private AudioSource bgm;
     [SerializeField] private Health health; 
     [SerializeField]private float ThunderDelay = 0.5f;
@@ -76,7 +77,19 @@ public class WizardControl : MonoBehaviour
         thunderBoltCircle = FindObjectOfType<ThunderBoltCircle>();
         MagicImage = Instantiate(MagicImage, FindObjectOfType<PlayerHUDController>().transform);
         MagicImage.SetActive(false);
+        ReadyEffect.SetActive(false);
     }
+
+    private void OnEnable()
+    {
+        wizardinfo.ChaseTarget.GetComponent<Health>().OnRevive += RespwanBoss;
+    }
+
+    private void OnDisable()
+    {
+        wizardinfo.ChaseTarget.GetComponent<Health>().OnRevive -= RespwanBoss;
+    }
+
     private void Update()
     {
         CheckPlayerPosition();
@@ -236,5 +249,13 @@ public class WizardControl : MonoBehaviour
     public void StopStormMove()
     {
         StartCoroutine(megapattern.StopMoveStorm_Co());
+    }
+    public void RespwanBoss()
+    {
+        Destroy(MagicImage);
+        bgm.clip = VillageClip;
+        bgm.Play();
+        Instantiate(BossPrefab, this.transform.parent.position , Quaternion.Euler(0, -90, 0));
+        Destroy(this.transform.parent.gameObject);
     }
 }

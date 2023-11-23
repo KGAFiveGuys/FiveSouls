@@ -27,7 +27,7 @@ public class FireballMove : MonoBehaviour
         FireBall_speed = _speed;
 
         FireBall_timerMax = 5f;
-            //Random.Range(0.8f, 1.0f);
+        //Random.Range(0.8f, 1.0f);
 
         FireBall_Points[0] = _startTr.position;
 
@@ -67,7 +67,7 @@ public class FireballMove : MonoBehaviour
     private IEnumerator FireBallMove()
     {
         float elapsedTime = 0f;
-        while(true)
+        while (true)
         {
             elapsedTime += Time.deltaTime;
             var currentSpeed = FireBall_speed + (elapsedTime);
@@ -104,6 +104,9 @@ public class FireballMove : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.gameObject.layer == 3 || other.gameObject.layer == 9)
+        {
+            Destroy(gameObject);
+        }
     }
 }
