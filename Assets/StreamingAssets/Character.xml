@@ -34,4 +34,13 @@ LB(마우스 우클릭)로는 방어를 할 수 있는데,
 신의 가호가 함께하길...
 	</text>
   </dialogue>
+	<dialogue id="3">
+		<character>그림자</character>
+		<text>뭐야 벌써 여기까지 온거야?</text>
+		<text>실력이 대단하네~ 하지만 지금부터는 더 힘들어 질꺼야</text>
+		<text>이 안으로 들어가면 미치광이 광신도가 있을꺼야</text>
+		<text>포탈을 이용해서 다른차원에 있는 몬스터를 불러들여서 이곳을 멸망시킬 계획을 가지고 있지</text>
+		<text>저 녀석을 잡고 불러들이려 했던 몬스터를 잡아야 이 세상을 지킬 수 있을거야.</text>
+		<text>한번 잘해보라고</text>
+	</dialogue>
 </dialogues>
