@@ -9,6 +9,11 @@ public class Boss_Btn : MonoBehaviour
     [Header("bossOn=>rockpool Off")]
     [SerializeField] private GameObject RockPool;
     [SerializeField] private GameObject[] Particle;
+
+    [SerializeField] private GameObject Boss_prefab;
+    [SerializeField] private Vector3 positionToTeleport = new Vector3(401.600006f, -701.710022f, 1016.40002f);
+    [SerializeField] private Vector3 rotationEulerAngles = new Vector3(401.600006f, -192.521f, 1016.40002f);
+    private Quaternion RotationToTeleport;
     private ParticleSystem particleSystem_;
     public Material objectMaterial;
     private void Awake()
@@ -16,6 +21,7 @@ public class Boss_Btn : MonoBehaviour
         objectMaterial = TryGetComponent(out Renderer renderer) ? renderer.material : null;
         particleSystem_ = GetComponent<ParticleSystem>();
     }
+
 
     public static bool Boss_btn = false;
     private void OnTriggerEnter(Collider other)

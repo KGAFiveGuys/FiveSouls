@@ -18,6 +18,13 @@ public class MutantController : MonoBehaviour
     [Header("보스 사망시 켜줄 door")]
     [SerializeField] private Animator door;
     [SerializeField] private GameObject On_Clear_DollyCamera_;
+    [Header("플레이어 사망시 보스버튼off")]
+    [SerializeField] private GameObject boss_btn;
+    [Header("플레이어 사망시 보스위치 되돌릴곳")]
+    [SerializeField] private Vector3 positionToTeleport = new Vector3(401.600006f, -701.710022f, 1016.40002f);
+    [SerializeField] private Vector3 rotationEulerAngles = new Vector3(401.600006f, -192.521f, 1016.40002f);
+    private Quaternion RotationToTeleport;
+    [SerializeField] private GameObject boss; 
     //뮤턴트 소리
     [Header("Sound")]
     [SerializeField] private SoundEffectSO Dash_sound;
@@ -106,6 +113,7 @@ public class MutantController : MonoBehaviour
     bool isDance = false;
     bool isGroggy = false;
     bool isDie = false;
+    bool isPlayerDie = false;
 
     //전체 행동 체크
     bool isAction = false;
@@ -167,28 +175,17 @@ public class MutantController : MonoBehaviour
     Vector3 Short_position;
     private void Awake()
     {
-        TryGetComponent(out Mutant);
-        StartCoroutine(Swing_Cool_co());
-        TryGetComponent(out mutantRigidbody);
-        TryGetComponent(out mutantAnimator);
-        player = GameObject.FindGameObjectWithTag("Player");
-        TryGetComponent(out agent);
-        TryGetComponent(out attackController);
-        TryGetComponent(out health_p);
-        TryGetComponent(out health_m);
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if(player != null)
-        {
-            health_p = player.GetComponent<Health>();
-            if (player != null)
-            {
-                float currentHP = health_p.CurrentHP;
-            }
-        }
+
     }
 
     private void Update()
-    {        
+    {
+        Move_ToPlayer();
+        if (health_p.CurrentHP <= 0)
+        {
+            isPlayerDie = true;
+            Boss_Position_Reset();
+        }
         if(health_m.CurrentHP <= 0)
         {
             agent.enabled = false;
@@ -201,8 +198,6 @@ public class MutantController : MonoBehaviour
         //distance 계산용
         player.transform.position = player.transform.position;
         Short_position = new Vector3(player.transform.position.x, player.transform.position.y + 4f, player.transform.position.z);
-
-        Move_ToPlayer();
         Rotate(); 
         if(distance >= 2.5f)
         {
@@ -279,6 +274,24 @@ public class MutantController : MonoBehaviour
 
     private void OnEnable()
     {
+        // TryGetComponent(out Boss_pos);
+        TryGetComponent(out Mutant);
+        StartCoroutine(Swing_Cool_co());
+        TryGetComponent(out mutantRigidbody);
+        TryGetComponent(out mutantAnimator);
+        player = GameObject.FindGameObjectWithTag("Player");
+        TryGetComponent(out agent);
+        TryGetComponent(out attackController);
+        TryGetComponent(out health_m);
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            health_p = player.GetComponent<Health>();
+            if (player != null)
+            {
+                float currentHP = health_p.CurrentHP;
+            }
+        }
         #region Enable InputActions
         move.performed += OnMovePerformed;
         move.canceled += OnMoveCanceled;
@@ -321,12 +334,15 @@ public class MutantController : MonoBehaviour
         ragdollTest.Enable();
         #endregion
         health_m.OnDead += OpenDoor;
+        health_m.CurrentHP = health_m.MaxHP;
+        health_p.OnRevive += Boss_Reset;
+
+
     }
 
     private  void OpenDoor()
     {
         door.enabled = true;
-
     }
 
     private void OnDisable()
@@ -371,6 +387,8 @@ public class MutantController : MonoBehaviour
         ragdollTest.Disable();
         #endregion
         health_m.OnDead -= OpenDoor;
+        health_p.OnRevive -= Boss_Reset;
+
     }
 
     private Vector2 desiredMove;
@@ -1038,6 +1056,19 @@ private void Dash_Att()
         On_Clear_DollyCamera_.SetActive(true);
         yield return new WaitForSeconds(3f);
         On_Clear_DollyCamera_.SetActive(false);
+    }
+
+    public void Boss_Reset()
+    {
+        boss_btn.SetActive(false);
+        Destroy(gameObject);
+    }
+
+    private void Boss_Position_Reset()
+    {
+        isPlayerDie = false;
+        gameObject.transform.position = positionToTeleport;
+        gameObject.transform.rotation = RotationToTeleport;
     }
 
 }
