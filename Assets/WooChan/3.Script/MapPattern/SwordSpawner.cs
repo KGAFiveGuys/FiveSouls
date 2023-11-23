@@ -124,5 +124,18 @@ public class SwordSpawner : MonoBehaviour
 
         }
     }
+
+    public void ResetSword()
+    {
+        Sword1.SetActive(false);
+        Sword2.SetActive(false);
+        Sword3.SetActive(false);
+        Sword4.SetActive(false);
+        Sword5.SetActive(false);
+        StartTime = 0f;
+        ExplosionTime = 0f;
+        FireTime = 0f;
+        DeleteTime = 0f;
+    }
 }
 

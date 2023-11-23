@@ -309,6 +309,9 @@ public class PlayerController : MonoBehaviour
 
 	private void Start()
     {
+        if (respawnManager == null)
+            SetRespawnManager();
+
         var cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
         cinemachineBrain.m_UpdateMethod = CinemachineBrain.UpdateMethod.SmartUpdate;
 

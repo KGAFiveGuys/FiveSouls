@@ -9,6 +9,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Health))]
 public class UnityChanAI : MonoBehaviour
 {
+    [SerializeField] SwordSpawner SP;
     [SerializeField] private Collider hitCollider;
     private AttackController attackController;
     private Animator animator;
@@ -59,7 +60,7 @@ public class UnityChanAI : MonoBehaviour
     [SerializeField] private bool isWalk_R = false;
     [SerializeField] private bool isWalk_L = false;
 
-    [SerializeField] private GameObject Target = null;
+    [SerializeField] private GameObject Target;
     [SerializeField] private float TargetDistance = 0f;
     [SerializeField] private float WalkSpeed = 4f;
     [SerializeField] private float RunSpeed = 50f;
@@ -99,26 +100,21 @@ public class UnityChanAI : MonoBehaviour
     private bool isMove = false;
     private int P_layer;
 
+    private Vector3 DefaultPos;
+
     private void Awake()
     {
         TryGetComponent(out attackController);
         TryGetComponent(out animator);
         TryGetComponent(out fury);
+        DefaultPos = transform.position;
     }
 
     private void Start()
     {
-        P_layer = LayerMask.GetMask("Player", "Ghost");
-
-        MiddlePatternTime = Random.Range(3, 5);
-        NearPatternTime = Random.Range(1f, 2f);
-
-        AlphaZero = new Color(0, 0, 0, 0);
-        SwordColor = new Color(0, 0, 0, 1);
-
-        StartCoroutine(DecidePattern());
+        UnityChanReset();
+        Target.GetComponent<Health>().OnRevive += UnityChanReset;
     }
-
 
     private void FixedUpdate()
     {
@@ -937,6 +933,27 @@ public class UnityChanAI : MonoBehaviour
         }
     }
     //--------------------------------------------AuraSlash
+
+    public void UnityChanReset()
+    {
+        Target.GetComponent<Health>().OnRevive -= UnityChanReset;
+        Target.GetComponent<Health>().OnRevive += UnityChanReset;
+        SP.ResetSword();
+        _Health.CurrentHP = _Health.MaxHP;
+        transform.position = DefaultPos;
+        //Target = null;
+        P_layer = LayerMask.GetMask("Player", "Ghost");
+        fury.CurrentFuryGauge = 0;
+
+        MiddlePatternTime = Random.Range(3, 5);
+        NearPatternTime = Random.Range(1f, 2f);
+
+        AlphaZero = new Color(0, 0, 0, 0);
+        SwordColor = new Color(0, 0, 0, 1);
+        
+        StopAllCoroutines();
+        StartCoroutine(DecidePattern());
+    }
 
     private void OnDrawGizmos()
     {

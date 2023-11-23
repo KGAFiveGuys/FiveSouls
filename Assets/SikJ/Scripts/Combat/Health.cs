@@ -7,7 +7,7 @@ public class Health : MonoBehaviour
 {
     [field:Header("Value")]
     [field:SerializeField] public float MaxHP { get; private set; } = 100f;
-    public float CurrentHP { get; private set; }
+    public float CurrentHP { get; set; }
     [field:SerializeField] public AttackType LastHitType { get; set; }
 
     /// <summary>
