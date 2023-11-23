@@ -1061,7 +1061,27 @@ private void Dash_Att()
     public void Boss_Reset()
     {
         boss_btn.SetActive(false);
-        Destroy(gameObject);
+        gameObject.SetActive(false);
+        //ÄðÅ¸ÀÓ¿ë bool°ª 
+        isDash = false;
+        isSmash = false;
+        isSwing = false;
+        _isRun = false;
+        isRock = false;
+        isHowling = false;
+        //isDance = false;
+        isGroggy = false;
+        isDie = false;
+        isPlayerDie = false;
+        isAction = false;
+        mutantAnimator.ResetTrigger("Groggy");
+        mutantAnimator.ResetTrigger("ThrowRock");
+        mutantAnimator.ResetTrigger("Smash");
+        mutantAnimator.ResetTrigger("Swing");
+        mutantAnimator.ResetTrigger("Dash");
+        mutantAnimator.ResetTrigger("Howling");
+        
+
     }
 
     private void Boss_Position_Reset()
