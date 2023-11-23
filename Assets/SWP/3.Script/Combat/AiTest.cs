@@ -85,28 +85,30 @@ public class AiTest : MonoBehaviour
 
         playerHUDController = FindObjectOfType<PlayerHUDController>();
         playerController = FindObjectOfType<PlayerController>();
+        playerHealth = playerController.gameObject.GetComponent<Health>();
         BossSpawnPos = transform.position;
         BossSpawnRot = transform.rotation;
-        playerHealth = playerController.gameObject.GetComponent<Health>();
     }
 
-    private void OnEnable()
-    {
-        playerHealth.OnRevive += BossSetting;
-    }
-
-    private void BossSetting()
+    public void BossSetting()
     {
         transform.position = BossSpawnPos;
         transform.rotation = BossSpawnRot;
         bossHealth.GetHeal(bossHealth.MaxHP);
+        distance = 100f;
+        Timer = 0f;
+        isAttack = false;
+        isLook = false;
+        isFar = false;
+        isMiddle = false;
+        isClose = false;
+        isAngry = true;
+        timestart = false;
+        HulkAnimator.ResetTrigger("NormalAttack");
+        HulkAnimator.ResetTrigger("StrongAttack");
+        HulkAnimator.ResetTrigger("Sliding");
+        HulkAnimator.ResetTrigger("Angry");
     }
-
-    private void OnDisable()
-    {
-        playerHealth.OnRevive -= BossSetting;
-    }
-
 
     private void Start()
 	{
