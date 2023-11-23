@@ -99,7 +99,7 @@ public class AiTest : MonoBehaviour
     {
         transform.position = BossSpawnPos;
         transform.rotation = BossSpawnRot;
-        bossHealth.CurrentHP = bossHealth.MaxHP;
+        bossHealth.GetHeal(bossHealth.MaxHP);
     }
 
     private void OnDisable()
