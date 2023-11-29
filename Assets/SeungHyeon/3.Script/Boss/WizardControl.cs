@@ -64,8 +64,11 @@ public class WizardControl : MonoBehaviour
     [Header("위자드 상태창")]
     [SerializeField] public Wizardinfo wizardinfo;
 
+    private PlayerHUDController playerHUDController;
+
     private void Awake()
     {
+        playerHUDController = FindObjectOfType<PlayerHUDController>();
         portal = FindObjectOfType<Portal>();
         health = GetComponentInParent<Health>();
         wizardinfo.ChaseTarget = FindObjectOfType<PlayerController>().gameObject;
@@ -78,6 +81,11 @@ public class WizardControl : MonoBehaviour
         MagicImage = Instantiate(MagicImage, FindObjectOfType<PlayerHUDController>().transform);
         MagicImage.SetActive(false);
         ReadyEffect.SetActive(false);
+    }
+
+    private void Start()
+    {
+        health.OnDead += playerHUDController.ShowEnemyDied;
     }
 
     private void OnEnable()

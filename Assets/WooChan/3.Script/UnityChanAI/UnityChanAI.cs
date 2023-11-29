@@ -102,8 +102,10 @@ public class UnityChanAI : MonoBehaviour
 
     private Vector3 DefaultPos;
 
+    private PlayerHUDController playerHUDController;
     private void Awake()
     {
+        playerHUDController = FindObjectOfType<PlayerHUDController>();
         TryGetComponent(out attackController);
         TryGetComponent(out animator);
         TryGetComponent(out fury);
@@ -112,6 +114,7 @@ public class UnityChanAI : MonoBehaviour
 
     private void Start()
     {
+        _Health.OnDead += playerHUDController.ShowEnemyDied;
         UnityChanReset();
         Target.GetComponent<Health>().OnRevive += UnityChanReset;
     }

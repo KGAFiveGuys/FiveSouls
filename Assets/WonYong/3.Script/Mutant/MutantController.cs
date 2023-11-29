@@ -171,11 +171,17 @@ public class MutantController : MonoBehaviour
     [SerializeField] private List<Rigidbody> ragdollRigidbodies = new List<Rigidbody>();
     #endregion
 
-
     Vector3 Short_position;
+
+    private PlayerHUDController playerHUDController;
     private void Awake()
     {
+        playerHUDController = FindObjectOfType<PlayerHUDController>();
+    }
 
+    private void Start()
+    {
+        health_m.OnDead += playerHUDController.ShowEnemyDied;
     }
 
     private void Update()

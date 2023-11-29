@@ -199,6 +199,7 @@ public class SFXManager : MonoBehaviour
             GameObject gameObject = Instantiate(AudioSourcePrefab, transform);
             var audio = gameObject.GetComponent<AudioSource>();
             audio.outputAudioMixerGroup = BGMGroup;
+            audio.loop = true;
             BGM_AudioSources.Add(audio);
         }
 
@@ -221,7 +222,6 @@ public class SFXManager : MonoBehaviour
         for (int i = 0; i < BGM_AudioSourceCount; i++)
         {
             var audioSource = BGM_AudioSources[BGMTurnCounter];
-            audioSource.loop = true;
             if (!audioSource.isPlaying)
             {
                 StartCoroutine(StartPlay(audioSource, bgm, bgm.clip.length, true));
@@ -292,8 +292,11 @@ public class SFXManager : MonoBehaviour
         source.volume = sfx.volumeOverTime.Evaluate(duration);
 
         // Stop Play
-        source.Stop();
-        StartCoroutine(RestoreVolume(source));
+        if (!source.loop)
+        {
+            source.Stop();
+            StartCoroutine(RestoreVolume(source));
+        }
     }
 
     private IEnumerator RestoreVolume(AudioSource audioSource)

@@ -1286,39 +1286,39 @@ public class PlayerController : MonoBehaviour
         TargetGroup.AddMember(transform, 30, 50f);
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(transform.position, enemyDetectDistance);
 
-        Gizmos.color = Color.black;
-        Gizmos.DrawWireSphere(transform.position, lockOnLimitDistance);
+    //    Gizmos.color = Color.black;
+    //    Gizmos.DrawWireSphere(transform.position, lockOnLimitDistance);
 
-        Gizmos.color = Color.magenta;
-        if (IsLockOn)
-        {
-            // Debug detect enemy line of sight
-            Gizmos.DrawLine(transform.position, new Vector3(
-                LockedOnEnemy.transform.position.x,
-                0,
-                LockedOnEnemy.transform.position.z
-            ));
-        }
-        else
-        {
-            // Debug detect enemy line of sight
-            var playerGroundPos = new Vector3(
-                transform.position.x,
-                0,
-                transform.position.z
-            );
-            var cameraGroundPos = new Vector3(
-                Camera.main.transform.position.x,
-                0,
-                Camera.main.transform.position.z
-            );
-            Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
-            Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
-        }
-    }
+    //    Gizmos.color = Color.magenta;
+    //    if (IsLockOn)
+    //    {
+    //        // Debug detect enemy line of sight
+    //        Gizmos.DrawLine(transform.position, new Vector3(
+    //            LockedOnEnemy.transform.position.x,
+    //            0,
+    //            LockedOnEnemy.transform.position.z
+    //        ));
+    //    }
+    //    else
+    //    {
+    //        // Debug detect enemy line of sight
+    //        var playerGroundPos = new Vector3(
+    //            transform.position.x,
+    //            0,
+    //            transform.position.z
+    //        );
+    //        var cameraGroundPos = new Vector3(
+    //            Camera.main.transform.position.x,
+    //            0,
+    //            Camera.main.transform.position.z
+    //        );
+    //        Vector3 cameraToPlayer = playerGroundPos - cameraGroundPos;
+    //        Gizmos.DrawLine(cameraGroundPos, cameraToPlayer.normalized * enemyDetectDistance);
+    //    }
+    //}
 }
